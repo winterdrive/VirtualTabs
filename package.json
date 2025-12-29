@@ -2,7 +2,7 @@
     "name": "virtual-tabs",
     "displayName": "%extension.displayName%",
     "description": "%extension.description%",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "publisher": "winterdrive",
     "icon": "assets/virtualtabs_icon_128.png",
     "categories": [
@@ -46,6 +46,16 @@
         "onStartupFinished"
     ],
     "contributes": {
+        "configuration": {
+            "title": "Virtual Tabs",
+            "properties": {
+                "virtualTabs.confirmBeforeDelete": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "%config.confirmBeforeDelete.description%"
+                }
+            }
+        },
         "viewsContainers": {
             "activitybar": [
                 {
