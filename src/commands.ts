@@ -293,8 +293,7 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
             const choice = await vscode.window.showWarningMessage(
                 message,
                 { modal: true },
-                I18n.getMessage('confirm.delete'),
-                I18n.getMessage('confirm.cancel')
+                I18n.getMessage('confirm.delete')
             );
 
             if (choice === I18n.getMessage('confirm.delete')) {
@@ -418,8 +417,7 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
             const choice = await vscode.window.showWarningMessage(
                 message,
                 { modal: true },
-                I18n.getMessage('confirm.delete'),
-                I18n.getMessage('confirm.cancel')
+                I18n.getMessage('confirm.delete')
             );
 
             if (choice === I18n.getMessage('confirm.delete')) {
@@ -648,8 +646,7 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
             const choice = await vscode.window.showWarningMessage(
                 message,
                 { modal: true },
-                I18n.getMessage('confirm.remove'),
-                I18n.getMessage('confirm.cancel')
+                I18n.getMessage('confirm.remove')
             );
 
             if (choice === I18n.getMessage('confirm.remove')) {
