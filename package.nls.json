@@ -40,5 +40,6 @@
     "command.removeBookmark.title": "Remove Bookmark",
     "submenu.sortFiles.label": "Sort Files",
     "command.copyGroupContext.title": "Copy Context for AI",
-    "command.copyGroupPaths.title": "Copy File Paths"
+    "command.copyGroupPaths.title": "Copy File Paths",
+    "config.confirmBeforeDelete.description": "Show confirmation dialog before deleting groups or files"
 }

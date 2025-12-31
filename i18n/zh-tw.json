@@ -49,5 +49,14 @@
     "message.pathsCopied": "檔案路徑已複製到剪貼簿！",
     "message.contextTooLargeOpenEditor": "內容過大 ({0}MB)，已在編輯器中開啟而非複製。",
     "error.tooManyFiles": "正在處理 {0} 個檔案...",
-    "error.cannotOpenEditor": "無法開啟新的編輯器視窗。"
+    "error.cannotOpenEditor": "無法開啟新的編輯器視窗。",
+    "confirm.deleteGroup": "確定要刪除群組「{0}」嗎？",
+    "confirm.deleteGroups": "確定要刪除 {0} 個群組及其子群組嗎？",
+    "confirm.deleteFile": "確定要從群組中移除檔案「{0}」嗎？",
+    "confirm.deleteFiles": "確定要從群組中移除 {0} 個檔案嗎？",
+    "confirm.removeFile": "確定要從群組中移除檔案「{0}」嗎？",
+    "confirm.removeFiles": "確定要從群組中移除 {0} 個檔案嗎？",
+    "confirm.delete": "刪除",
+    "confirm.remove": "移除",
+    "confirm.cancel": "取消"
 }

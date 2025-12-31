@@ -49,5 +49,14 @@
     "message.pathsCopied": "File paths copied to clipboard!",
     "message.contextTooLargeOpenEditor": "Content is large ({0}MB). Opened in editor instead of copying.",
     "error.tooManyFiles": "Processing {0} files...",
-    "error.cannotOpenEditor": "Failed to open new editor window."
+    "error.cannotOpenEditor": "Failed to open new editor window.",
+    "confirm.deleteGroup": "Are you sure you want to delete group \"{0}\"?",
+    "confirm.deleteGroups": "Are you sure you want to delete {0} groups and their sub-groups?",
+    "confirm.deleteFile": "Are you sure you want to remove file \"{0}\" from the group?",
+    "confirm.deleteFiles": "Are you sure you want to remove {0} files from the group?",
+    "confirm.removeFile": "Are you sure you want to remove file \"{0}\" from the group?",
+    "confirm.removeFiles": "Are you sure you want to remove {0} files from the group?",
+    "confirm.delete": "Delete",
+    "confirm.remove": "Remove",
+    "confirm.cancel": "Cancel"
 }

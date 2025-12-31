@@ -49,5 +49,14 @@
     "message.pathsCopied": "文件路径已复制到剪贴板！",
     "message.contextTooLargeOpenEditor": "内容过大 ({0}MB)，已在编辑器中打开而非复制。",
     "error.tooManyFiles": "正在处理 {0} 个文件...",
-    "error.cannotOpenEditor": "无法打开新的编辑器窗口。"
+    "error.cannotOpenEditor": "无法打开新的编辑器窗口。",
+    "confirm.deleteGroup": "确定要删除群组「{0}」吗？",
+    "confirm.deleteGroups": "确定要删除 {0} 个群组及其子群组吗？",
+    "confirm.deleteFile": "确定要从群组中移除文件「{0}」吗？",
+    "confirm.deleteFiles": "确定要从群组中移除 {0} 个文件吗？",
+    "confirm.removeFile": "确定要从群组中移除文件「{0}」吗？",
+    "confirm.removeFiles": "确定要从群组中移除 {0} 个文件吗？",
+    "confirm.delete": "删除",
+    "confirm.remove": "移除",
+    "confirm.cancel": "取消"
 }

@@ -252,7 +252,7 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
     }));
 
     // Register remove group command (supports multi-select)
-    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeGroup', (item: TempFolderItem, selectedItems?: TempFolderItem[]) => {
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeGroup', async (item: TempFolderItem, selectedItems?: TempFolderItem[]) => {
         // Check if multiple groups are selected
         const itemsToRemove: TempFolderItem[] = [];
 
@@ -266,26 +266,42 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
 
         if (itemsToRemove.length === 0) return;
 
-        // Confirm deletion if multiple groups
-        if (itemsToRemove.length > 1) {
-            const message = `Delete ${itemsToRemove.length} groups and their sub-groups?`;
-            vscode.window.showWarningMessage(message, 'Delete', 'Cancel').then(choice => {
-                if (choice === 'Delete') {
-                    for (const groupItem of itemsToRemove) {
-                        if (groupItem.groupId) {
-                            provider.removeGroupById(groupItem.groupId);
-                        }
-                    }
+        // Check user preference for confirmation
+        const config = vscode.workspace.getConfiguration('virtualTabs');
+        const confirmBeforeDelete = config.get<boolean>('confirmBeforeDelete', true);
+
+        const executeDelete = () => {
+            for (const groupItem of itemsToRemove) {
+                if (groupItem.groupId) {
+                    provider.removeGroupById(groupItem.groupId);
+                } else if (typeof groupItem.groupIdx === 'number') {
+                    provider.removeGroup(groupItem.groupIdx);
                 }
-            });
-        } else {
-            // Single deletion
-            const groupItem = itemsToRemove[0];
-            if (groupItem.groupId) {
-                provider.removeGroupById(groupItem.groupId);
-            } else if (typeof groupItem.groupIdx === 'number') {
-                provider.removeGroup(groupItem.groupIdx);
             }
+        };
+
+        // Show confirmation dialog if enabled
+        if (confirmBeforeDelete) {
+            const groupLabel = typeof itemsToRemove[0].label === 'string'
+                ? itemsToRemove[0].label
+                : (itemsToRemove[0].label?.label || '');
+
+            const message = itemsToRemove.length > 1
+                ? I18n.getMessage('confirm.deleteGroups', itemsToRemove.length.toString())
+                : I18n.getMessage('confirm.deleteGroup', groupLabel);
+
+            const choice = await vscode.window.showWarningMessage(
+                message,
+                { modal: true },
+                I18n.getMessage('confirm.delete')
+            );
+
+            if (choice === I18n.getMessage('confirm.delete')) {
+                executeDelete();
+            }
+        } else {
+            // No confirmation needed, delete directly
+            executeDelete();
         }
     }));
 
@@ -366,7 +382,7 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
     }));
 
     // File right-click "delete" is changed to remove from group
-    context.subscriptions.push(vscode.commands.registerCommand('deleteFile', (item: TempFileItem, selectedItems?: TempFileItem[]) => {
+    context.subscriptions.push(vscode.commands.registerCommand('deleteFile', async (item: TempFileItem, selectedItems?: TempFileItem[]) => {
         // Handle calls from browser or file explorer, forward to original command
         if (!(item instanceof TempFileItem)) {
             vscode.commands.executeCommand('workbench.action.files.delete');
@@ -375,18 +391,42 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
 
         // Check if multiple files are selected
         const allSelectedItems = provider.getSelectedFileItems();
-        if (allSelectedItems.length > 1) {
-            // Multiple files selected, execute multi-select removal
-            provider.removeFilesFromGroup(item.groupIdx, allSelectedItems);
-            return;
+        const filesToRemove = allSelectedItems.length > 1 ? allSelectedItems : [item];
+
+        // Check user preference for confirmation
+        const config = vscode.workspace.getConfiguration('virtualTabs');
+        const confirmBeforeDelete = config.get<boolean>('confirmBeforeDelete', true);
+
+        const executeDelete = () => {
+            if (filesToRemove.length > 1) {
+                provider.removeFilesFromGroup(item.groupIdx, filesToRemove);
+            } else {
+                const group = provider.groups[item.groupIdx];
+                if (!group || !group.files) return;
+                group.files = group.files.filter(uri => uri !== item.uri.toString());
+                provider.refresh();
+            }
+        };
+
+        // Show confirmation dialog if enabled
+        if (confirmBeforeDelete) {
+            const message = filesToRemove.length > 1
+                ? I18n.getMessage('confirm.deleteFiles', filesToRemove.length.toString())
+                : I18n.getMessage('confirm.deleteFile', vscode.workspace.asRelativePath(item.uri));
+
+            const choice = await vscode.window.showWarningMessage(
+                message,
+                { modal: true },
+                I18n.getMessage('confirm.delete')
+            );
+
+            if (choice === I18n.getMessage('confirm.delete')) {
+                executeDelete();
+            }
+        } else {
+            // No confirmation needed, delete directly
+            executeDelete();
         }
-
-        // Single file handling
-        const group = provider.groups[item.groupIdx];
-        if (!group || !group.files) return;
-
-        group.files = group.files.filter(uri => uri !== item.uri.toString());
-        provider.refresh();
     }));
 
     // Handle opening multiple selected files
@@ -554,41 +594,67 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
     }));
 
     // Remove single file from group
-    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeFileFromGroup', (item: TempFileItem, selectedItems?: TempFileItem[]) => {
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeFileFromGroup', async (item: TempFileItem, selectedItems?: TempFileItem[]) => {
         const filesToRemove = (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0)
             ? selectedItems
             : (item ? [item] : []);
 
         if (filesToRemove.length === 0) return;
 
-        let hasChanges = false;
+        // Check user preference for confirmation
+        const config = vscode.workspace.getConfiguration('virtualTabs');
+        const confirmBeforeDelete = config.get<boolean>('confirmBeforeDelete', true);
 
-        for (const fileItem of filesToRemove) {
-            if (!(fileItem instanceof TempFileItem)) continue;
+        const executeRemove = () => {
+            let hasChanges = false;
 
-            const groupIdx = fileItem.groupIdx;
-            const group = provider.groups[groupIdx];
+            for (const fileItem of filesToRemove) {
+                if (!(fileItem instanceof TempFileItem)) continue;
 
-            if (group && group.files) {
-                const fileUri = fileItem.uri.toString();
-                const originalLength = group.files.length;
-                group.files = group.files.filter(uri => uri !== fileUri);
+                const groupIdx = fileItem.groupIdx;
+                const group = provider.groups[groupIdx];
 
-                if (group.files.length < originalLength) {
-                    hasChanges = true;
-                    // Remove associated bookmarks
-                    if (group.bookmarks && group.bookmarks[fileUri]) {
-                        delete group.bookmarks[fileUri];
-                        if (Object.keys(group.bookmarks).length === 0) {
-                            delete group.bookmarks;
+                if (group && group.files) {
+                    const fileUri = fileItem.uri.toString();
+                    const originalLength = group.files.length;
+                    group.files = group.files.filter(uri => uri !== fileUri);
+
+                    if (group.files.length < originalLength) {
+                        hasChanges = true;
+                        // Remove associated bookmarks
+                        if (group.bookmarks && group.bookmarks[fileUri]) {
+                            delete group.bookmarks[fileUri];
+                            if (Object.keys(group.bookmarks).length === 0) {
+                                delete group.bookmarks;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (hasChanges) {
-            provider.refresh();
+            if (hasChanges) {
+                provider.refresh();
+            }
+        };
+
+        // Show confirmation dialog if enabled
+        if (confirmBeforeDelete) {
+            const message = filesToRemove.length > 1
+                ? I18n.getMessage('confirm.removeFiles', filesToRemove.length.toString())
+                : I18n.getMessage('confirm.removeFile', vscode.workspace.asRelativePath(filesToRemove[0].uri));
+
+            const choice = await vscode.window.showWarningMessage(
+                message,
+                { modal: true },
+                I18n.getMessage('confirm.remove')
+            );
+
+            if (choice === I18n.getMessage('confirm.remove')) {
+                executeRemove();
+            }
+        } else {
+            // No confirmation needed, remove directly
+            executeRemove();
         }
     }));
 
