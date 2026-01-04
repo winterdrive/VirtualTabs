@@ -23,3 +23,4 @@ tsconfig.json
 *.tmp
 
 CR/*
+docs/specs/**

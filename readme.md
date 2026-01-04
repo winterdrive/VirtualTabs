@@ -1,22 +1,28 @@
-# VirtualTabs 🗂️
+# VirtualTabs – VS Code Extension for Virtual Tabs & Custom File Grouping
 
-> **[繁體中文](README.zh-TW.md)** | English
-
-![VirtualTabs Hero Banner](assets/hero_banner.png)
-
-**Organize your workflow beyond folder limitations. Build AI-ready contexts and logical file groups.**
-
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/winterdrive.virtual-tabs?style=flat-square&label=VS%20Code%20Marketplace&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/winterdrive.virtual-tabs?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/winterdrive.virtual-tabs)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/winterdrive.virtual-tabs)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/winterdrive.virtual-tabs?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
+
+[繁體中文](./README.zh-TW.md) | [English](./readme.md)
+
+![VirtualTabs - VS Code File Grouping and AI Context Extension](docs/assets/vscode-virtualtabs-grouping-banner.png)
 
 ---
 
-## 🎯 What is VirtualTabs?
+## 🚀 What is VirtualTabs?
 
-VirtualTabs is a **logical file organizer** for VS Code that lets you group related files regardless of their physical location. Perfect for managing complex tasks and **curating precise context for AI coding assistants**.
+**VirtualTabs is a VS Code extension that allows developers to organize files into persistent, custom virtual tab groups across directories.** Unlike standard tabs, VirtualTabs helps you build **AI-ready coding contexts** and logical file groups that stay organized even when you close VS Code. It is designed to improve navigation for large monorepos and enhance task-based workflows.
 
-> *"Don't just save tabs—organize your workflow."*
+---
+
+### ⚡ VirtualTabs vs. Native VS Code Tabs
+
+| Feature | Native VS Code Tabs | VirtualTabs Extension |
+| :--- | :--- | :--- |
+| **Persistence** | Cleared on session close | **Saved permanently** per workspace |
+| **Grouping** | Folder-based only | **Logic-based** (Cross-directory support) |
+| **AI Context** | Hard to gather manually | **One-click context generation** for LLMs |
 
 ---
 
@@ -43,7 +49,7 @@ VirtualTabs is a **logical file organizer** for VS Code that lets you group rela
 
 ## ⚡ Latest Highlights
 
-![Latest Features](assets/feature_032_preview.png)
+![Latest Features](docs/assets/feature_032_preview.png)
 
 **v0.3.3** enhances user experience:
 
@@ -82,7 +88,7 @@ VirtualTabs is a **logical file organizer** for VS Code that lets you group rela
 - Name your group (e.g., "AI Context", "Feature: Auth", "Bug Fix #123")
 - Right-click any group → **Add Sub-Group** for nested organization
 
-![Nested Groups](assets/nested_groups_demo.png)
+![Nested Groups](docs/assets/nested_groups_demo.png)
 
 #### Adding Files
 
@@ -91,7 +97,7 @@ VirtualTabs is a **logical file organizer** for VS Code that lets you group rela
 - **Multi-select**: Hold `Ctrl` (or `Cmd`) and click files, then drag together
 - **Currently Open**: The built-in group auto-syncs with your open tabs
 
-![Drag & Drop Demo](assets/drag_drop_demo.png)
+![Drag & Drop Demo](docs/assets/drag_drop_demo.png)
 
 #### Using Bookmarks (v0.2.0)
 
@@ -102,7 +108,7 @@ VirtualTabs is a **logical file organizer** for VS Code that lets you group rela
 
 #### AI Context Export (v0.3.0)
 
-![AI Context Export](assets/ai_context_demo.png)
+![AI Context Export](docs/assets/ai_context_demo.png)
 
 1. Right-click a group → **Copy...** → **Copy Context for AI**
 2. Paste directly into ChatGPT, Claude, or any LLM
@@ -110,7 +116,7 @@ VirtualTabs is a **logical file organizer** for VS Code that lets you group rela
 
 **Unified Copy Menu:**
 
-![Copy Menu Options](assets/copy_menu_demo.png)
+![Copy Menu Options](docs/assets/copy_menu_demo.png)
 
 All copy operations are available in one convenient submenu, with smart behavior for both groups and files.
 

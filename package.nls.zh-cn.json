@@ -1,6 +1,6 @@
 {
-    "extension.displayName": "VirtualTabs - 自定义文件分组",
-    "extension.description": "创建不受文件夹结构限制的自定义文件组。根据扩展名、项目上下文或任何条件，在侧边栏树视图中组织打开的文件。",
+    "extension.displayName": "VirtualTabs - 自定义文件分组与 AI 上下文管理",
+    "extension.description": "跨目录创建虚拟分页组，突破文件夹限制。支持一键导出 AI 上下文、持久化保存工作区设置。",
     "view.virtualTabsContainer.title": "Virtual Tabs",
     "view.virtualTabsView.name": "Virtual Tabs",
     "command.addGroup.title": "新增群组",

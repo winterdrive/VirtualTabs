@@ -1,6 +1,6 @@
 {
-    "extension.displayName": "VirtualTabs - 自訂檔案群組",
-    "extension.description": "建立不受資料夾結構限制的自訂檔案群組。依副檔名、專案脈絡或任何條件，在側邊欄樹狀視圖中整理開啟的檔案。",
+    "extension.displayName": "VirtualTabs - 自定義檔案分組與 AI 上下文管理",
+    "extension.description": "跨目錄建立虛擬分頁群組，突破資料夾限制。支援一鍵匯出 AI 上下文、持久化保存工作區設定。",
     "view.virtualTabsContainer.title": "Virtual Tabs",
     "view.virtualTabsView.name": "Virtual Tabs",
     "command.addGroup.title": "新增分群",

@@ -1,22 +1,28 @@
-# VirtualTabs 🗂️
+# VirtualTabs – VS Code 虛擬分頁與自定義檔案分組擴充套件
 
-> 繁體中文 | **[English](readme.md)**
-
-![VirtualTabs Hero Banner](assets/hero_banner.png)
-
-**突破資料夾限制，自由組織工作流程。建立 AI 就緒的上下文與邏輯檔案群組。**
-
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/winterdrive.virtual-tabs?style=flat-square&label=VS%20Code%20Marketplace&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/winterdrive.virtual-tabs?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/winterdrive.virtual-tabs)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/winterdrive.virtual-tabs)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/winterdrive.virtual-tabs?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
+
+繁體中文 | **[English](readme.md)**
+
+![VirtualTabs - VS Code File Grouping and AI Context Extension](docs/assets/vscode-virtualtabs-grouping-banner.png)
 
 ---
 
-## 🎯 什麼是 VirtualTabs？
+## 🚀 什麼是 VirtualTabs？
 
-VirtualTabs 是一個 VS Code 的**邏輯檔案組織工具**，讓您可以將相關檔案分組在一起，無論它們的實際位置在哪裡。非常適合管理複雜任務和**為 AI 編程助手策劃精確上下文**。
+**VirtualTabs 是一個 VS Code 擴充套件，在原生分頁之外，提供能跨目錄、持久保存的自定義「虛擬分頁群組」。** 不同於原生分頁，VirtualTabs 幫助您建立 **AI 就緒的編程上下文（AI-Ready Context）** 與邏輯檔案群組，即使關閉 VS Code 也能保持井然有序。專為大型 Monorepo 專案導航與任務導向工作流程設計。
 
-> *「不只是儲存分頁——組織您的工作流程。」*
+---
+
+### ⚡ VirtualTabs vs. 原生 VS Code 分頁
+
+| 功能特點 | 原生 VS Code 分頁 | VirtualTabs 擴充套件 |
+| :--- | :--- | :--- |
+| **持久性** | 關閉視窗即清除 | **永久保存** (依工作區記憶) |
+| **檔案分組** | 僅限資料夾結構 | **邏輯導向** (支援跨目錄) |
+| **AI 上下文** | 需手動一一收集 | **一鍵生成** 給 LLM 的上下文 |
 
 ---
 
@@ -43,7 +49,7 @@ VirtualTabs 是一個 VS Code 的**邏輯檔案組織工具**，讓您可以將�
 
 ## ⚡ 最新亮點
 
-![Latest Features](assets/feature_032_preview.png)
+![Latest Features](docs/assets/feature_032_preview.png)
 
 **v0.3.3** 提升使用者體驗：
 
@@ -176,7 +182,7 @@ VirtualTabs 是一個 VS Code 的**邏輯檔案組織工具**，讓您可以將�
 - **快速導航**：直接從側邊欄跳轉到特定行
 - **智慧標籤**：自動使用行內容或選取內容作為標籤
 
-![Bookmarks Feature](assets/bookmarks_feature.png)
+![Bookmarks Feature](docs/assets/bookmarks_feature.png)
 
 ### 🤖 AI 整合（v0.3.0）
 
