@@ -24,3 +24,6 @@ tsconfig.json
 
 CR/*
 docs/specs/**
+docs/index.html
+docs/robots.txt
+llms.txt
