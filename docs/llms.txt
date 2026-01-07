@@ -1,43 +1,13 @@
 # VirtualTabs
+> VirtualTabs is a VS Code extension for organizing files into persistent, cross-directory virtual groups, creating AI-ready coding contexts.
 
-> VirtualTabs is a VS Code extension for creating custom file groups independent of folder structure. It allows logical organization of files (e.g., by type, module, task) to enhance development productivity via a sidebar tree view. This makes it particularly well-suited for managing collections of files related to specific tasks, features, or bug fixes—especially when these files are scattered across multiple issues or directories, or when streamlining workflows for AI-assisted development.
+VirtualTabs helps developers manage complex workspaces by grouping related files regardless of their location on disk, ensuring that logical context is preserved even after closing the editor.
 
-## Core Functionality & Source Code
+## Documentation
+- [README](https://raw.githubusercontent.com/winterdrive/VirtualTabs/main/readme.md): Core features, installation, and usage guide.
+- [Development Guide](https://raw.githubusercontent.com/winterdrive/VirtualTabs/main/DEVELOPMENT.md): Setup, architecture, and contribution instructions.
+- [Changelog](https://raw.githubusercontent.com/winterdrive/VirtualTabs/main/CHANGELOG.md): History of releases and updates.
+- [Full Context Documentation](https://winterdrive.github.io/VirtualTabs/llms-full.txt): A single file containing the full text of all critical documentation.
 
-- `/src/extension.ts` - Main extension activation and command registration.
-- `/src/provider.ts` - Implements the TreeDataProvider for the VirtualTabs view.
-- `/src/treeItems.ts` - Defines the structure of items (groups, files) in the tree view.
-- `/src/commands.ts` - Contains the logic for various commands (add group, add file, etc.).
-- `/src/dragAndDrop.ts` - Handles drag and drop functionality for organizing files and groups.
-- `/src/types.ts` - TypeScript type definitions used throughout the extension.
-- `/src/i18n.ts` - Handles internationalization and loading of language strings.
-- `/src/index.ts` - Often an entry point or re-exporter for modules within `src/`.
-
-
-## Key Documentation & Guides
-
-- `/readme.md` - Comprehensive overview, features, usage, FAQ, and contribution guidelines.
-- `/DEVELOPMENT.md` - Guide for developers wanting to contribute, including setup, debugging, and module structure.
-- `/I18N.md` - Information on internationalization and how to contribute new language translations.
-
-## Configuration & Manifest
-
-- `/package.json` - Extension manifest: defines contributions, activation events, dependencies, and scripts.
-- `/package.nls.json` - Default localization strings (English).
-- `/i18n/` - Directory containing localization files for other languages (e.g., `en.json`, `zh-cn.json`, `zh-tw.json`).
-- `/tsconfig.json` - TypeScript compiler configuration.
-
-## Assets & Resources
-
-- `/assets/` - Contains images and icons used by the extension (e.g., `demo.png`, `virtualtabs_icon.svg`).
-
-## Usage & Examples
-
-- Review the "Installation & Usage" and "Use Cases" sections in `/readme.md`.
-- The `assets/demo.png` (linked in `readme.md`) shows the UI in action.
-
-## Contribution & Development
-
-- `/DEVELOPMENT.md` - Primary guide for setting up the development environment and contributing.
-- `/LICENSE` - Project's license information.
-- `.gitignore` - Specifies intentionally untracked files that Git should ignore.
+## Optional
+- [Internationalization](https://raw.githubusercontent.com/winterdrive/VirtualTabs/main/I18N.md): Details on language support and translations.
