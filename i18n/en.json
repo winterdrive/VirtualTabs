@@ -58,5 +58,9 @@
     "confirm.removeFiles": "Are you sure you want to remove {0} files from the group?",
     "confirm.delete": "Delete",
     "confirm.remove": "Remove",
-    "confirm.cancel": "Cancel"
+    "confirm.cancel": "Cancel",
+    "message.configReloaded": "VirtualTabs: Config reloaded successfully.",
+    "message.configDeleted": "VirtualTabs: Config file deleted. Groups reset to default.",
+    "error.loadConfigFailed": "Failed to load virtualTab.json",
+    "error.invalidConfigFormat": "Invalid format in virtualTab.json. Please check the file structure."
 }

@@ -70,6 +70,24 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // Register all commands
     registerCommands(context, provider);
+
+    // Watch for .vscode/virtualTab.json changes
+    const configPath = vscode.workspace.workspaceFolders?.[0]
+        ? new vscode.RelativePattern(vscode.workspace.workspaceFolders[0], '.vscode/virtualTab.json')
+        : null;
+
+    if (configPath) {
+        const watcher = vscode.workspace.createFileSystemWatcher(configPath);
+        watcher.onDidChange(() => provider.onExternalFileChange());
+        watcher.onDidCreate(() => provider.onExternalFileChange());
+        watcher.onDidDelete(() => {
+            console.log('VirtualTabs: Config file deleted, resetting to default state...');
+            provider.resetToDefault();
+            const msg = I18n.getMessage('message.configDeleted') || 'VirtualTabs: Config file deleted. Groups reset to default.';
+            vscode.window.showWarningMessage(msg);
+        });
+        context.subscriptions.push(watcher);
+    }
 }
 
 /**

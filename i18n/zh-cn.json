@@ -58,5 +58,9 @@
     "confirm.removeFiles": "确定要从群组中移除 {0} 个文件吗？",
     "confirm.delete": "删除",
     "confirm.remove": "移除",
-    "confirm.cancel": "取消"
+    "confirm.cancel": "取消",
+    "message.configReloaded": "VirtualTabs: 配置已重新加载",
+    "message.configDeleted": "VirtualTabs: 配置文件已删除，群组已重置为默认状态。",
+    "error.loadConfigFailed": "加载 virtualTab.json 失败",
+    "error.invalidConfigFormat": "virtualTab.json 格式错误，请检查文件结构。"
 }

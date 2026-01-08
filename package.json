@@ -2,7 +2,7 @@
     "name": "virtual-tabs",
     "displayName": "%extension.displayName%",
     "description": "%extension.description%",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "publisher": "winterdrive",
     "icon": "docs/assets/virtualtabs_icon_128.png",
     "categories": [
@@ -69,7 +69,7 @@
                 {
                     "id": "virtualTabsContainer",
                     "title": "%view.virtualTabsContainer.title%",
-                    "icon": "assets/virtualtabs_icon_gray.svg"
+                    "icon": "docs/assets/virtualtabs_icon_gray.svg"
                 }
             ]
         },
@@ -78,7 +78,7 @@
                 {
                     "id": "virtualTabsView",
                     "name": "%view.virtualTabsView.name%",
-                    "icon": "assets/virtualtabs_icon_gray.svg",
+                    "icon": "docs/assets/virtualtabs_icon_gray.svg",
                     "dragAndDrop": true
                 }
             ]

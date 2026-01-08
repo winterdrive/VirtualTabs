@@ -16,14 +16,15 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
     // In-memory group array
     public groups: TempGroup[] = [];
     private expandedGroupIds: Set<string> = new Set();
-    private context?: vscode.ExtensionContext;
     private treeView?: vscode.TreeView<vscode.TreeItem>;
 
     // Debounce timer for saving groups to reduce disk I/O
     private saveDebounceTimer: ReturnType<typeof setTimeout> | undefined;
 
+    // Flag to ignore file system events triggered by the extension itself
+    private isInternalSaving: boolean = false;
+
     constructor(context?: vscode.ExtensionContext) {
-        this.context = context;
         this.loadGroups();
         if (this.groups.length === 0) {
             this.initBuiltInGroup();
@@ -99,25 +100,111 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             }
 
             const storageGroups = this.toStorageGroups(this.groups);
+
+            // Set flag to ignore the next file system event
+            this.isInternalSaving = true;
             fs.writeFileSync(filePath, JSON.stringify(storageGroups, null, 2), 'utf8');
+
+            // Reset flag after a short delay to ensure the event is captured
+            setTimeout(() => {
+                this.isInternalSaving = false;
+            }, 500);
         } catch (error) {
+            this.isInternalSaving = false;
             console.error('Failed to save VirtualTabs data file:', error);
         }
     }
 
-    private loadGroups() {
+    /**
+     * Handle external changes to the data file
+     */
+    public onExternalFileChange() {
+        if (this.isInternalSaving) {
+            return;
+        }
+
+        console.log('VirtualTabs: Detected external change to virtualTab.json, reloading UI...');
+
+        // Option A: Silent reload of UI
+        const success = this.loadGroups();
+        if (success) {
+            this.refresh(false); // UI only, do NOT save back to disk to avoid overwriting user's manual edit
+
+            // Use a persistent status bar message
+            const msg = I18n.getMessage('message.configReloaded') || 'VirtualTabs: Config reloaded';
+            vscode.window.showInformationMessage(msg); // Shift to notification because status bar is too subtle/volatile
+        }
+    }
+
+    /**
+     * Reset groups to default state (called when config file is deleted)
+     */
+    public resetToDefault() {
+        console.log('VirtualTabs: Resetting to default state...');
+        this.groups = [];
+        this.initBuiltInGroup();
+        this.refresh(true); // Save to recreate the config file
+    }
+
+
+
+    private loadGroups(): boolean {
         const filePath = this.getStorageFilePath();
         if (filePath && fs.existsSync(filePath)) {
             try {
                 const content = fs.readFileSync(filePath, 'utf8');
+                if (!content || content.trim() === '') return false;
+
                 const saved = JSON.parse(content);
-                if (saved && Array.isArray(saved)) {
+                if (this.validateGroups(saved)) {
                     this.groups = this.fromStorageGroups(this.migrateGroups(saved));
+                    return true;
+                } else {
+                    console.error('VirtualTabs: Loaded data failed validation');
+                    vscode.window.showErrorMessage(I18n.getMessage('error.invalidConfigFormat') || 'Invalid format in virtualTab.json. Please check the file structure.');
+                    return false;
                 }
             } catch (error) {
                 console.error('Failed to load VirtualTabs data file:', error);
+                vscode.window.showErrorMessage(`${I18n.getMessage('error.loadConfigFailed') || 'Failed to load virtualTab.json'}: ${error instanceof Error ? error.message : String(error)}`);
+                return false;
             }
         }
+        return false;
+    }
+
+    private validateGroups(data: any): data is TempGroup[] {
+        if (!Array.isArray(data)) return false;
+
+        for (let i = 0; i < data.length; i++) {
+            const g = data[i];
+            if (typeof g !== 'object' || g === null) return false;
+
+            // Critical: name is required for Tree View
+            if (typeof g.name !== 'string' || g.name.trim() === '') {
+                console.warn(`VirtualTabs: Group at index ${i} is missing a name`);
+                return false;
+            }
+
+            // files array is optional but must be array of strings if present
+            if (g.files !== undefined) {
+                if (!Array.isArray(g.files)) return false;
+                const originalLength = g.files.length;
+                const validFiles = g.files.filter((f: any) => typeof f === 'string');
+                if (validFiles.length !== originalLength) {
+                    console.warn(`VirtualTabs: Group "${g.name}" at index ${i} has ${originalLength - validFiles.length} invalid file entries (filtered out)`);
+                }
+                g.files = validFiles;
+            }
+
+            // id is optional (generated if missing), but if present must be string
+            if (g.id !== undefined && typeof g.id !== 'string' && typeof g.id !== 'number') return false;
+
+            // parentGroupId must be string if present
+            if (g.parentGroupId !== undefined && g.parentGroupId !== null && typeof g.parentGroupId !== 'string') return false;
+        }
+
+        return true;
     }
 
     private migrateGroups(saved: TempGroup[]): TempGroup[] {
@@ -179,13 +266,17 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 if (uri.scheme !== 'file') {
                     return value;
                 }
-                return path.relative(workspaceRoot, uri.fsPath);
+                const relativePath = path.relative(workspaceRoot, uri.fsPath);
+                // Normalize to forward slashes for cross-platform compatibility and JSON safety
+                return relativePath.replace(/\\/g, '/');
             }
 
             const absolutePath = path.isAbsolute(value)
                 ? value
                 : path.resolve(workspaceRoot, value);
-            return path.relative(workspaceRoot, absolutePath);
+            const relativePath = path.relative(workspaceRoot, absolutePath);
+            // Normalize to forward slashes for cross-platform compatibility and JSON safety
+            return relativePath.replace(/\\/g, '/');
         } catch (error) {
             console.error('Failed to convert path to relative:', error);
             return value;
@@ -244,7 +335,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         });
     }
 
-    refresh(): void {
+    refresh(save: boolean = true): void {
         // Resync built-in group content
         const builtIn = this.groups.find(g => g.builtIn);
         if (builtIn) {
@@ -255,7 +346,10 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 .map(uri => uri.toString());
             builtIn.files = openUris;
         }
-        this.saveGroups();
+
+        if (save) {
+            this.saveGroups();
+        }
         this._onDidChangeTreeData.fire(undefined);
     }
 
@@ -442,14 +536,6 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 const step = 100 / total;
 
                 // 轉換為 URI 對象
-                const uris = files.map(uriStr => {
-                    try {
-                        return vscode.Uri.parse(uriStr);
-                    } catch (e) {
-                        console.error(I18n.getMessage('error.cannotParseUri', uriStr), e);
-                        return null;
-                    }
-                }).filter((uri): uri is vscode.Uri => uri !== null);
 
                 // 找出所有已開啟的標籤頁
                 const tabsToClose: vscode.Tab[] = [];
