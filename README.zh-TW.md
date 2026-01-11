@@ -311,7 +311,7 @@ VirtualTabs 根據您的 VS Code 語言設定自動切換：
 
 兩者結合，創造終極 AI 編程工作流程。
 
-[**了解更多關於 Quick Prompt**](https://github.com/winterdrive/QuickPrompt)
+在 [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=winterdrive.quick-prompt?utm_source=virtualtabs&utm_medium=readme&utm_campaign=cross_promotion) | [**Open VSX Registry**](https://open-vsx.org/extension/winterdrive/quick-prompt?utm_source=virtualtabs&utm_medium=readme&utm_campaign=cross_promotion) 取得 Quick Prompt
 
 ---
 

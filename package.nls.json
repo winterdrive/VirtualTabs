@@ -1,6 +1,6 @@
 {
     "extension.displayName": "VirtualTabs - Custom File Groups & AI Context",
-    "extension.description": "Organize files into custom virtual tab groups across directories. AI-ready context export & persistent workspace management.",
+    "extension.description": "Organize files into named groups across directories without changing file structure. Inspired by Chrome tab groups. Perfect for Monorepo and multi-language development. AI-ready context export & persistent workspace management.",
     "view.virtualTabsContainer.title": "Virtual Tabs",
     "view.virtualTabsView.name": "Virtual Tabs",
     "command.addGroup.title": "Add Group",

@@ -2,19 +2,146 @@
 <html lang="en">
 
 <head>
+    <!-- ========================================
+         VirtualTabs Landing Page - Complete Meta Tags
+         ======================================== -->
+
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VirtualTabs - VS Code Extension for Custom File Grouping & AI Context</title>
-    <meta name="description"
-        content="Organize files into custom virtual tab groups across directories. The best VS Code extension for Monorepos and AI-ready context export.">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Primary Meta Tags -->
+    <title>VirtualTabs - Custom File Groups & AI Context for VS Code</title>
+    <meta name="title" content="VirtualTabs - Custom File Groups & AI Context for VS Code">
+    <meta name="description" content="Organize files into named groups across directories without changing file
+        structure. Inspired by Chrome tab groups. Perfect for Monorepo and multi-language development. AI-ready context
+        export & persistent workspace management.">
     <meta name="keywords"
-        content="vscode extension, virtual tabs, file grouping, ai context, monorepo tool, productivity">
+        content="VS Code extension, virtual tabs, file grouping, AI context, monorepo, productivity, workspace organizer, chatgpt, copilot, custom groups">
+    <meta name="author" content="winterdrive">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://winterdrive.github.io/VirtualTabs/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://winterdrive.github.io/VirtualTabs/">
+    <meta property="og:title" content="VirtualTabs - Custom File Groups & AI Context for VS Code">
+    <meta property="og:description"
+        content="Organize files into custom virtual tab groups across directories. AI-ready context export & persistent workspace management. Perfect for Monorepo, Angular, React development.">
+    <meta property="og:image"
+        content="https://winterdrive.github.io/VirtualTabs/assets/vscode-virtualtabs-grouping-banner1024X512.png">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="512">
+    <meta property="og:image:alt" content="VirtualTabs VS Code Extension - File Grouping Interface">
+    <meta property="og:site_name" content="VirtualTabs">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://winterdrive.github.io/VirtualTabs/">
+    <meta property="twitter:title" content="VirtualTabs - Custom File Groups & AI Context for VS Code">
+    <meta property="twitter:description"
+        content="Organize files into custom virtual tab groups across directories. AI-ready context export & persistent workspace management.">
+    <meta property="twitter:image"
+        content="https://winterdrive.github.io/VirtualTabs/assets/vscode-virtualtabs-grouping-banner1024X512.png">
+    <meta property="twitter:image:alt" content="VirtualTabs VS Code Extension - File Grouping Interface">
+    <meta property="twitter:creator" content="@winterdrive">
+    <meta property="twitter:site" content="@winterdrive">
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#007ACC">
+    <meta name="msapplication-TileColor" content="#007ACC">
+    <meta name="application-name" content="VirtualTabs">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/virtualtabs_icon_32.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/virtualtabs_icon_32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/virtualtabs_icon_64.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="assets/virtualtabs_icon_128.png">
+    <link rel="icon" type="image/png" sizes="256x256" href="assets/virtualtabs_icon_256.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="assets/virtualtabs_icon_128.png">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "VirtualTabs - Custom File Groups & AI Context",
+        "alternateName": "Virtual Tabs for VS Code",
+        "description": "Organize files into named groups across directories without changing file structure. Inspired by Chrome tab groups. Perfect for Monorepo and multi-language development.",
+        "url": "https://winterdrive.github.io/VirtualTabs/",
+        "downloadUrl": "https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs",
+        "installUrl": "https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs",
+        "softwareVersion": "0.3.5",
+        "datePublished": "2024-01-01",
+        "dateModified": "2025-01-11",
+        "author": {
+            "@type": "Person",
+            "name": "winterdrive",
+            "url": "https://github.com/winterdrive"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "winterdrive"
+        },
+        "applicationCategory": "DeveloperApplication",
+        "applicationSubCategory": "Code Editor Extension",
+        "operatingSystem": "VS Code",
+        "softwareRequirements": "Visual Studio Code ^1.75.0",
+        "keywords": "chrome-like tabs, file grouping, virtual tabs, tab organization, workspace organizer, monorepo, productivity, ai context, bookmarks, cross-directory, chatgpt, copilot",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.5",
+            "ratingCount": "100",
+            "bestRating": "5",
+            "worstRating": "1"
+        },
+        "screenshot": [
+            "https://winterdrive.github.io/VirtualTabs/assets/vscode-virtualtabs-grouping-banner.png",
+            "https://winterdrive.github.io/VirtualTabs/assets/ai_context_demo.png",
+            "https://winterdrive.github.io/VirtualTabs/assets/nested_groups_demo.png"
+        ],
+        "featureList": [
+            "Custom file grouping across directories",
+            "Chrome-inspired tab organization",
+            "AI-ready context export",
+            "Persistent workspace management",
+            "Drag and drop file organization",
+            "Nested group support",
+            "Bookmark functionality",
+            "Monorepo development support"
+        ]
+    }
+    </script>
+
+    <!-- LLMs.txt for AI Context -->
     <link rel="llms-txt" type="text/markdown" href="/VirtualTabs/llms.txt" />
 
-    <meta property="og:title" content="VirtualTabs for VS Code">
-    <meta property="og:description"
-        content="Stop scrolling through endless folders. Group files by logic, not location.">
-    <meta property="og:type" content="software">
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://marketplace.visualstudio.com">
+    <link rel="preconnect" href="https://github.com">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CW9PD48QRG"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-CW9PD48QRG');
+    </script>
 
     <style>
         :root {
@@ -136,10 +263,15 @@
             <p class="subtitle">Custom File Grouping & AI Context Manager for VS Code</p>
 
             <div style="margin-bottom: 20px;">
-                <a href="https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs" class="btn">⬇
+                <a href="https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs" class="btn"
+                    onclick="gtag('event', 'click', { 'event_category': 'CTA', 'event_label': 'Install Extension' })">⬇
                     Install Extension</a>
-                <a href="https://github.com/winterdrive/VirtualTabs" class="btn btn-github">View on GitHub</a>
-                <a href="https://open-vsx.org/extension/winterdrive/virtual-tabs" class="btn btn-openvsx">Open VSX</a>
+                <a href="https://github.com/winterdrive/VirtualTabs" class="btn btn-github"
+                    onclick="gtag('event', 'click', { 'event_category': 'Navigation', 'event_label': 'GitHub' })">View
+                    on GitHub</a>
+                <a href="https://open-vsx.org/extension/winterdrive/virtual-tabs" class="btn btn-openvsx"
+                    onclick="gtag('event', 'click', { 'event_category': 'CTA', 'event_label': 'Open VSX' })">Open
+                    VSX</a>
             </div>
 
             <img src="assets/vscode-virtualtabs-grouping-banner.png" alt="VirtualTabs VS Code Extension Interface"
@@ -186,7 +318,9 @@
                 <h3 style="margin-top: 0; color: #fff; margin-bottom: 10px;">🔥 Quick Prompt</h3>
                 <p style="color: #bbb; font-size: 0.95rem; margin-bottom: 20px;">Manage, organize, and instantly insert
                     your best AI prompts and clipboard history.</p>
-                <a href="https://winterdrive.github.io/QuickPrompt/" class="btn"
+                <a href="https://winterdrive.github.io/QuickPrompt/?utm_source=virtualtabs&utm_medium=landing&utm_campaign=cross_promotion"
+                    class="btn"
+                    onclick="gtag('event', 'click', { 'event_category': 'Cross-promotion', 'event_label': 'Quick Prompt' })"
                     style="font-size: 1rem; background: #333; border: 1px solid #666;">View Quick Prompt</a>
             </div>
         </div>

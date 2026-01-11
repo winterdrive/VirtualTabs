@@ -273,7 +273,7 @@ While **VirtualTabs** organizes your **Context** (Files), **Quick Prompt** organ
 
 Together, they create the ultimate AI-coding workflow.
 
-[**Learn more about Quick Prompt**](https://github.com/winterdrive/QuickPrompt)
+Get Quick Prompt on [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=winterdrive.quick-prompt?utm_source=virtualtabs&utm_medium=readme&utm_campaign=cross_promotion) | [**Open VSX Registry**](https://open-vsx.org/extension/winterdrive/quick-prompt?utm_source=virtualtabs&utm_medium=readme&utm_campaign=cross_promotion)
 
 ---
 
