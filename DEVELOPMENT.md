@@ -1,4 +1,4 @@
-# VirtualTabs Development Guide
+# VirtualTabs Development Guide (Virtual File Directories)
 
 This document provides a complete guide for setting up the development environment and workflow for the VirtualTabs VS Code extension.
 
@@ -110,7 +110,7 @@ In the Extension Development Host window:
         "views": {
             "explorer": [{
                 "id": "virtualTabsView",
-                "name": "Virtual Tabs",
+                "name": "VirtualTabs (Virtual File Directories)",
                 "icon": "$(tab)"
             }]
         },
@@ -230,6 +230,127 @@ virtual-tabs/
 | `bookmarks.ts`      | Bookmark management utilities (v0.2.0+)          | `BookmarkManager` |
 | `decorations.ts`    | Editor decoration management for bookmark gutter icons (v0.2.0+) | `DecorationManager` |
 | `i18n.ts`           | Internationalization utilities                   | `I18n` |
+
+### Context Menu Configuration
+
+VirtualTabs provides rich context menu options that vary based on item type and selection state. The menu system uses `contextValue` properties and regex-based `when` clauses for precise control.
+
+#### Item Types and Context Values
+
+| Item Type | Context Value | Description |
+|:---|:---|:---|
+| Custom Group | `virtualTabsGroup` | User-created Virtual File Directories |
+| Built-in Group | `virtualTabsGroupBuiltIn` | System groups (e.g., "Currently Open Files") |
+| File (Custom) | `virtualTabsFileCustom` | Files in custom groups |
+| File (Built-in) | `virtualTabsFileBuiltIn` | Files in built-in groups |
+| Executable File | `virtualTabsFileCustomExec` / `virtualTabsFileBuiltInExec` | `.bat` or `.exe` files |
+| Bookmark | `virtualTabsBookmark` | Code bookmarks |
+
+#### Menu Availability Matrix
+
+The following table defines the availability of commands across different item types.
+
+| Command | Custom Group | Built-in Group | File (Custom) | File (Built-in) | Bookmark |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **[Group Management]** | | | | | |
+| Add Group | ✔ | ✔ | ❌ | ❌ | ❌ |
+| Add Sub Group | ✔ | ❌ | ❌ | ❌ | ❌ |
+| Rename Group | ✔ | ❌ | ❌ | ❌ | ❌ |
+| Duplicate Group | ✔ | ✔ | ❌ | ❌ | ❌ |
+| Remove Group (Inline) | ✔ | ❌ | ❌ | ❌ | ❌ |
+| Move Up/Down | ✔ | ❌ | ❌ | ❌ | ❌ |
+| Refresh (Inline) | ❌ | ✔ | ❌ | ❌ | ❌ |
+| **[File Operations]** | | | | | |
+| Open All Files | ✔ | ❌ | ❌ | ❌ | ❌ |
+| Close All Files | ✔ | ❌ | ❌ | ❌ | ❌ |
+| Open Selected | ❌ | ❌ | ✔ | ✔ | ❌ |
+| Close Selected | ❌ | ❌ | ✔ | ✔ | ❌ |
+| Remove From Group (Inline) | ❌ | ❌ | ✔ | ❌ | ❌ |
+| Delete File (Disk) | ❌ | ❌ | ✔ | ❌ | ❌ |
+| Reveal in OS | ❌ | ❌ | ✔ | ✔ | ✔ |
+| Run File (Inline) | ❌ | ❌ | ✔ (.bat/.exe) | ✔ (.bat/.exe) | ❌ |
+| **[Organization]** | | | | | |
+| Sort Files Submenu | ✔ | ✔ | ❌ | ❌ | ❌ |
+| Auto Group by Extension | ✔ | ✔ | ❌ | ❌ | ❌ |
+| Auto Group by Date | ✔ | ✔ | ❌ | ❌ | ❌ |
+| **[Copy Menu]** | | | | | |
+| Copy Name | ✔ | ✔ | ✔ | ✔ | ✔ |
+| Copy Context for AI | ✔ | ✔ | ✔ | ✔ | ✔ |
+| Copy File Name | ✔ | ✔ | ✔ | ✔ | ✔ |
+| Copy Relative Path | ✔ | ✔ | ✔ | ✔ | ✔ |
+| Copy Absolute Path | ✔ | ✔ | ✔ | ✔ | ✔ |
+| **[Bookmarks]** | | | | | |
+| Jump to Bookmark | ❌ | ❌ | ❌ | ❌ | ✔ |
+| Edit Label | ❌ | ❌ | ❌ | ❌ | ✔ |
+| Edit Description | ❌ | ❌ | ❌ | ❌ | ✔ |
+| Remove Bookmark (Inline) | ❌ | ❌ | ❌ | ❌ | ✔ |
+| Close File | ❌ | ❌ | ❌ | ❌ | ✔ |
+
+#### Multi-Selection Behavior
+
+Commands support intelligent multi-selection with the following priority:
+
+1. **If items are pre-selected** (left-click + Ctrl/Cmd) → Process all selected items
+2. **If no pre-selection** → Process the right-clicked item
+
+**Supported multi-select commands:**
+
+* Open Selected
+* Close Selected
+* Remove From Group
+* All Copy Menu operations
+
+**Example implementation pattern:**
+
+```typescript
+context.subscriptions.push(
+    vscode.commands.registerCommand('virtualTabs.openSelectedFiles', async (item?: TempFileItem) => {
+        let filesToOpen: TempFileItem[] = [];
+        
+        // Priority 1: Use selected items if available
+        const selectedItems = provider.getSelectedFileItems();
+        if (selectedItems.length > 0) {
+            filesToOpen = selectedItems;
+        } 
+        // Priority 2: Use right-clicked item if no selection
+        else if (item instanceof TempFileItem) {
+            filesToOpen = [item];
+        }
+        
+        if (filesToOpen.length === 0) return;
+        await provider.openSelectedFiles(filesToOpen);
+    })
+);
+```
+
+#### Important Implementation Details
+
+**Delete File with Trash Support:**
+
+* Uses `vscode.workspace.fs.delete(uri, { useTrash: true })`
+* Shows confirmation dialog (configurable via `virtualTabs.confirmBeforeDelete`)
+* Automatically removes item from TreeView after deletion
+* Files are recoverable from OS trash/recycle bin
+
+**Copy Name vs Copy File Name:**
+
+* **Copy Name**: Copies only the name (group name or file basename), no recursion
+* **Copy File Name**: Recursively copies all file names in a group
+
+**Bookmark Smart Group Selection:**
+When adding bookmarks, the extension automatically:
+
+1. Excludes Built-in Groups from selection
+2. Auto-selects if file is in exactly 1 custom group
+3. Shows picker only if file is in 2+ custom groups
+
+#### Configuration Files
+
+Menu configurations are defined across:
+
+* `package.json`: Menu definitions and `when` clauses
+* `src/commands.ts`: Command logic implementation
+* `src/treeItems.ts`: `contextValue` assignments
 
 ### Core Data Flow
 

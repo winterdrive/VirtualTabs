@@ -2,6 +2,28 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.3.6] - 2026-01-14
+
+### Added
+
+- **🎯 Multi-select Copy (Core Productivity Feature)**: All copy commands now support multi-selection:
+  - `Copy File Name` - Select multiple files/groups and copy all names at once.
+  - `Copy Relative Path` - Multi-select support with automatic deduplication.
+  - `Copy Absolute Path` - Multi-select support with automatic deduplication.
+  - `Copy Group Context` - Enhanced to handle mixed selections (files + groups + bookmarks) for better AI prompt preparation.
+
+### Changed
+
+- **Unified Copy Menu**: Consolidated 4 duplicate copy submenus into a single smart menu that adapts to selection type, drastically reducing UI clutter.
+- **Robust Selection Logic**: Refactored core commands to consistently prioritize multi-selection over right-clicked items using a unified `resolveTargetItems` helper.
+- **Improved Context Menu Precision**: Strict `viewItem` regex checks prevent command "ghosting" on unrelated items.
+- **Type Safety & Reliability**: Replaced legacy Duck Typing with `instanceof` checks and implemented Set-based cycle detection for circular references.
+
+### Fixed
+
+- **Command Namespace Conflict**: Renamed `deleteFile` to `virtualTabs.deleteFile` for better system compatibility.
+- **Bookmark Context Handling**: `Copy Group Context` now correctly handles bookmark items and displays hierarchical group paths.
+
 ## [0.3.3] - 2025-12-31
 
 > **Special Thanks**: [@jianfulin](https://github.com/jianfulin) for the major contribution! 🎉

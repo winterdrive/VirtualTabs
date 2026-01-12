@@ -12,13 +12,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <!-- Primary Meta Tags -->
-    <title>VirtualTabs - Custom File Groups & AI Context for VS Code</title>
-    <meta name="title" content="VirtualTabs - Custom File Groups & AI Context for VS Code">
-    <meta name="description" content="Organize files into named groups across directories without changing file
-        structure. Inspired by Chrome tab groups. Perfect for Monorepo and multi-language development. AI-ready context
-        export & persistent workspace management.">
+    <title>VirtualTabs - Virtual File Directories & AI Context for VS Code</title>
+    <meta name="title" content="VirtualTabs - Virtual File Directories & AI Context for VS Code">
+    <meta name="description"
+        content="Organize files into Virtual File Directories across project boundaries. Perfect for MVC/MVVM & Monorepos. Features AI-ready context export, smart multi-select copy, and persistent bookmarks.">
     <meta name="keywords"
-        content="VS Code extension, virtual tabs, file grouping, AI context, monorepo, productivity, workspace organizer, chatgpt, copilot, custom groups">
+        content="VS Code extension, virtual file directories, tab organization, AI context, monorepo, productivity, workspace organizer, chatgpt, copilot, custom groups, mvc, mvvm">
     <meta name="author" content="winterdrive">
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
@@ -71,15 +70,15 @@
     {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "VirtualTabs - Custom File Groups & AI Context",
+        "name": "VirtualTabs - Virtual File Directories & AI Context",
         "alternateName": "Virtual Tabs for VS Code",
-        "description": "Organize files into named groups across directories without changing file structure. Inspired by Chrome tab groups. Perfect for Monorepo and multi-language development.",
+        "description": "Organize files into Virtual File Directories across project boundaries. Perfect for MVC/MVVM & Monorepos. Features AI-ready context export.",
         "url": "https://winterdrive.github.io/VirtualTabs/",
         "downloadUrl": "https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs",
         "installUrl": "https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs",
-        "softwareVersion": "0.3.5",
+        "softwareVersion": "0.3.6",
         "datePublished": "2024-01-01",
-        "dateModified": "2025-01-11",
+        "dateModified": "2026-01-14",
         "author": {
             "@type": "Person",
             "name": "winterdrive",
@@ -93,7 +92,7 @@
         "applicationSubCategory": "Code Editor Extension",
         "operatingSystem": "VS Code",
         "softwareRequirements": "Visual Studio Code ^1.75.0",
-        "keywords": "chrome-like tabs, file grouping, virtual tabs, tab organization, workspace organizer, monorepo, productivity, ai context, bookmarks, cross-directory, chatgpt, copilot",
+        "keywords": "virtual file directories, file grouping, virtual tabs, tab organization, workspace organizer, monorepo, productivity, ai context, bookmarks, cross-directory, chatgpt, copilot, mvc, mvvm",
         "offers": {
             "@type": "Offer",
             "price": "0",
@@ -296,6 +295,59 @@
                 <h3>💾 Persistent Workflow</h3>
                 <p>Native tabs disappear when you close VS Code. VirtualTabs stay. Your workspace context is saved
                     automatically.</p>
+            </div>
+        </div>
+
+        <div style="margin: 80px 0;">
+            <h2 style="text-align: center; color: #fff; margin-bottom: 50px; font-size: 2rem;">✨ Core Capabilities</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 40px;">
+                <!-- Feature 1: Logical Grouping -->
+                <div style="background: #333; padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.3s;"
+                    onmouseover="this.style.transform='translateY(-5px)'"
+                    onmouseout="this.style.transform='translateY(0)'">
+                    <img src="assets/drag_drop_demo.png" alt="Virtual Grouping Interface"
+                        style="width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555;">
+                    <h3 style="color: #fff; margin-top: 0; font-size: 1.4rem;">📁 Smart Virtual Grouping</h3>
+                    <p style="font-size: 1rem; color: #bbb;">Organize files from across your codebase into meaningful
+                        groups. Drag folders to add files recursively, or cherry-pick specific modules without touching
+                        your disk structure.</p>
+                </div>
+
+                <!-- Feature 2: AI Context -->
+                <div style="background: #333; padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.3s;"
+                    onmouseover="this.style.transform='translateY(-5px)'"
+                    onmouseout="this.style.transform='translateY(0)'">
+                    <img src="assets/ai_context_demo.png" alt="AI Context Export Tool"
+                        style="width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555;">
+                    <h3 style="color: #fff; margin-top: 0; font-size: 1.4rem;">🤖 AI-Ready Context Export</h3>
+                    <p style="font-size: 1rem; color: #bbb;">Instantly format entire groups into LLM-ready markdown.
+                        Perfect for feeding ChatGPT or Claude with precise project context. Supports multi-selection and
+                        smart deduplication.</p>
+                </div>
+
+                <!-- Feature 3: Nested Groups -->
+                <div style="background: #333; padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.3s;"
+                    onmouseover="this.style.transform='translateY(-5px)'"
+                    onmouseout="this.style.transform='translateY(0)'">
+                    <img src="assets/nested_groups_demo.png" alt="Hierarchical Sub-groups"
+                        style="width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555;">
+                    <h3 style="color: #fff; margin-top: 0; font-size: 1.4rem;">📂 Hierarchical Organization</h3>
+                    <p style="font-size: 1rem; color: #bbb;">Manage complexity with unlimited nested sub-groups.
+                        Organize by architecture layers (e.g., MVC, MVVM) or specific project modules while maintaining
+                        a clean, high-level view.</p>
+                </div>
+
+                <!-- Feature 4: Bookmarks -->
+                <div style="background: #333; padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.3s;"
+                    onmouseover="this.style.transform='translateY(-5px)'"
+                    onmouseout="this.style.transform='translateY(0)'">
+                    <img src="assets/bookmarks_feature.png" alt="Task-Oriented Bookmarks"
+                        style="width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555;">
+                    <h3 style="color: #fff; margin-top: 0; font-size: 1.4rem;">🔖 Task-Oriented Bookmarks</h3>
+                    <p style="font-size: 1rem; color: #bbb;">Mark critical logic flows and decision points within your
+                        groups. Jump directly to specific code lines with one click, equipped with customizable labels
+                        and descriptions.</p>
+                </div>
             </div>
         </div>
 

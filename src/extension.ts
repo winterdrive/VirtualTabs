@@ -3,7 +3,7 @@ import { TempFoldersProvider } from './provider';
 import { TempFoldersDragAndDropController } from './dragAndDrop';
 import { registerCommands } from './commands';
 import { I18n } from './i18n';
-import { TempFolderItem } from './treeItems';
+import { TempFolderItem, TempFileItem } from './treeItems';
 
 /**
  * Activate the extension
@@ -59,6 +59,19 @@ export async function activate(context: vscode.ExtensionContext) {
             provider.refresh();
         }
     });
+
+    // Update context key based on selection
+    treeView.onDidChangeSelection(e => {
+        const hasFile = e.selection.some(item => item instanceof TempFileItem);
+        const hasCustomFile = e.selection.some(item =>
+            item instanceof TempFileItem &&
+            item.contextValue &&
+            item.contextValue.includes('virtualTabsFileCustom')
+        );
+        vscode.commands.executeCommand('setContext', 'virtualTabs:hasFileSelected', hasFile);
+        vscode.commands.executeCommand('setContext', 'virtualTabs:hasCustomFileSelected', hasCustomFile);
+    });
+
 
     // Listen for editor file open/close events to auto-refresh the tree view
     context.subscriptions.push(

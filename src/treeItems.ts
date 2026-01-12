@@ -68,6 +68,7 @@ export class BookmarkItem extends vscode.TreeItem {
             `${bookmark.label} (line ${bookmark.line + 1})`,
             vscode.TreeItemCollapsibleState.None
         );
+        this.resourceUri = fileUri;
 
         this.contextValue = 'virtualTabsBookmark';
         this.iconPath = new vscode.ThemeIcon('bookmark');

@@ -211,6 +211,31 @@ function getAllFilesInGroupRecursive(groups: TempGroup[], groupId: string): stri
     return allFiles;
 }
 
+/**
+ * Resolve target items with consistent priority logic
+ * Priority 1: Use selected items from provider if available
+ * Priority 2: Use right-clicked item if no selection
+ * 
+ * This helper eliminates DRY violations across multiple commands.
+ */
+function resolveTargetItems<T extends TempFileItem>(
+    item: T | undefined,
+    provider: TempFoldersProvider
+): T[] {
+    // Priority 1: Use selected items if available
+    const selectedItems = provider.getSelectedFileItems() as T[];
+    if (selectedItems.length > 0) {
+        return selectedItems;
+    }
+
+    // Priority 2: Use right-clicked item if no selection
+    if (item instanceof TempFileItem) {
+        return [item as T];
+    }
+
+    return [];
+}
+
 // VirtualTabs command registration
 export function registerCommands(context: vscode.ExtensionContext, provider: TempFoldersProvider): void {
     // Run executable file in terminal (explicit action via inline button)
@@ -293,6 +318,48 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
         );
 
     }));
+
+    // Delete file command (moves to trash/recycle bin)
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.deleteFile', async (item: TempFileItem) => {
+        if (!(item instanceof TempFileItem)) {
+            return;
+        }
+
+        const path = require('path');
+        const fileName = path.basename(item.uri.fsPath);
+        const config = vscode.workspace.getConfiguration('virtualTabs');
+        const confirmBeforeDelete = config.get<boolean>('confirmBeforeDelete', true);
+
+        let shouldDelete = true;
+
+        if (confirmBeforeDelete) {
+            const confirm = await vscode.window.showWarningMessage(
+                `Are you sure you want to delete "${fileName}"?`,
+                { modal: true },
+                'Move to Trash'
+            );
+            shouldDelete = (confirm === 'Move to Trash');
+        }
+
+        if (shouldDelete) {
+            try {
+                await vscode.workspace.fs.delete(item.uri, {
+                    recursive: false,
+                    useTrash: true
+                });
+
+                // Auto-remove from TreeView (no additional confirmation needed)
+                provider.removeFilesFromGroup(item.groupIdx, [item]);
+
+                vscode.window.showInformationMessage(`Deleted: ${fileName}`);
+                // refresh() is called inside removeFilesFromGroup
+            } catch (error: any) {
+                const errorMsg = error?.message || String(error);
+                vscode.window.showErrorMessage(`Failed to delete "${fileName}": ${errorMsg}`);
+            }
+        }
+    }));
+
 
     // Register auto group by extension command
     context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.autoGroupByExt', () => {
@@ -406,31 +473,28 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
 
     }));
 
-    // Handle opening multiple selected files
-    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.openSelectedFiles', async () => {
-        const selectedItems = provider.getSelectedFileItems();
-        if (selectedItems.length === 0) return;
 
-        await provider.openSelectedFiles(selectedItems);
+    // Handle opening multiple selected files (or right-clicked file)
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.openSelectedFiles', async (item?: TempFileItem) => {
+        const filesToOpen = resolveTargetItems(item, provider);
+        if (filesToOpen.length === 0) return;
+        await provider.openSelectedFiles(filesToOpen);
     }));
 
-    // Handle closing multiple selected files
-    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.closeSelectedFiles', async () => {
-        const selectedItems = provider.getSelectedFileItems();
-        if (selectedItems.length === 0) return;
-
-        await provider.closeSelectedFiles(selectedItems);
+    // Handle closing multiple selected files (or right-clicked file)
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.closeSelectedFiles', async (item?: TempFileItem) => {
+        const filesToClose = resolveTargetItems(item, provider);
+        if (filesToClose.length === 0) return;
+        await provider.closeSelectedFiles(filesToClose);
     }));
-    // Handle removing multiple selected files from group
-    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeSelectedFilesFromGroup', (item: TempFileItem) => {
-        const selectedItems = provider.getSelectedFileItems();
-        if (selectedItems.length === 0) return;
+    // Handle removing multiple selected files from group (or right-clicked file)
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeSelectedFilesFromGroup', (item?: TempFileItem) => {
+        const filesToRemove = resolveTargetItems(item, provider);
+        if (filesToRemove.length === 0) return;
 
-        // If no specific item is provided or item is not TempFileItem, use the first selected item
-        const fileItem = (item instanceof TempFileItem) ? item : selectedItems[0];
-
-        // Use the group index of the file item directly
-        provider.removeFilesFromGroup(fileItem.groupIdx, selectedItems);
+        // Use the group index from the first file item
+        const fileItem = filesToRemove[0];
+        provider.removeFilesFromGroup(fileItem.groupIdx, filesToRemove);
     }));
 
     // Group context menu "Add selected files to group"
@@ -443,100 +507,164 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
         provider.addMultipleFilesToGroup(item.groupIdx, selectedItems);
     }));
 
-    // Copy file name command (works for both files and groups)
-    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.copyFileName', async (item: TempFileItem | TempFolderItem) => {
+    // Copy name command (copies only the name, no recursion)
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.copyName', async (item: TempFileItem | TempFolderItem | BookmarkItem) => {
         const path = require('path');
+        let name = '';
 
         if (item instanceof TempFileItem) {
-            // Single file: copy file name
-            const fileName = path.basename(item.uri.fsPath);
-            await vscode.env.clipboard.writeText(fileName);
-            vscode.window.showInformationMessage(`Copied: ${fileName}`);
+            // For files: copy file name only
+            name = path.basename(item.uri.fsPath);
+        } else if (item instanceof BookmarkItem) {
+            // For bookmarks: copy file name only
+            name = path.basename(item.fileUri.fsPath);
         } else if (item && 'groupIdx' in item && typeof item.groupIdx === 'number') {
-            // Group: copy all file names (including children)
+            // For groups: copy group name only (no recursion)
             const group = provider.groups[item.groupIdx];
-            if (!group || !group.id) {
-                vscode.window.showInformationMessage('No files in group.');
-                return;
+            if (group && group.name) {
+                name = group.name;
             }
-            const allFiles = getAllFilesInGroupRecursive(provider.groups, group.id);
-            if (allFiles.length === 0) {
-                vscode.window.showInformationMessage('No files in group.');
-                return;
-            }
-            const fileNames = allFiles.map(uriStr => {
-                try {
-                    const uri = vscode.Uri.parse(uriStr);
-                    return path.basename(uri.fsPath);
-                } catch {
-                    return uriStr;
-                }
-            });
-            await vscode.env.clipboard.writeText(fileNames.join('\n'));
-            vscode.window.showInformationMessage(`Copied ${fileNames.length} file names.`);
         }
+
+        if (name) {
+            await vscode.env.clipboard.writeText(name);
+            vscode.window.showInformationMessage(`Copied: ${name}`);
+        } else {
+            vscode.window.showInformationMessage('No name to copy.');
+        }
+    }));
+
+
+    // Copy file name command (works for both files and groups, supports multi-select)
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.copyFileName', async (item: TempFileItem | TempFolderItem, selectedItems?: (TempFileItem | TempFolderItem)[]) => {
+        const path = require('path');
+        let itemsToProcess: (TempFileItem | TempFolderItem)[] = [];
+
+        if (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0) {
+            itemsToProcess = selectedItems;
+        } else if (item) {
+            itemsToProcess = [item];
+        }
+
+        if (itemsToProcess.length === 0) return;
+
+        const results = new Set<string>();
+
+        const processItem = (i: TempFileItem | TempFolderItem) => {
+            if (i instanceof TempFileItem) {
+                results.add(path.basename(i.uri.fsPath));
+            } else if (i && 'groupIdx' in i && typeof i.groupIdx === 'number') {
+                const group = provider.groups[i.groupIdx];
+                if (group && group.id) {
+                    const allFiles = getAllFilesInGroupRecursive(provider.groups, group.id);
+                    allFiles.forEach(uriStr => {
+                        try {
+                            const uri = vscode.Uri.parse(uriStr);
+                            results.add(path.basename(uri.fsPath));
+                        } catch { }
+                    });
+                }
+            }
+        };
+
+        itemsToProcess.forEach(processItem);
+
+        if (results.size === 0) {
+            vscode.window.showInformationMessage('No files found to copy.');
+            return;
+        }
+
+        const text = Array.from(results).join('\n');
+        await vscode.env.clipboard.writeText(text);
+        vscode.window.showInformationMessage(`Copied ${results.size} file names.`);
     }));
 
     // Copy relative path command (works for both files and groups)
-    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.copyRelativePath', async (item: TempFileItem | TempFolderItem) => {
-        if (item instanceof TempFileItem) {
-            // Single file: copy relative path
-            const relativePath = vscode.workspace.asRelativePath(item.uri);
-            await vscode.env.clipboard.writeText(relativePath);
-            vscode.window.showInformationMessage(`Copied: ${relativePath}`);
-        } else if (item && 'groupIdx' in item && typeof item.groupIdx === 'number') {
-            // Group: copy all relative paths (including children)
-            const group = provider.groups[item.groupIdx];
-            if (!group || !group.id) {
-                vscode.window.showInformationMessage('No files in group.');
-                return;
-            }
-            const allFiles = getAllFilesInGroupRecursive(provider.groups, group.id);
-            if (allFiles.length === 0) {
-                vscode.window.showInformationMessage('No files in group.');
-                return;
-            }
-            const paths = allFiles.map(uriStr => {
-                try {
-                    return vscode.workspace.asRelativePath(vscode.Uri.parse(uriStr));
-                } catch {
-                    return uriStr;
-                }
-            });
-            await vscode.env.clipboard.writeText(paths.join('\n'));
-            vscode.window.showInformationMessage(`Copied ${paths.length} relative paths.`);
+    // Copy relative path command (works for both files and groups, supports multi-select)
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.copyRelativePath', async (item: TempFileItem | TempFolderItem, selectedItems?: (TempFileItem | TempFolderItem)[]) => {
+        let itemsToProcess: (TempFileItem | TempFolderItem)[] = [];
+
+        if (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0) {
+            itemsToProcess = selectedItems;
+        } else if (item) {
+            itemsToProcess = [item];
         }
+
+        if (itemsToProcess.length === 0) return;
+
+        const results = new Set<string>();
+
+        const processItem = (i: TempFileItem | TempFolderItem) => {
+            if (i instanceof TempFileItem) {
+                results.add(vscode.workspace.asRelativePath(i.uri));
+            } else if (i && 'groupIdx' in i && typeof i.groupIdx === 'number') {
+                const group = provider.groups[i.groupIdx];
+                if (group && group.id) {
+                    const allFiles = getAllFilesInGroupRecursive(provider.groups, group.id);
+                    allFiles.forEach(uriStr => {
+                        try {
+                            const uri = vscode.Uri.parse(uriStr);
+                            results.add(vscode.workspace.asRelativePath(uri));
+                        } catch { }
+                    });
+                }
+            }
+        };
+
+        itemsToProcess.forEach(processItem);
+
+        if (results.size === 0) {
+            vscode.window.showInformationMessage('No files found to copy.');
+            return;
+        }
+
+        const text = Array.from(results).join('\n');
+        await vscode.env.clipboard.writeText(text);
+        vscode.window.showInformationMessage(`Copied ${results.size} relative paths.`);
     }));
 
     // Copy absolute path command (works for both files and groups)
-    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.copyAbsolutePath', async (item: TempFileItem | TempFolderItem) => {
-        if (item instanceof TempFileItem) {
-            // Single file: copy absolute path
-            const absolutePath = item.uri.fsPath;
-            await vscode.env.clipboard.writeText(absolutePath);
-            vscode.window.showInformationMessage(`Copied: ${absolutePath}`);
-        } else if (item && 'groupIdx' in item && typeof item.groupIdx === 'number') {
-            // Group: copy all absolute paths (including children)
-            const group = provider.groups[item.groupIdx];
-            if (!group || !group.id) {
-                vscode.window.showInformationMessage('No files in group.');
-                return;
-            }
-            const allFiles = getAllFilesInGroupRecursive(provider.groups, group.id);
-            if (allFiles.length === 0) {
-                vscode.window.showInformationMessage('No files in group.');
-                return;
-            }
-            const paths = allFiles.map(uriStr => {
-                try {
-                    return vscode.Uri.parse(uriStr).fsPath;
-                } catch {
-                    return uriStr;
-                }
-            });
-            await vscode.env.clipboard.writeText(paths.join('\n'));
-            vscode.window.showInformationMessage(`Copied ${paths.length} absolute paths.`);
+    // Copy absolute path command (works for both files and groups, supports multi-select)
+    context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.copyAbsolutePath', async (item: TempFileItem | TempFolderItem, selectedItems?: (TempFileItem | TempFolderItem)[]) => {
+        let itemsToProcess: (TempFileItem | TempFolderItem)[] = [];
+
+        if (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0) {
+            itemsToProcess = selectedItems;
+        } else if (item) {
+            itemsToProcess = [item];
         }
+
+        if (itemsToProcess.length === 0) return;
+
+        const results = new Set<string>();
+
+        const processItem = (i: TempFileItem | TempFolderItem) => {
+            if (i instanceof TempFileItem) {
+                results.add(i.uri.fsPath);
+            } else if (i && 'groupIdx' in i && typeof i.groupIdx === 'number') {
+                const group = provider.groups[i.groupIdx];
+                if (group && group.id) {
+                    const allFiles = getAllFilesInGroupRecursive(provider.groups, group.id);
+                    allFiles.forEach(uriStr => {
+                        try {
+                            const uri = vscode.Uri.parse(uriStr);
+                            results.add(uri.fsPath);
+                        } catch { }
+                    });
+                }
+            }
+        };
+
+        itemsToProcess.forEach(processItem);
+
+        if (results.size === 0) {
+            vscode.window.showInformationMessage('No files found to copy.');
+            return;
+        }
+
+        const text = Array.from(results).join('\n');
+        await vscode.env.clipboard.writeText(text);
+        vscode.window.showInformationMessage(`Copied ${results.size} absolute paths.`);
     }));
 
     // Duplicate built-in group
@@ -1077,34 +1205,181 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
 
     // AI Context: Copy Group Context (works for both groups and files)
     context.subscriptions.push(
-        vscode.commands.registerCommand('virtualTabs.copyGroupContext', async (item: TempFolderItem | TempFileItem) => {
-            let filesToProcess: string[] = [];
-            let contextTitle = '';
+        vscode.commands.registerCommand('virtualTabs.copyGroupContext', async (item: TempFolderItem | TempFileItem | BookmarkItem | undefined, selectedItems?: (TempFolderItem | TempFileItem | BookmarkItem)[]) => {
+            // Map to track files and their group names: Map<FileUriString, Set<GroupName>>
+            const filesToProcessMap = new Map<string, Set<string>>();
+            // Map to track bookmarks: Map<FileUriString, BookmarkItem[]>
+            const bookmarksToProcessMap = new Map<string, BookmarkItem[]>();
 
-            // Check if it's a group or a file
-            if (item && 'groupIdx' in item && typeof item.groupIdx === 'number' && !('resourceUri' in item && item.resourceUri)) {
-                // It's a group - get all files recursively (including children)
-                const group = provider.groups[item.groupIdx];
-                if (!group || !group.id) {
-                    vscode.window.showInformationMessage(I18n.getMessage('message.noFilesToGroup'));
-                    return;
+            let contextTitle = '';
+            let itemsToProcess: (TempFolderItem | TempFileItem | BookmarkItem)[] = [];
+
+            // Debug logging for troubleshooting
+            console.log('[DEBUG] virtualTabs.copyGroupContext triggered');
+
+            // Type guards using instanceof (safer than duck typing)
+            const isBookmarkItem = (i: unknown): i is BookmarkItem => i instanceof BookmarkItem;
+            const isFileItem = (i: unknown): i is TempFileItem => i instanceof TempFileItem;
+            const isFolderItem = (i: unknown): i is TempFolderItem => i instanceof TempFolderItem;
+
+            // 1. Determine items to process (Prioritize selection)
+            if (selectedItems && Array.isArray(selectedItems) && selectedItems.length > 0) {
+                itemsToProcess = selectedItems;
+                contextTitle = `Context from ${itemsToProcess.length} selected items`;
+            } else if (item) {
+                itemsToProcess = [item];
+                // Set initial title based on single item
+                if (isFolderItem(item)) {
+                    const group = provider.groups[item.groupIdx];
+                    contextTitle = `Context from Group: ${group?.name}`;
+                } else if (isFileItem(item)) {
+                    contextTitle = `Context from File: ${vscode.workspace.asRelativePath(item.uri)}`;
+                } else if (isBookmarkItem(item)) {
+                    contextTitle = `Context from Bookmark: ${item.label}`;
                 }
-                filesToProcess = getAllFilesInGroupRecursive(provider.groups, group.id);
-                if (filesToProcess.length === 0) {
-                    vscode.window.showInformationMessage(I18n.getMessage('message.noFilesToGroup'));
-                    return;
-                }
-                contextTitle = `Context from Group: ${group.name}`;
-            } else if (item && 'resourceUri' in item && item.resourceUri) {
-                // It's a file
-                filesToProcess = [item.resourceUri.toString()];
-                contextTitle = `Context from File: ${vscode.workspace.asRelativePath(item.resourceUri)}`;
             } else {
-                vscode.window.showWarningMessage('Please select a group or file.');
+                // Try getting from provider selection as last resort
+                const selection = provider.getSelection();
+                if (selection.length > 0) {
+                    itemsToProcess = selection.filter(i => isFileItem(i) || isFolderItem(i) || isBookmarkItem(i)) as (TempFolderItem | TempFileItem | BookmarkItem)[];
+                    contextTitle = `Context from ${itemsToProcess.length} selected items`;
+                }
+            }
+
+            if (itemsToProcess.length === 0) {
+                vscode.window.showWarningMessage('Please select a group, file, or bookmark.');
                 return;
             }
 
-            const total = filesToProcess.length;
+            // 2. Collect all files and track their groups
+
+            // Helper to get full group path with cycle detection
+            const MAX_GROUP_DEPTH = 50; // Maximum allowed nesting depth
+            const getGroupPath = (groupId: string): string => {
+                const group = provider.groups.find(g => g.id === groupId);
+                if (!group) return '';
+
+                const visited = new Set<string>(); // Track visited groups for cycle detection
+                let pathStr = group.name;
+                let current = group;
+
+                visited.add(current.id);
+
+                while (current.parentGroupId) {
+                    // Cycle detection: check if we've seen this parent before
+                    if (visited.has(current.parentGroupId)) {
+                        console.warn(`[VirtualTabs] Circular group reference detected: ${current.parentGroupId}`);
+                        pathStr += ' [CYCLE DETECTED]';
+                        break;
+                    }
+
+                    // Depth limit check (safety fallback)
+                    if (visited.size >= MAX_GROUP_DEPTH) {
+                        console.warn(`[VirtualTabs] Group nesting exceeds maximum depth of ${MAX_GROUP_DEPTH}`);
+                        pathStr += ' [MAX DEPTH]';
+                        break;
+                    }
+
+                    const parent = provider.groups.find(g => g.id === current.parentGroupId);
+                    if (!parent) {
+                        break;
+                    }
+
+                    pathStr = `${parent.name} / ${pathStr}`;
+                    current = parent;
+                    visited.add(current.id);
+                }
+
+                return pathStr;
+            };
+
+            for (const currentItem of itemsToProcess) {
+                if (isFolderItem(currentItem)) {
+                    const group = provider.groups[currentItem.groupIdx];
+                    if (group && group.id) {
+                        const groupFiles = getAllFilesInGroupRecursive(provider.groups, group.id);
+                        groupFiles.forEach(f => {
+                            if (!filesToProcessMap.has(f)) {
+                                filesToProcessMap.set(f, new Set());
+                            }
+                            filesToProcessMap.get(f)?.add(getGroupPath(group.id!));
+                        });
+                    }
+                } else if (isFileItem(currentItem)) {
+                    const uriStr = currentItem.uri.toString();
+                    if (!filesToProcessMap.has(uriStr)) {
+                        filesToProcessMap.set(uriStr, new Set());
+                    }
+                    // Try to find group name for single file item
+                    const group = provider.groups[currentItem.groupIdx];
+                    if (group && group.id) {
+                        filesToProcessMap.get(uriStr)?.add(getGroupPath(group.id));
+                    }
+                } else if (isBookmarkItem(currentItem)) {
+                    // Handle Bookmark Item
+                    const uriStr = currentItem.fileUri.toString(); // BookmarkItem has fileUri NOT uri
+                    if (!bookmarksToProcessMap.has(uriStr)) {
+                        bookmarksToProcessMap.set(uriStr, []);
+                    }
+                    bookmarksToProcessMap.get(uriStr)?.push(currentItem);
+                }
+            }
+
+            const filesToProcess = Array.from(filesToProcessMap.keys());
+            const bookmarksToProcess = Array.from(bookmarksToProcessMap.keys());
+            const total = filesToProcess.length + bookmarksToProcess.length;
+
+            if (total === 0) {
+                vscode.window.showInformationMessage(I18n.getMessage('message.noFilesToGroup'));
+                return;
+            }
+
+            // Enhanced Title Generation (Markdown List Format)
+            let titleLines: string[] = [];
+            const selectedGroupFiles = new Set<string>();
+
+            // 1. Gather files from selected groups for deduplication check
+            itemsToProcess.forEach(item => {
+                if (isFolderItem(item)) {
+                    const group = provider.groups[item.groupIdx];
+                    if (group && group.id) {
+                        const files = getAllFilesInGroupRecursive(provider.groups, group.id);
+                        files.forEach(f => selectedGroupFiles.add(f));
+                        titleLines.push(`- **Group**: ${group.name}`);
+                    }
+                }
+            });
+
+            // 2. Generate labels for Files and Bookmarks
+            itemsToProcess.forEach(item => {
+                if (isFileItem(item)) {
+                    const label = vscode.workspace.asRelativePath(item.uri);
+                    const isDeduped = selectedGroupFiles.has(item.uri.toString());
+                    if (isDeduped) {
+                        titleLines.push(`- **File**: \`${label}\` (Deduplicated)`);
+                    } else {
+                        titleLines.push(`- **File**: \`${label}\``);
+                    }
+                } else if (isBookmarkItem(item)) {
+                    // For bookmarks, we format nicely: File (Line X) - Label
+                    const relativePath = vscode.workspace.asRelativePath(item.fileUri);
+                    const lineInfo = `Line ${item.bookmark.line + 1}`;
+                    const bookmarkLabel = item.bookmark.label ? ` - *${item.bookmark.label.replace(/\n/g, ' ')}*` : '';
+                    titleLines.push(`- **Bookmark**: \`${relativePath}\` (${lineInfo})${bookmarkLabel}`);
+                }
+            });
+
+            if (titleLines.length > 0) {
+                const header = `### Context Sources (${titleLines.length} items)`;
+                // If too many items, truncate the list display but keep the header accurate
+                if (titleLines.length > 15) {
+                    const remaining = titleLines.length - 15;
+                    contextTitle = `${header}\n${titleLines.slice(0, 15).join('\n')}\n- ... and ${remaining} more`;
+                } else {
+                    contextTitle = `${header}\n${titleLines.join('\n')}`;
+                }
+            }
+
             if (total > 20) {
                 vscode.window.showInformationMessage(I18n.getMessage('error.tooManyFiles', total.toString()));
             }
@@ -1119,6 +1394,41 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
                 'class', 'pyc', 'pyo', 'db', 'sqlite'
             ]);
 
+            // Helper to prevent UI freeze
+            const yieldToUI = async () => new Promise(resolve => setTimeout(resolve, 0));
+
+            // Helper to merge overlapping line ranges
+            const mergeLineRanges = (ranges: { start: number, end: number, label: string }[]) => {
+                if (ranges.length === 0) return [];
+                // Sort by start line
+                const sorted = [...ranges].sort((a, b) => a.start - b.start);
+                const merged: { start: number, end: number, labels: string[] }[] = [];
+
+                let current = {
+                    start: sorted[0].start,
+                    end: sorted[0].end,
+                    labels: [sorted[0].label]
+                };
+
+                for (let i = 1; i < sorted.length; i++) {
+                    const next = sorted[i];
+                    // If overlaps or adjacent (allowing for 1 line gap context merging if desired, but here strict overlap)
+                    if (next.start <= current.end + 1) { // +1 to merge adjacent blocks
+                        current.end = Math.max(current.end, next.end);
+                        current.labels.push(next.label);
+                    } else {
+                        merged.push(current);
+                        current = {
+                            start: next.start,
+                            end: next.end,
+                            labels: [next.label]
+                        };
+                    }
+                }
+                merged.push(current);
+                return merged;
+            };
+
             let content = `${contextTitle}\n\n`;
             let isCancelled = false;
 
@@ -1130,11 +1440,15 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
                 const step = 100 / total;
                 let processed = 0;
 
+                // Process Files
                 for (const uriStr of filesToProcess) {
                     if (token.isCancellationRequested) {
                         isCancelled = true;
                         break;
                     }
+
+                    // Yield every 5 files to prevent freeze
+                    if (processed % 5 === 0) await yieldToUI();
 
                     try {
                         const uri = vscode.Uri.parse(uriStr);
@@ -1147,9 +1461,10 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
                             continue;
                         }
 
-                        // Read file
-                        const fileData = await vscode.workspace.fs.readFile(uri);
-                        const fileText = new TextDecoder('utf-8').decode(fileData);
+                        // Fix A: Use openTextDocument to respect user encoding settings
+                        // Use try-catch for binary files that VS Code can't open as text
+                        const doc = await vscode.workspace.openTextDocument(uri);
+                        const fileText = doc.getText();
 
                         // Simple binary check: look for null bytes in the first 1000 chars
                         if (fileText.slice(0, 1000).indexOf('\0') !== -1) {
@@ -1158,14 +1473,29 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
                             continue;
                         }
 
+                        // Limit file size (e.g. 1MB)
+                        if (fileText.length > 1024 * 1024) {
+                            content += `## File: ${vscode.workspace.asRelativePath(uri)}\n(File too large to include)\n\n`;
+                            processed++;
+                            progress.report({ increment: step, message: `(${processed}/${total})` });
+                            continue;
+                        }
+
                         // Format
                         const relativePath = vscode.workspace.asRelativePath(uri);
-                        content += `## File: ${relativePath}\n`;
+                        const groupNames = filesToProcessMap.get(uriStr);
+                        let groupInfo = '';
+                        if (groupNames && groupNames.size > 0) {
+                            groupInfo = `> In Group: ${Array.from(groupNames).join(', ')}\n`;
+                        }
+
+                        content += `## File: ${relativePath}\n${groupInfo}`;
                         content += '```' + (ext || '') + '\n';
                         content += fileText + '\n';
                         content += '```\n\n';
 
                     } catch (e) {
+                        // Fallback for files that cannot be opened as text document
                         console.error(`Failed to read file ${uriStr}`, e);
                         content += `## File: ${uriStr}\n(Error reading file)\n\n`;
                     }
@@ -1173,6 +1503,62 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
                     processed++;
                     progress.report({ increment: step, message: `(${processed}/${total})` });
                 }
+
+                // Process Bookmarks
+                for (const uriStr of bookmarksToProcess) {
+                    if (token.isCancellationRequested) {
+                        isCancelled = true;
+                        break;
+                    }
+
+                    // Yield every 5 items
+                    if (processed % 5 === 0) await yieldToUI();
+
+                    try {
+                        const uri = vscode.Uri.parse(uriStr);
+                        const bookmarkItems = bookmarksToProcessMap.get(uriStr) || [];
+
+                        // Fix A: Use openTextDocument
+                        const doc = await vscode.workspace.openTextDocument(uri);
+                        const totalLines = doc.lineCount;
+                        const relativePath = vscode.workspace.asRelativePath(uri);
+
+                        // Prepare ranges
+                        const ranges = bookmarkItems.map(bm => ({
+                            start: Math.max(0, bm.bookmark.line - 5),
+                            end: Math.min(totalLines - 1, bm.bookmark.line + 5),
+                            label: bm.bookmark.label
+                        }));
+
+                        // Fix B: Merge overlapping ranges
+                        const mergedRanges = mergeLineRanges(ranges);
+
+                        for (const range of mergedRanges) {
+                            // Use Range object to extract text safely
+                            const textRange = new vscode.Range(
+                                new vscode.Position(range.start, 0),
+                                new vscode.Position(range.end, doc.lineAt(range.end).text.length)
+                            );
+                            const chunkText = doc.getText(textRange);
+
+                            const labelsStr = range.labels.join(', ');
+
+                            content += `## Bookmarks: ${labelsStr} in ${relativePath}\n`;
+                            content += `> Lines: ${range.start + 1}-${range.end + 1}\n`;
+                            content += '```' + (uri.fsPath.split('.').pop() || '') + '\n';
+                            content += chunkText + '\n';
+                            content += '```\n\n';
+                        }
+
+                    } catch (e) {
+                        console.error(`Failed to read bookmark file ${uriStr}`, e);
+                        content += `## Bookmark File: ${uriStr}\n(Error reading file)\n\n`;
+                    }
+
+                    processed++;
+                    progress.report({ increment: step, message: `(${processed}/${total})` });
+                }
+
             });
 
             if (isCancelled) return;
@@ -1222,4 +1608,22 @@ export function registerCommands(context: vscode.ExtensionContext, provider: Tem
             vscode.window.showInformationMessage(I18n.getMessage('message.pathsCopied'));
         })
     );
+
+    // Close Bookmark Container (Close the file of the bookmark)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('virtualTabs.closeBookmarkContainer', async (item: BookmarkItem) => {
+            if (item && item.resourceUri) {
+                const targetUri = item.resourceUri;
+                const tabGroups = vscode.window.tabGroups;
+                for (const group of tabGroups.all) {
+                    for (const tab of group.tabs) {
+                        if (tab.input instanceof vscode.TabInputText && tab.input.uri.toString() === targetUri.toString()) {
+                            await vscode.window.tabGroups.close(tab);
+                        }
+                    }
+                }
+            }
+        })
+    );
 }
+

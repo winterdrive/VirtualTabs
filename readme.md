@@ -13,7 +13,7 @@
 
 ## 🚀 What is VirtualTabs?
 
-**VirtualTabs is a VS Code extension that allows developers to organize files into persistent, custom virtual tab groups across directories.** Unlike standard tabs, VirtualTabs helps you build **AI-ready coding contexts** and logical file groups that stay organized even when you close VS Code. It is designed to improve navigation for large monorepos and enhance task-based workflows.
+**VirtualTabs is a VS Code extension that provides custom "Virtual File Directories" outside of your native file system.** Unlike standard directories, VirtualTabs helps you create **independent logical file groups** based on your current development theme, while also providing **AI-Ready Coding Context** for quick copying. It is perfectly suited for Monorepo projects or large-scale applications using MVVM or MVC architectures.
 
 ---
 
@@ -50,19 +50,20 @@
 
 ## ⚡ Latest Highlights
 
-![Latest Features](docs/assets/feature_032_preview.png)
+![Copy Menu Demo](docs/assets/copy_menu_demo.png)
 
-**v0.3.3** enhances user experience:
+**v0.3.6** introduces powerful multi-select copy & system improvements:
 
-- ⚙️ **Configurable Confirmations** — Control delete confirmation dialogs via settings
-- 🌍 **Better i18n** — Confirmation messages now fully localized
-- 🔧 **Code Quality** — Refactored confirmation logic for maintainability
+- 🎯 **Multi-select Copy Support (Core Update)** — Select multiple files or groups and copy everything at once.
+  - One-click copy for: File Names, Relative Paths, and Absolute Paths.
+  - Enhanced "Copy Context for AI" handles mixed selections (files + groups + bookmarks) with automatic content deduplication.
+- 🎨 **Smart Unified Menu** — Replaced redundant menus with a single, intelligent copy submenu.
+- 🔧 **Enhanced Reliability** — Implemented robust cycle detection and improved type safety using `instanceof` checks for smoother performance in large projects.
 
-**v0.3.2** brought productivity boosters:
+**v0.3.3** enhanced user experience:
 
-- 🎯 **Run Scripts Inline** — Execute `.bat` and `.exe` files with one click
-- ⇵ **Reorder Groups** — Move groups up/down to prioritize your workflow
-- 💾 **Team Sharing** — Config now saved in `.vscode/virtualTab.json`
+- ⚙️ **Configurable Confirmations** — Toggle delete confirmation dialogs via settings.
+- 🌍 **Better i18n** — Fully localized messages for English, Traditional Chinese, and Simplified Chinese.
 
 ---
 
@@ -134,52 +135,68 @@ All copy operations are available in one convenient submenu, with smart behavior
 - Toggle ascending/descending order
 - Each group remembers its own sort preference
 
+#### Right-Click Menu Guide
+
+VirtualTabs provides rich context menu options for efficient file and group management:
+
+- **Group Operations**: Add/Rename/Duplicate, Move Up/Down, Bulk Open/Close, and Auto-Grouping.
+- **File Operations**: Bulk Open/Close (multi-select), Remove from Group, Delete to Trash, and Script Execution (.bat/.exe).
+- **Copy Menu**: Unified submenu for copying names, paths, or full LLM-ready context.
+- **Bookmarks**: Quick navigation, label/description editing, and file management.
+
+> [!TIP]
+> **Technical Reference**: For a complete matrix of command availability across all item types, please see **[DEVELOPMENT.md](./DEVELOPMENT.md#menu-availability-matrix)**.
+
+**Multi-Selection Tips:**
+
+- Hold `Ctrl` (or `Cmd`) and click to select multiple files.
+- Right-click any selected file to apply operations to all.
+- Or simply right-click any file without pre-selection for quick actions.
+
 ---
 
-## 💡 Why Choose VirtualTabs?
+### 🧩 Solving Modern Workflow Pain Points
 
-### 🧩 Solves Real Workflow Problems
-
-In large projects, related files are scattered across directories:
+In MVC/MVVM or large-scale projects, related files are often scattered across deep directory structures, making switching a repetitive chore:
 
 ```text
-❌ Without VirtualTabs:
-├── config.json          (root)
-├── styles/theme.css     (styles folder)
-├── src/components/      (components)
-└── tests/__tests__/     (tests)
+❌ Traditional File Structure:
+├── config.json          (Root Config)
+├── styles/theme.css     (Style Layer)
+├── src/components/      (View Layer)
+└── tests/__tests__/     (Testing Layer)
 
-✅ With VirtualTabs:
+✅ Theme-Based Virtual Directory:
 📁 Feature: Theme System
-  ├── 📁📚 Config Files
+  ├── 📁📚 Configuration
   │   └── config.json
-  ├── 📁📚 Styles
+  ├── 📁📚 Style Definitions
   │   └── theme.css
-  ├── 📁📚 Components
+  ├── 📁📚 Components (View Layer)
   │   └── ThemeProvider.tsx
   │     └── 🔖 Line 45: Context setup
-  └── 📁📚 Tests
+  └── 📁📚 Unit Tests (Logic/Testing)
       └── theme.test.ts
 ```
 
-### 🤖 Perfect for AI-Assisted Coding
+### 🤖 Born for AI Collaboration
 
-**Context is King** in the era of Copilot and LLMs:
+In the era of Copilot and LLMs, **precise context** is the key to high-quality results:
 
-- **Curated Context**: Create groups with *only* the relevant files for a task
-- **One-Click Export**: Copy all files as AI-ready markdown (v0.3.0)
-- **Reduced Noise**: Help AI focus by isolating the exact files needed
-- **Persistent Prompts**: Keep a "Context Group" ready when you return to a task
+- **Curated Selection**: Create groups with *only* the files relevant to your current task.
+- **One-Click Export**: Convert entire groups into AI-friendly Markdown blocks (v0.3.0).
+- **Reduced Noise**: Isolate core logic to help AI focus and prevent hallucinations.
+- **Persistent Context**: Your curated AI prompts and file sets stay ready even after a restart.
 
-> *"VirtualTabs helps me define the exact boundary of what the AI should look at."*
+> *"VirtualTabs helps me define the exact boundary of what the AI should see."*
 
 ### 🎯 Use Cases
 
-- **Cross-directory management**: Group config, styles, and source code together
-- **Feature-based development**: Organize by module or functionality
-- **AI Context Curation**: Build precise file sets for LLMs with one-click export
-- **Code Review**: Centralize files for review efficiency
-- **Teaching & Reference**: Create curated examples without folder interference
+- **Monorepo Management**: Group related configs and logic across multiple packages.
+- **Architecture-Oriented Dev**: Organize by logic layers (MVC/MVVM) rather than physical disk paths.
+- **AI Context Curation**: Build precise file sets for LLMs to maximize prompt accuracy.
+- **Code Review (CR)**: Centralize all changed files for a specific feature for efficient review.
+- **Micro-Tutorials**: Create curated code paths for onboarding or technical reference.
 
 ---
 
@@ -279,7 +296,14 @@ Get Quick Prompt on [**VS Code Marketplace**](https://marketplace.visualstudio.c
 
 ## 📅 Changelog
 
-### ✅ v0.3.3 (Latest)
+### ✅ v0.3.6 (Latest)
+
+- 🎯 **Multi-select Copy Support** — All copy commands now support selecting multiple files/groups
+- 🎨 **Unified Copy Menu** — Consolidated 4 duplicate submenus into one smart menu
+- 🔧 **Enhanced Reliability** — Improved type safety with `instanceof` checks and Set-based cycle detection
+- 🐛 **Bug Fixes** — Fixed command namespace conflicts and bookmark context handling
+
+### ✅ v0.3.3
 
 - ✅ Configurable confirmation dialogs for delete operations
 - ✅ Internationalized confirmation messages (EN/ZH-TW/ZH-CN)

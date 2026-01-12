@@ -700,16 +700,30 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 extMap[ext].push(uriStr);
             } catch { }
         }
-        // Remove old auto groups
-        this.groups = this.groups.filter((g, idx) => g.builtIn || !g.auto || idx === groupIdx);
-        // Insert auto groups at the original group position
+        // Remove old auto groups (cleanup via sourceGroupId or legacy auto check)
+        this.groups = this.groups.filter((g) => {
+            // Keep if it's the source group itself
+            if (g.id === group.id) return true;
+            // Remove if it's an auto group sourced from this group
+            if (g.auto && (g.sourceGroupId === group.id)) return false;
+            // Legacy cleanup (optional, but safer to rely on ID now)
+            return true;
+        });
+
+        // Insert auto groups at the original group position (after it)
         const newGroups = Object.entries(extMap).map(([ext, files]) => ({
             id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
-            name: I18n.getAutoGroupName(ext),
+            name: `${I18n.getAutoGroupName(ext)} @ ${group.name}`, // Naming: .ext @ Source
             files,
-            auto: true
+            auto: true,
+            sourceGroupId: group.id
         }));
-        this.groups.splice(groupIdx + 1, 0, ...newGroups);
+
+        // Find fresh index of group because filtering might have shifted it
+        const newGroupIdx = this.groups.findIndex(g => g.id === group.id);
+        if (newGroupIdx !== -1) {
+            this.groups.splice(newGroupIdx + 1, 0, ...newGroups);
+        }
         this.refresh();
     }
 
@@ -750,8 +764,12 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         // Group by modified date
         const dateGroups = FileGrouper.groupByModifiedDate(group.files);
 
-        // Remove old auto groups
-        this.groups = this.groups.filter((g, idx) => g.builtIn || !g.auto || idx === groupIdx);
+        // Remove old auto groups related to this source group
+        this.groups = this.groups.filter((g) => {
+            if (g.id === group.id) return true;
+            if (g.auto && (g.sourceGroupId === group.id)) return false;
+            return true;
+        });
 
         // Create new date-based groups
         const newGroups: TempGroup[] = [];
@@ -762,16 +780,22 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             if (files && files.length > 0) {
                 newGroups.push({
                     id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
-                    name: FileGrouper.getDateGroupLabel(dateGroup, I18n),
+                    name: `${I18n.getMessage('group.autoGroupPrefix')} ${FileGrouper.getDateGroupLabel(dateGroup, I18n)} @ ${group.name}`, // Naming: [Auto] Label @ Source
                     files,
                     auto: true,
                     autoGroupType: 'modifiedDate',
-                    parentGroupId: group.id
+                    sourceGroupId: group.id
+                    // Removed parentGroupId to make it sibling
                 });
             }
         }
 
-        this.groups.splice(groupIdx + 1, 0, ...newGroups);
+        // Find fresh index
+        const newGroupIdx = this.groups.findIndex(g => g.id === group.id);
+        if (newGroupIdx !== -1) {
+            this.groups.splice(newGroupIdx + 1, 0, ...newGroups);
+        }
+
         this.refresh();
     }
 

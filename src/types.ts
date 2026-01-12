@@ -80,6 +80,7 @@ export interface TempGroup {
     groupBy?: GroupByCriteria;          // Grouping preference
     autoGroupType?: 'extension' | 'modifiedDate';  // Type of auto-grouping
     parentGroupId?: string;             // Parent group ID (for nested groups)
+    sourceGroupId?: string;             // ID of the source group for parallel auto-groups
 
     // Bookmarks (v0.2.0)
     /**

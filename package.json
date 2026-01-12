@@ -2,14 +2,14 @@
     "name": "virtual-tabs",
     "displayName": "%extension.displayName%",
     "description": "%extension.description%",
-    "version": "0.3.5",
+    "version": "0.3.6",
     "publisher": "winterdrive",
     "icon": "docs/assets/virtualtabs_icon_128.png",
     "categories": [
         "Other"
     ],
     "keywords": [
-        "chrome-like tabs",
+        "virtual file directories",
         "file grouping",
         "virtual tabs",
         "tab organization",
@@ -20,7 +20,8 @@
         "bookmarks",
         "cross-directory",
         "chatgpt",
-        "copilot"
+        "copilot",
+        "chrome-like tabs"
     ],
     "repository": {
         "type": "git",
@@ -141,7 +142,7 @@
                 "title": "%command.removeSelectedFilesFromGroup.title%"
             },
             {
-                "command": "deleteFile",
+                "command": "virtualTabs.deleteFile",
                 "title": "%command.deleteFile.title%"
             },
             {
@@ -223,6 +224,10 @@
                 "title": "%command.copyGroupPaths.title%"
             },
             {
+                "command": "virtualTabs.copyName",
+                "title": "%command.copyName.title%"
+            },
+            {
                 "command": "virtualTabs.delete",
                 "title": "Delete"
             },
@@ -233,6 +238,10 @@
             {
                 "command": "virtualTabs.paste",
                 "title": "Paste"
+            },
+            {
+                "command": "virtualTabs.closeBookmarkContainer",
+                "title": "Close File"
             }
         ],
         "submenus": [
@@ -245,19 +254,7 @@
                 "label": "%submenu.sortFiles.label%"
             },
             {
-                "id": "virtualTabs.copyMenu.group",
-                "label": "Copy..."
-            },
-            {
-                "id": "virtualTabs.copyMenu.builtIn",
-                "label": "Copy..."
-            },
-            {
-                "id": "virtualTabs.copyMenu.fileCustom",
-                "label": "Copy..."
-            },
-            {
-                "id": "virtualTabs.copyMenu.fileBuiltIn",
+                "id": "virtualTabs.copyMenu.unified",
                 "label": "Copy..."
             }
         ],
@@ -304,38 +301,33 @@
                     "group": "2_files@2"
                 },
                 {
-                    "command": "virtualTabs.addSelectedFilesToGroup",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroup && selectedCount > 0",
-                    "group": "2_files@3"
-                },
-                {
                     "submenu": "virtualTabs.sortMenu.group",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroup",
+                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsGroup.*/",
                     "group": "3_organize@1"
                 },
                 {
                     "command": "virtualTabs.autoGroupByExt",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroup",
+                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsGroup.*/",
                     "group": "3_organize@2"
                 },
                 {
                     "command": "virtualTabs.autoGroupByModifiedDate",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroup",
+                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsGroup.*/",
                     "group": "3_organize@3"
                 },
                 {
-                    "submenu": "virtualTabs.copyMenu.group",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroup",
+                    "submenu": "virtualTabs.copyMenu.unified",
+                    "when": "view == virtualTabsView && (viewItem =~ /virtualTabsGroup.*/ || virtualTabs:hasFileSelected || viewItem == virtualTabsBookmark)",
                     "group": "4_copy@1"
-                },
-                {
-                    "command": "virtualTabs.paste",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroup",
-                    "group": "5_edit@1"
                 },
                 {
                     "command": "virtualTabs.removeGroup",
                     "when": "view == virtualTabsView && viewItem == virtualTabsGroup",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "virtualTabs.refreshBuiltInGroup",
+                    "when": "view == virtualTabsView && viewItem == virtualTabsGroupBuiltIn",
                     "group": "inline@1"
                 },
                 {
@@ -346,107 +338,52 @@
                 {
                     "command": "virtualTabs.duplicateBuiltInGroup",
                     "when": "view == virtualTabsView && viewItem == virtualTabsGroupBuiltIn",
-                    "group": "1_basic@2"
-                },
-                {
-                    "command": "virtualTabs.addSelectedFilesToGroup",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroupBuiltIn && selectedCount > 0",
-                    "group": "2_files@1"
-                },
-                {
-                    "submenu": "virtualTabs.sortMenu.builtIn",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroupBuiltIn",
-                    "group": "3_organize@1"
-                },
-                {
-                    "command": "virtualTabs.autoGroupByExt",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroupBuiltIn",
-                    "group": "3_organize@2"
-                },
-                {
-                    "command": "virtualTabs.autoGroupByModifiedDate",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroupBuiltIn",
-                    "group": "3_organize@3"
-                },
-                {
-                    "submenu": "virtualTabs.copyMenu.builtIn",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroupBuiltIn",
-                    "group": "4_copy@1"
-                },
-                {
-                    "command": "virtualTabs.refreshBuiltInGroup",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsGroupBuiltIn",
-                    "group": "inline@1"
+                    "group": "1_basic@4"
                 },
                 {
                     "command": "virtualTabs.openSelectedFiles",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileCustom/ && selectedCount > 1",
+                    "when": "view == virtualTabsView && virtualTabs:hasFileSelected && (viewItem == virtualTabsFileCustom || viewItem == virtualTabsFileBuiltIn || viewItem == virtualTabsFileCustomExec || viewItem == virtualTabsFileBuiltInExec)",
                     "group": "1_open@1"
                 },
                 {
                     "command": "virtualTabs.closeSelectedFiles",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileCustom/ && selectedCount > 1",
+                    "when": "view == virtualTabsView && virtualTabs:hasFileSelected && (viewItem == virtualTabsFileCustom || viewItem == virtualTabsFileBuiltIn || viewItem == virtualTabsFileCustomExec || viewItem == virtualTabsFileBuiltInExec)",
                     "group": "1_open@2"
                 },
                 {
-                    "command": "virtualTabs.paste",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileCustom/",
-                    "group": "2_edit@1"
-                },
-                {
                     "command": "virtualTabs.runFile",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsFileCustomExec",
+                    "when": "view == virtualTabsView && (viewItem == virtualTabsFileCustomExec || viewItem == virtualTabsFileBuiltInExec)",
                     "group": "inline@0"
                 },
                 {
-                    "submenu": "virtualTabs.copyMenu.fileCustom",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileCustom/",
-                    "group": "3_copy@1"
-                },
-                {
                     "command": "revealFileInOS",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileCustom/",
+                    "when": "view == virtualTabsView && ((virtualTabs:hasFileSelected && (viewItem == virtualTabsFileCustom || viewItem == virtualTabsFileBuiltIn || viewItem == virtualTabsFileCustomExec || viewItem == virtualTabsFileBuiltInExec)) || viewItem == virtualTabsBookmark)",
                     "group": "4_system@1"
                 },
                 {
                     "command": "virtualTabs.removeFileFromGroup",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileCustom/",
+                    "when": "view == virtualTabsView && (viewItem == virtualTabsFileCustom || viewItem == virtualTabsFileCustomExec)",
                     "group": "inline@1"
                 },
                 {
                     "command": "virtualTabs.removeSelectedFilesFromGroup",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileCustom/ && selectedCount > 1",
-                    "group": "9_delete@1"
+                    "when": "view == virtualTabsView && virtualTabs:hasCustomFileSelected && (viewItem == virtualTabsFileCustom || viewItem == virtualTabsFileCustomExec)",
+                    "group": "3_modify@1"
                 },
                 {
-                    "command": "deleteFile",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileCustom/",
+                    "command": "virtualTabs.deleteFile",
+                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFile.*/",
                     "group": "9_delete@2"
                 },
                 {
-                    "command": "virtualTabs.openSelectedFiles",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileBuiltIn/ && selectedCount > 1",
+                    "command": "virtualTabs.jumpToBookmark",
+                    "when": "view == virtualTabsView && viewItem == virtualTabsBookmark",
                     "group": "1_open@1"
                 },
                 {
-                    "command": "virtualTabs.closeSelectedFiles",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileBuiltIn/ && selectedCount > 1",
+                    "command": "virtualTabs.closeBookmarkContainer",
+                    "when": "view == virtualTabsView && viewItem == virtualTabsBookmark",
                     "group": "1_open@2"
-                },
-                {
-                    "submenu": "virtualTabs.copyMenu.fileBuiltIn",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileBuiltIn/",
-                    "group": "3_copy@1"
-                },
-                {
-                    "command": "revealFileInOS",
-                    "when": "view == virtualTabsView && viewItem =~ /virtualTabsFileBuiltIn/",
-                    "group": "4_system@1"
-                },
-                {
-                    "command": "virtualTabs.runFile",
-                    "when": "view == virtualTabsView && viewItem == virtualTabsFileBuiltInExec",
-                    "group": "inline@0"
                 },
                 {
                     "command": "virtualTabs.editBookmarkLabel",
@@ -523,76 +460,10 @@
                     "group": "3_actions@1"
                 }
             ],
-            "virtualTabs.copyMenu.group": [
+            "virtualTabs.copyMenu.unified": [
                 {
-                    "command": "virtualTabs.copy",
-                    "group": "1_move@1"
-                },
-                {
-                    "command": "virtualTabs.copyGroupContext",
-                    "group": "2_ai@1"
-                },
-                {
-                    "command": "virtualTabs.copyFileName",
-                    "group": "3_info@1"
-                },
-                {
-                    "command": "virtualTabs.copyRelativePath",
-                    "group": "3_info@2"
-                },
-                {
-                    "command": "virtualTabs.copyAbsolutePath",
-                    "group": "3_info@3"
-                }
-            ],
-            "virtualTabs.copyMenu.builtIn": [
-                {
-                    "command": "virtualTabs.copy",
-                    "group": "1_move@1"
-                },
-                {
-                    "command": "virtualTabs.copyGroupContext",
-                    "group": "2_ai@1"
-                },
-                {
-                    "command": "virtualTabs.copyFileName",
-                    "group": "3_info@1"
-                },
-                {
-                    "command": "virtualTabs.copyRelativePath",
-                    "group": "3_info@2"
-                },
-                {
-                    "command": "virtualTabs.copyAbsolutePath",
-                    "group": "3_info@3"
-                }
-            ],
-            "virtualTabs.copyMenu.fileCustom": [
-                {
-                    "command": "virtualTabs.copy",
-                    "group": "1_move@1"
-                },
-                {
-                    "command": "virtualTabs.copyGroupContext",
-                    "group": "2_ai@1"
-                },
-                {
-                    "command": "virtualTabs.copyFileName",
-                    "group": "3_info@1"
-                },
-                {
-                    "command": "virtualTabs.copyRelativePath",
-                    "group": "3_info@2"
-                },
-                {
-                    "command": "virtualTabs.copyAbsolutePath",
-                    "group": "3_info@3"
-                }
-            ],
-            "virtualTabs.copyMenu.fileBuiltIn": [
-                {
-                    "command": "virtualTabs.copy",
-                    "group": "1_move@1"
+                    "command": "virtualTabs.copyName",
+                    "group": "1_name@1"
                 },
                 {
                     "command": "virtualTabs.copyGroupContext",
@@ -616,11 +487,6 @@
             {
                 "command": "virtualTabs.copy",
                 "key": "ctrl+shift+c",
-                "when": "sideBarFocus"
-            },
-            {
-                "command": "virtualTabs.paste",
-                "key": "ctrl+shift+v",
                 "when": "sideBarFocus"
             }
         ]
