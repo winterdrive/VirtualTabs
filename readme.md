@@ -277,7 +277,7 @@ Get Quick Prompt on [**VS Code Marketplace**](https://marketplace.visualstudio.c
 
 If you find this extension helpful, please consider supporting the development!
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Q5Q41SR5WO)
+<a href="https://ko-fi.com/Q5Q41SR5WO"><img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" height="36" alt="ko-fi" /></a>
 
 ## 📄 License
 

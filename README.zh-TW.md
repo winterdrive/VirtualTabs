@@ -281,7 +281,7 @@
 
 如果您覺得這個擴充功能對您有幫助，歡迎小額贊助支持開發！
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Q5Q41SR5WO)
+<a href="https://ko-fi.com/Q5Q41SR5WO"><img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" height="36" alt="ko-fi" /></a>
 
 ## 📄 授權
 
