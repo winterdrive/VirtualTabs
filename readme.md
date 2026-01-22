@@ -27,6 +27,43 @@
 
 ---
 
+### 🧩 Solving Modern Workflow Pain Points
+
+In MVC/MVVM or large-scale projects, related files are often scattered across deep directory structures, making switching a repetitive chore:
+
+```text
+❌ Traditional File Structure:
+├── config.json          (Root Config)
+├── styles/theme.css     (Style Layer)
+├── src/components/      (View Layer)
+├── tests/__tests__/     (Testing Layer)
+
+✅ Theme-Based Virtual Directory:
+📁 Feature: Theme System
+  ├── 📁📚 Configuration
+  │   └── config.json
+  ├── 📁📚 Style Definitions
+  │   └── theme.css
+  ├── 📁📚 Components (View Layer)
+  │   └── ThemeProvider.tsx
+  │     └── 🔖 Line 45: Context setup
+  └── 📁📚 Unit Tests (Logic/Testing)
+  │   └── theme.test.ts
+```
+
+### 🤖 Born for AI Collaboration
+
+In the era of Copilot and LLMs, **precise context** is the key to high-quality results:
+
+- **Curated Selection**: Create groups with *only* the files relevant to your current task.
+- **One-Click Export**: Convert entire groups into AI-friendly Markdown blocks (v0.3.0).
+- **Reduced Noise**: Isolate core logic to help AI focus and prevent hallucinations.
+- **Persistent Context**: Your curated AI prompts and file sets stay ready even after a restart.
+
+> *"VirtualTabs helps me define the exact boundary of what the AI should see."*
+
+---
+
 ## ✨ Key Features
 
 ### Core Capabilities
@@ -79,116 +116,56 @@
 
 1. Click the **VirtualTabs** icon in the Activity Bar (left sidebar)
 2. Right-click in the panel → **Create New Group**
-3. Drag files into your group
-4. Right-click the group → **Auto Group by Extension** (optional)
-
-### Basic Operations
-
-#### Creating Groups
-
-- Right-click in the VirtualTabs panel → **Create New Group**
-- Name your group (e.g., "AI Context", "Feature: Auth", "Bug Fix #123")
-- Right-click any group → **Add Sub-Group** for nested organization
-
-![Nested Groups](docs/assets/nested_groups_demo.png)
-
-#### Adding Files
-
-- **Drag & Drop Files**: Drag files from Explorer into a group
-- **Drag & Drop Folders**: Drag folders to add all files recursively (v0.3.0)
-- **Multi-select**: Hold `Ctrl` (or `Cmd`) and click files, then drag together
-- **Currently Open**: The built-in group auto-syncs with your open tabs
-
-![Drag & Drop Demo](docs/assets/drag_drop_demo.png)
-
-#### Using Bookmarks (v0.2.0)
-
-1. Right-click any line in the editor → **Add Bookmark to VirtualTabs**
-2. The bookmark appears under the file in the sidebar
-3. Click the bookmark to jump to that exact line
-4. Right-click the bookmark → **Edit Label** or **Edit Description**
-
-#### AI Context Export (v0.3.0)
-
-![AI Context Export](docs/assets/ai_context_demo.png)
-
-1. Right-click a group → **Copy...** → **Copy Context for AI**
-2. Paste directly into ChatGPT, Claude, or any LLM
-3. All files are formatted with proper code blocks
-
-**Unified Copy Menu:**
-
-![Copy Menu Options](docs/assets/copy_menu_demo.png)
-
-All copy operations are available in one convenient submenu, with smart behavior for both groups and files.
-
-**Smart Features:**
-
-- Skips binary files automatically
-- Opens in editor if content > 50KB
-- Includes all sub-group files recursively
-
-#### Sorting Files (v0.1.0)
-
-- Right-click a group → **Sort Files** submenu
-- Choose: Name, Path, Extension, or Modified Time
-- Toggle ascending/descending order
-- Each group remembers its own sort preference
-
-#### Right-Click Menu Guide
-
-VirtualTabs provides rich context menu options for efficient file and group management:
-
-- **Group Operations**: Add/Rename/Duplicate, Move Up/Down, Bulk Open/Close, and Auto-Grouping.
-- **File Operations**: Bulk Open/Close (multi-select), Remove from Group, Delete to Trash, and Script Execution (.bat/.exe).
-- **Copy Menu**: Unified submenu for copying names, paths, or full LLM-ready context.
-- **Bookmarks**: Quick navigation, label/description editing, and file management.
-
-> [!TIP]
-> **Technical Reference**: For a complete matrix of command availability across all item types, please see **[DEVELOPMENT.md](./DEVELOPMENT.md#menu-availability-matrix)**.
-
-**Multi-Selection Tips:**
-
-- Hold `Ctrl` (or `Cmd`) and click to select multiple files.
-- Right-click any selected file to apply operations to all.
-- Or simply right-click any file without pre-selection for quick actions.
+3. Drag files from Explorer into your group
 
 ---
 
-### 🧩 Solving Modern Workflow Pain Points
+## 📖 User Guide
 
-In MVC/MVVM or large-scale projects, related files are often scattered across deep directory structures, making switching a repetitive chore:
+### 📁 Group Management
 
-```text
-❌ Traditional File Structure:
-├── config.json          (Root Config)
-├── styles/theme.css     (Style Layer)
-├── src/components/      (View Layer)
-└── tests/__tests__/     (Testing Layer)
+- **Create/Rename**: Right-click panel or groups to manage.
+- **Sub-Groups**: Right-click a group → **Add Sub-Group** (or drag one group into another) to create nested structures.
+- **Auto-Sync**: The built-in "Open Editors" group automatically tracks your open tabs.
+- **Drag & Drop**:
+  - **Files**: Drag files from Explorer into groups.
+  - **Folders**: Drag folders to recursively add all files inside.
+  - **Multi-select**: Hold `Ctrl/Cmd` to select multiple files to drag at once.
 
-✅ Theme-Based Virtual Directory:
-📁 Feature: Theme System
-  ├── 📁📚 Configuration
-  │   └── config.json
-  ├── 📁📚 Style Definitions
-  │   └── theme.css
-  ├── 📁📚 Components (View Layer)
-  │   └── ThemeProvider.tsx
-  │     └── 🔖 Line 45: Context setup
-  └── 📁📚 Unit Tests (Logic/Testing)
-      └── theme.test.ts
-```
+### 🔖 Task-Oriented Bookmarks (v0.2.0)
 
-### 🤖 Born for AI Collaboration
+1. Right-click **any line of code** → **Add Bookmark to VirtualTabs**
+2. The bookmark appears nested under the file in your group.
+3. Click to jump instantly to that exact line.
+4. Edit label/description to document *why* this line is important.
 
-In the era of Copilot and LLMs, **precise context** is the key to high-quality results:
+### 🤖 AI Context Export (v0.3.0)
 
-- **Curated Selection**: Create groups with *only* the files relevant to your current task.
-- **One-Click Export**: Convert entire groups into AI-friendly Markdown blocks (v0.3.0).
-- **Reduced Noise**: Isolate core logic to help AI focus and prevent hallucinations.
-- **Persistent Context**: Your curated AI prompts and file sets stay ready even after a restart.
+**The "Killer Feature" for LLM workflows.**
 
-> *"VirtualTabs helps me define the exact boundary of what the AI should see."*
+1. Setup a group with all relevant files for your current task.
+2. Right-click the group → **Copy...** → **Copy Context for AI**.
+3. Paste into ChatGPT/Claude.
+    - **Smart**: Binary files are skipped. Large files (>50KB) are opened for review.
+    - **Clean**: All code is formatted in markdown blocks with file paths.
+
+### 📋 Unified Copy Menu
+
+Everything you need in one place. Right-click any file or group:
+
+- **Copy Name/Path**: Standard path copying.
+- **Copy Context**: Get the code content.
+- **Multi-select**: Select 5 files → Copy Paths → Get a list of 5 paths.
+
+![Copy Menu Demo](docs/assets/copy_menu_demo.png)
+
+### 📊 Sorting & Organization
+
+- **Sort**: Right-click group → **Sort Files** (Name, Path, Extension, Date).
+- **Auto-Group**: Right-click group → **Auto Group by Extension/Date**.
+- **Reorder**: Use Right-click → **Move Up/Down** to manually order groups.
+
+---
 
 ### 🎯 Use Cases
 
@@ -210,16 +187,6 @@ In the era of Copilot and LLMs, **precise context** is the key to high-quality r
 6. **Review and Refine**: Periodically clean up unused groups to stay organized
 
 ---
-
-## 🌍 Language Support
-
-VirtualTabs automatically switches based on your VS Code locale:
-
-- 🇺🇸 English (`en`)
-- 🇹🇼 Traditional Chinese (`zh-tw`)
-- 🇨🇳 Simplified Chinese (`zh-cn`)
-
-Change your VS Code locale to switch languages instantly.
 
 ---
 
@@ -255,25 +222,24 @@ Simply drag a folder from the Explorer panel onto a group. VirtualTabs will auto
 
 ---
 
-## 🔧 Developer Section
+## 🤝 Contributing
 
-Interested in contributing? Check out **[DEVELOPMENT.md](./DEVELOPMENT.md)** for:
+We welcome community contributions!
+
+### 🔧 For Developers
+
+Interested in code contributions? Please check **[DEVELOPMENT.md](./DEVELOPMENT.md)** for:
 
 - Environment setup
 - Debugging & publishing guide
-- Module structure & data flow diagrams
+- Module structure
 - Common error troubleshooting
 
----
-
-## 🤝 Contributing
-
-We welcome community contributions:
+### 💬 Community
 
 - 🐞 **Bug Reports** → [GitHub Issues](https://github.com/winterdrive/virtual-tabs/issues)
-- ✨ **Feature Requests** and UI suggestions
-- 🔧 **Code Contributions** (fork and submit a PR)
-- 🌍 **Translations** for new languages
+- ✨ **Feature Requests** → [GitHub Discussions](https://github.com/winterdrive/virtual-tabs/discussions)
+- 🔧 **Code Contributions** → Fork and PR
 
 ---
 
@@ -296,6 +262,8 @@ Get Quick Prompt on [**VS Code Marketplace**](https://marketplace.visualstudio.c
 
 ## 📅 Changelog
 
+👉 See [CHANGELOG.md](./CHANGELOG.md) for full release history.
+
 ### ✅ v0.3.6 (Latest)
 
 - 🎯 **Multi-select Copy Support** — All copy commands now support selecting multiple files/groups
@@ -303,43 +271,13 @@ Get Quick Prompt on [**VS Code Marketplace**](https://marketplace.visualstudio.c
 - 🔧 **Enhanced Reliability** — Improved type safety with `instanceof` checks and Set-based cycle detection
 - 🐛 **Bug Fixes** — Fixed command namespace conflicts and bookmark context handling
 
-### ✅ v0.3.3
-
-- ✅ Configurable confirmation dialogs for delete operations
-- ✅ Internationalized confirmation messages (EN/ZH-TW/ZH-CN)
-- ✅ Refactored confirmation logic into reusable utility
-
-### ✅ v0.3.2
-
-- ✅ Inline Run button for scripts (.bat/.exe)
-- ✅ Group Reordering (Move Up/Down)
-- ✅ Storage moved to `.vscode/virtualTab.json`
-- ✅ Expanded state persistence
-
-### ✅ v0.3.0
-
-- ✅ Sub-Groups & Nested Structure
-- ✅ AI Context Export ("Copy Context for AI")
-- ✅ Unified Copy Menu with smart behavior
-- ✅ Directory Drag & Drop (recursive file adding)
-- ✅ Copy/Paste/Delete operations
-- ✅ Multi-select delete for groups and files
-- ✅ Enhanced drag & drop with bookmark preservation
-
-### ✅ v0.2.0
-
-- ✅ Task-Oriented Bookmarks with smart flow
-- ✅ Enhanced tree view for bookmarks and files
-- ✅ Edit bookmark labels and descriptions
-
-### ✅ v0.1.0
-
-- ✅ File sorting (name, path, extension, modified time)
-- ✅ Auto-group by modification date
-- ✅ Per-group sort preferences
-- ✅ Full i18n support (EN, ZH-TW, ZH-CN)
-
 ---
+
+## ❤️ Support
+
+If you find this extension helpful, please consider supporting the development!
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Q5Q41SR5WO)
 
 ## 📄 License
 
