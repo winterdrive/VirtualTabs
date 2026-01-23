@@ -132,6 +132,8 @@
   - **資料夾**：拖入資料夾可遞迴加入所有檔案。
   - **多選**：按住 `Ctrl/Cmd` 多選後一次拖入。
 
+![拖放操作示範](docs/assets/drag_drop_demo.png)
+
 ### 🔖 任務導向書籤 (v0.2.0)
 
 1. 在編輯器中右鍵點擊 **任意程式碼行** → **加入書籤到 VirtualTabs**。
@@ -139,15 +141,19 @@
 3. 點擊即可瞬間跳轉至該行。
 4. 可編輯標籤與描述，記錄 *為什麼* 這一行很重要。
 
+![書籤功能示範](docs/assets/bookmarks_feature.png)
+
 ### 🤖 AI 上下文匯出 (v0.3.0)
 
-**LLM 工作流的殺手級功能。**
+**LLM 工作流的殺手級功能入。**
 
 1. 將當前任務相關的所有檔案放入一個群組。
 2. 右鍵群組 → **複製...** → **複製 AI 上下文 (Copy Context for AI)**。
 3. 直接貼上到 ChatGPT 或 Claude。
     - **智慧**：自動跳過二進位檔。過大的檔案 (>50KB) 會幫您開啟以供檢視。
-    - **整潔**：所有程式碼皆已格式化為 Markdown區塊，並附帶路徑。
+    - **整潔**：所有程式碼皆已格式化為 Markdown 區塊，並附帶路徑。
+
+![AI 上下文示範](docs/assets/ai_context_demo.png)
 
 ### 📋 統一複製選單
 
@@ -156,8 +162,6 @@
 - **複製名稱/路徑**：標準的路徑複製功能。
 - **複製上下文**：獲取程式碼內容。
 - **多選支援**：選取 5 個檔案 → 複製路徑 → 得到 5 行路徑清單。
-
-![Copy Menu Demo](docs/assets/copy_menu_demo.png)
 
 ### 📊 排序與組織
 
@@ -260,7 +264,7 @@
 
 兩者結合，創造終極 AI 編程工作流程。
 
-在 [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=winterdrive.quick-prompt?utm_source=virtualtabs&utm_medium=readme&utm_campaign=cross_promotion) | [**Open VSX Registry**](https://open-vsx.org/extension/winterdrive/quick-prompt?utm_source=virtualtabs&utm_medium=readme&utm_campaign=cross_promotion) 取得 Quick Prompt
+在 [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=winterdrive.quick-prompt) | [**Open VSX Registry**](https://open-vsx.org/extension/winterdrive/quick-prompt) 取得 Quick Prompt
 
 ---
 

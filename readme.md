@@ -132,12 +132,16 @@ In the era of Copilot and LLMs, **precise context** is the key to high-quality r
   - **Folders**: Drag folders to recursively add all files inside.
   - **Multi-select**: Hold `Ctrl/Cmd` to select multiple files to drag at once.
 
+![Drag and Drop Demo](docs/assets/drag_drop_demo.png)
+
 ### 🔖 Task-Oriented Bookmarks (v0.2.0)
 
 1. Right-click **any line of code** → **Add Bookmark to VirtualTabs**
 2. The bookmark appears nested under the file in your group.
 3. Click to jump instantly to that exact line.
 4. Edit label/description to document *why* this line is important.
+
+![Bookmarks Feature](docs/assets/bookmarks_feature.png)
 
 ### 🤖 AI Context Export (v0.3.0)
 
@@ -149,6 +153,8 @@ In the era of Copilot and LLMs, **precise context** is the key to high-quality r
     - **Smart**: Binary files are skipped. Large files (>50KB) are opened for review.
     - **Clean**: All code is formatted in markdown blocks with file paths.
 
+![AI Context Demo](docs/assets/ai_context_demo.png)
+
 ### 📋 Unified Copy Menu
 
 Everything you need in one place. Right-click any file or group:
@@ -156,8 +162,6 @@ Everything you need in one place. Right-click any file or group:
 - **Copy Name/Path**: Standard path copying.
 - **Copy Context**: Get the code content.
 - **Multi-select**: Select 5 files → Copy Paths → Get a list of 5 paths.
-
-![Copy Menu Demo](docs/assets/copy_menu_demo.png)
 
 ### 📊 Sorting & Organization
 
@@ -256,7 +260,7 @@ While **VirtualTabs** organizes your **Context** (Files), **Quick Prompt** organ
 
 Together, they create the ultimate AI-coding workflow.
 
-Get Quick Prompt on [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=winterdrive.quick-prompt?utm_source=virtualtabs&utm_medium=readme&utm_campaign=cross_promotion) | [**Open VSX Registry**](https://open-vsx.org/extension/winterdrive/quick-prompt?utm_source=virtualtabs&utm_medium=readme&utm_campaign=cross_promotion)
+Get Quick Prompt on [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=winterdrive.quick-prompt) | [**Open VSX Registry**](https://open-vsx.org/extension/winterdrive/quick-prompt)
 
 ---
 

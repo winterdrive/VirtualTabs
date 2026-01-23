@@ -1,43 +1,43 @@
-# 忽略 node_modules
+﻿# 原始碼與編譯設定
+src/**
+tsconfig.json
+package-lock.json
+*.map
+.vscode-test/**
+
+# node_modules
 node_modules/
 
-# 忽略 VS Code 設定
+# IDE 設定
 .vscode/
-
-# idea忽略 IDE 設定
 .idea/
+.kiro/
 
-# 忽略打包產物（保留 dist/ 以供發佈）
+# 打包產物
 out/
 *.vsix
 
-# 忽略說明文件與開發文件
+# 說明文件與開發文件
 DEVELOPMENT.md
 I18N.md
-
-# TypeScript 設定
-tsconfig.json
+docs/specs/**
+docs/index.html
+docs/robots.txt
+llms*.txt
+CR/*
 
 # 其他暫存或備份檔
 *.log
 *.tmp
+.DS_Store
 
-CR/*
-docs/specs/**
-docs/index.html
-docs/robots.txt
-llms.txt
-
-# Exclude unused assets
-docs/assets/ai_context_demo.png
-docs/assets/bookmarks_feature.png
-docs/assets/drag_drop_demo.png
+# 排除多餘的資產 (只保留 README 必要的)
+docs/assets/*.svg
+docs/assets/drag_to_copilot.png
 docs/assets/drag_to_copilot.png
 docs/assets/feature_032_preview.png
 docs/assets/nested_groups_demo.png
-docs/assets/virtualtabs_icon.svg
 docs/assets/virtualtabs_icon_32.png
 docs/assets/virtualtabs_icon_64.png
 docs/assets/virtualtabs_icon_256.png
 docs/assets/*1024X512.png
-docs/llms*.txt
