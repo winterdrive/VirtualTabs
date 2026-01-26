@@ -23,7 +23,8 @@ I18N.md
 docs/specs/**
 docs/index.html
 docs/robots.txt
-llms*.txt
+docs/llms*.txt
+docs/research/
 CR/*
 
 # 其他暫存或備份檔
@@ -34,7 +35,6 @@ CR/*
 # 排除多餘的資產 (只保留 README 必要的)
 !docs/assets/virtualtabs_icon_gray.svg
 docs/assets/*.svg
-docs/assets/drag_to_copilot.png
 docs/assets/drag_to_copilot.png
 docs/assets/feature_032_preview.png
 docs/assets/nested_groups_demo.png
