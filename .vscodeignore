@@ -32,6 +32,7 @@ CR/*
 .DS_Store
 
 # 排除多餘的資產 (只保留 README 必要的)
+!docs/assets/virtualtabs_icon_gray.svg
 docs/assets/*.svg
 docs/assets/drag_to_copilot.png
 docs/assets/drag_to_copilot.png
