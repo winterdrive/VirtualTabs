@@ -710,5 +710,9 @@
     },
     "dependencies": {
         "fast-glob": "^3.3.3"
+    },
+    "overrides": {
+        "serialize-javascript": "^7.0.5",
+        "path-to-regexp": "^8.4.2"
     }
 }
