@@ -1,6 +1,6 @@
 {
     "name": "virtual-tabs",
-    "displayName": "%extension.displayName%",
+    "displayName": "VirtualTabs - Virtual File Directories & AI context management",
     "description": "%extension.description%",
     "version": "0.5.3",
     "publisher": "winterdrive",
