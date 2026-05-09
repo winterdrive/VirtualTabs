@@ -29,8 +29,26 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Type check
+        run: npx tsc -p ./
+
+      - name: Run Unit and Property tests
+        run: npm test
+
+      - name: Package extension
+        run: npx @vscode/vsce package --out virtual-tabs.vsix
+
+      - name: Validate Open VSX manifest compatibility
+        run: |
+          manifest_display_name=$(unzip -p virtual-tabs.vsix extension.vsixmanifest | sed -n 's/.*<DisplayName>\(.*\)<\/DisplayName>.*/\1/p' | sed 's/\&amp;/\&/g')
+          package_nls_display_name=$(node -p "require('./package.nls.json')['extension.displayName']")
+          if [ "$manifest_display_name" != "$package_nls_display_name" ]; then
+            echo "Display name mismatch: extension.vsixmanifest has '$manifest_display_name', package.nls.json has '$package_nls_display_name'."
+            exit 1
+          fi
+
       - name: Publish to Marketplace
-        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }} --packagePath virtual-tabs.vsix
 
       - name: Publish to Open VSX
-        run: npx ovsx publish -p ${{ secrets.OPEN_VSX_TOKEN }}
+        run: npx ovsx publish virtual-tabs.vsix -p ${{ secrets.OPEN_VSX_TOKEN }}
