@@ -2,6 +2,8 @@ name: UI Tests (Manual)
 
 on:
   workflow_dispatch:
+permissions:
+  contents: read
 
 jobs:
   ui-test:
