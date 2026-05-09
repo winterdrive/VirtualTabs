@@ -36,7 +36,7 @@ jobs:
         run: |
           git fetch origin "${{ github.base_ref }}"
           changed_files=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
-          release_files=$(echo "$changed_files" | grep -E '^(src/|package\.json|package-lock\.json|package\.nls.*\.json|README\.md|CHANGELOG\.md|docs/README|docs/assets/|\.vscodeignore|\.github/workflows/)' || true)
+          release_files=$(echo "$changed_files" | grep -E '^(src/|package\.json|package-lock\.json|package\.nls.*\.json|README\.md|CHANGELOG\.md|docs/README|docs/assets/|\.vscodeignore)' || true)
           if [ -z "$release_files" ]; then
             echo "No release-relevant files changed; version bump is not required."
             exit 0
