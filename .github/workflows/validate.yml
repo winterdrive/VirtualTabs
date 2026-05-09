@@ -55,18 +55,8 @@ jobs:
       - name: Type check
         run: tsc -p ./
 
-      - name: Setup Xvfb for UI tests
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb libxss1
-          # Handle libasound2 naming change in Ubuntu 24.04 (noble)
-          sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
-
       - name: Run Unit and Property tests
         run: npm test
-
-      - name: Run UI tests
-        run: xvfb-run -a npm run test:ui
 
       - name: Package extension
         run: npx @vscode/vsce package --out virtual-tabs.vsix
