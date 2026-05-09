@@ -63,7 +63,7 @@ jobs:
 
       - name: Validate Open VSX manifest compatibility
         run: |
-          manifest_display_name=$(unzip -p virtual-tabs.vsix extension.vsixmanifest | sed -n 's/.*<DisplayName>\(.*\)<\/DisplayName>.*/\1/p')
+          manifest_display_name=$(unzip -p virtual-tabs.vsix extension.vsixmanifest | sed -n 's/.*<DisplayName>\(.*\)<\/DisplayName>.*/\1/p' | sed 's/\&amp;/\&/g')
           package_nls_display_name=$(node -p "require('./package.nls.json')['extension.displayName']")
           if [ "$manifest_display_name" != "$package_nls_display_name" ]; then
             echo "Display name mismatch: extension.vsixmanifest has '$manifest_display_name', package.nls.json has '$package_nls_display_name'."
