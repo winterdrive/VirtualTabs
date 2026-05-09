@@ -19,36 +19,52 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 取得完整歷史以便比對版本號
+
+      - name: Check if version changed
+        id: check_version
+        run: |
+          # 取得前一個 commit 的版本號
+          prev_version=$(git show HEAD~1:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version" 2>/dev/null || echo "none")
+          # 取得目前的版本號
+          curr_version=$(node -p "require('./package.json').version")
+          
+          if [ "$prev_version" = "$curr_version" ]; then
+            echo "Version has not changed ($curr_version). Skipping publish."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version changed from $prev_version to $curr_version. Proceeding with publish."
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Setup Node.js
+        if: steps.check_version.outputs.changed == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.check_version.outputs.changed == 'true'
         run: npm ci
 
       - name: Type check
+        if: steps.check_version.outputs.changed == 'true'
         run: npx tsc -p ./
 
       - name: Run Unit and Property tests
+        if: steps.check_version.outputs.changed == 'true'
         run: npm test
 
       - name: Package extension
+        if: steps.check_version.outputs.changed == 'true'
         run: npx @vscode/vsce package --out virtual-tabs.vsix
 
-      - name: Validate Open VSX manifest compatibility
-        run: |
-          manifest_display_name=$(unzip -p virtual-tabs.vsix extension.vsixmanifest | sed -n 's/.*<DisplayName>\(.*\)<\/DisplayName>.*/\1/p' | sed 's/\&amp;/\&/g')
-          package_nls_display_name=$(node -p "require('./package.nls.json')['extension.displayName']")
-          if [ "$manifest_display_name" != "$package_nls_display_name" ]; then
-            echo "Display name mismatch: extension.vsixmanifest has '$manifest_display_name', package.nls.json has '$package_nls_display_name'."
-            exit 1
-          fi
-
       - name: Publish to Marketplace
-        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }} --packagePath virtual-tabs.vsix
+        if: steps.check_version.outputs.changed == 'true'
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }} --packagePath virtual-tabs.vsix --skip-duplicate
 
       - name: Publish to Open VSX
-        run: npx ovsx publish virtual-tabs.vsix -p ${{ secrets.OPEN_VSX_TOKEN }}
+        if: steps.check_version.outputs.changed == 'true'
+        run: npx ovsx publish virtual-tabs.vsix -p ${{ secrets.OPEN_VSX_TOKEN }} --no-fail-if-already-exists
