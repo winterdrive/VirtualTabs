@@ -1,11 +1,12 @@
 /**
- * 單元測試：拖曳資料夾時隱藏檔案過濾邏輯
+ * 單元測試：拖曳資料夾時隱藏資料夾過濾邏輯
  *
- * 驗證遞迴取得資料夾檔案時，應跳過以 '.' 開頭的隱藏檔案與資料夾，
+ * 驗證遞迴取得資料夾檔案時，應跳過以 '.' 開頭的隱藏「資料夾」，
+ * 但保留以 '.' 開頭的隱藏「檔案」（如 .gitignore、.editorconfig），
  * 以與 VSCode 原生 tree view 行為保持一致。
  */
 
-// ─── 模擬隱藏檔案過濾邏輯 ────────────────────────────────────────────────────
+// ─── 模擬隱藏資料夾過濾邏輯 ──────────────────────────────────────────────────
 
 interface FakeEntry {
     name: string;
@@ -15,24 +16,26 @@ interface FakeEntry {
 
 /**
  * 模擬 getFilesInDirectoryRecursive 的核心過濾邏輯：
- * 跳過名稱以 '.' 開頭的隱藏項目。
+ * 僅跳過名稱以 '.' 開頭的隱藏「資料夾」；隱藏檔案仍會納入。
  */
 function getFilesRecursive(entries: FakeEntry[], parentPath = ''): string[] {
     const files: string[] = [];
 
     for (const entry of entries) {
-        // Skip hidden files and directories (names starting with '.')
-        if (entry.name.startsWith('.')) {
-            continue;
-        }
-
         const fullPath = parentPath ? `${parentPath}/${entry.name}` : entry.name;
 
         if (entry.type === 'file') {
             files.push(fullPath);
-        } else if (entry.type === 'directory' && entry.children) {
-            const subFiles = getFilesRecursive(entry.children, fullPath);
-            files.push(...subFiles);
+        } else if (entry.type === 'directory') {
+            // Skip hidden directories (names starting with '.') such as .git, .github
+            // Hidden files (e.g. .gitignore) are still included.
+            if (entry.name.startsWith('.')) {
+                continue;
+            }
+            if (entry.children) {
+                const subFiles = getFilesRecursive(entry.children, fullPath);
+                files.push(...subFiles);
+            }
         }
     }
 
@@ -41,7 +44,7 @@ function getFilesRecursive(entries: FakeEntry[], parentPath = ''): string[] {
 
 // ─── 測試 ─────────────────────────────────────────────────────────────────────
 
-describe('拖曳資料夾時隱藏檔案過濾', () => {
+describe('拖曳資料夾時隱藏資料夾過濾', () => {
     test('應跳過以 "." 開頭的隱藏資料夾（如 .git）', () => {
         const entries: FakeEntry[] = [
             { name: 'src', type: 'directory', children: [{ name: 'index.ts', type: 'file' }] },
@@ -53,17 +56,17 @@ describe('拖曳資料夾時隱藏檔案過濾', () => {
         expect(result).not.toContain('.git/config');
     });
 
-    test('應跳過以 "." 開頭的隱藏檔案（如 .env）', () => {
+    test('應保留以 "." 開頭的隱藏檔案（如 .gitignore、.editorconfig）', () => {
         const entries: FakeEntry[] = [
             { name: 'README.md', type: 'file' },
-            { name: '.env', type: 'file' },
-            { name: '.gitignore', type: 'file' }
+            { name: '.gitignore', type: 'file' },
+            { name: '.editorconfig', type: 'file' }
         ];
 
         const result = getFilesRecursive(entries);
         expect(result).toContain('README.md');
-        expect(result).not.toContain('.env');
-        expect(result).not.toContain('.gitignore');
+        expect(result).toContain('.gitignore');
+        expect(result).toContain('.editorconfig');
     });
 
     test('應包含所有不以 "." 開頭的正常檔案', () => {
@@ -101,13 +104,14 @@ describe('拖曳資料夾時隱藏檔案過濾', () => {
         expect(result).toEqual([]);
     });
 
-    test('僅含隱藏項目的目錄應回傳空陣列', () => {
+    test('僅含隱藏資料夾的目錄中，隱藏檔案仍應被回傳', () => {
         const entries: FakeEntry[] = [
             { name: '.git', type: 'directory', children: [] },
             { name: '.DS_Store', type: 'file' }
         ];
 
         const result = getFilesRecursive(entries);
-        expect(result).toEqual([]);
+        // .git directory is skipped; .DS_Store file is kept
+        expect(result).toEqual(['.DS_Store']);
     });
 });
