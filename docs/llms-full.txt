@@ -83,6 +83,7 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 - **AI Context Export** — One-click copy all files as LLM-ready context.
 - **Portable Config** — Settings saved to `.vscode/virtualTab.json` for team sharing.
 - **AI Agent Integration (MCP)** — Connect AI agents (Cursor, Claude, etc.) to manage groups programmatically.
+- **Multi-Root Workspace Scopes** — Keep groups separated per workspace folder in multi-root projects.
 - **Auto Reveal & Sync** — Automatically focus active files and sync with native editor groups.
 - **Send to...** — Quickly send selected files or groups to pre-configured destinations.
 - **File Reordering** — Custom manual ordering via Drag & Drop or keyboard shortcuts.
@@ -101,6 +102,7 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 ### 📁 Group Management
 
 - **Create/Rename**: Right-click panel or groups to manage.
+- **Multi-root scopes**: In a multi-root workspace, each detected project appears as its own section. Use the scope header to add a group, open that scope's config, reveal its storage, or clear only that scope.
 - **Sub-Groups**: Right-click a group → **Add Sub-Group** (or drag one group into another).
 - **Auto-Sync**: The built-in "Open Editors" group automatically tracks your native tabs.
 - **Drag & Drop**:
@@ -153,7 +155,7 @@ VirtualTabs provides full AI agent integration via the **Model Context Protocol 
 1. **Group by Task, Not Folder**: Think about the feature you're working on.
 2. **Use Bookmarks for Logic Flow**: Mark key decision points in your code.
 3. **Curate AI Context**: Group only necessary files (5-10) to maximize LLM accuracy and reduce token noise.
-4. **Share with Team**: Commit `.vscode/virtualTab.json` to share curated project views.
+4. **Share with Team**: Commit each project's `.vscode/virtualTab.json` to share curated project views.
 
 ---
 

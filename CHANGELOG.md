@@ -2,6 +2,13 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.5.4] - 2026-05-13
+
+### Changed
+
+- Improved automated publishing for the VS Code Marketplace and Open VSX release flow.
+- Added validation and UI test workflows to keep multi-root workspace support safer to maintain.
+
 ## [0.5.0] - 2026-05-10
 
 ### Added
