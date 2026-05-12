@@ -354,6 +354,12 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
             const entries = await vscode.workspace.fs.readDirectory(dirUri);
 
             for (const [name, type] of entries) {
+                // Skip hidden files and directories (names starting with '.')
+                // to match VS Code's native tree view behavior
+                if (name.startsWith('.')) {
+                    continue;
+                }
+
                 const entryUri = vscode.Uri.joinPath(dirUri, name);
 
                 if (type === vscode.FileType.File) {
