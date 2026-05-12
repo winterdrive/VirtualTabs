@@ -2,7 +2,7 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
-## [0.5.4] - 2026-05-13
+## [0.5.5] - 2026-05-13
 
 ### Changed
 
