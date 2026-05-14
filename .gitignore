@@ -35,3 +35,4 @@ test-resources/
 
 # Testing
 /coverage
+test-ui-output.txt

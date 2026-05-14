@@ -2,6 +2,16 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- Multi-root workspace: the panel title **Add Group** (`+`) button is now hidden. Each project scope's inline button handles group creation instead, keeping the action close to the target scope. Single-root workspaces are unaffected and still show the panel title button.
+
+### Fixed
+
+- Directory drag-and-drop now skips hidden directories whose names start with `.`, while still including dotfiles such as `.gitignore` and `.editorconfig`.
+
 ## [0.5.5] - 2026-05-13
 
 ### Changed

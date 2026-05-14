@@ -10,6 +10,8 @@ import { GroupManager, OptimisticLockError } from './core/GroupManager';
 import { PathUtils } from './core/PathUtils';
 import { ConfigScopeDiscovery } from './core/ConfigScopeDiscovery';
 
+export const BUILTIN_SCOPE_ID = '__builtin__';
+
 /**
  * Type-safe helper to extract a URI from a VS Code Tab's input.
  * Handles TextInput, Notebook, and Custom tab types without unsafe casts.
@@ -43,7 +45,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
     private expandedGroupIds: Set<string> = new Set();
     private expandedScopeIds: Set<string> = new Set();
     private scopeOrderIds: string[] = [];
-    private activeScopeId: string | undefined;
+    private activeScopeIds: Set<string> = new Set();
     private treeView?: vscode.TreeView<vscode.TreeItem>;
 
     // Debounce timer for saving groups to reduce disk I/O
@@ -61,6 +63,10 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
 
     // Registry of rendered TempFileItems by ID, so reveal() can use exact same instance
     private fileItemRegistry: Map<string, TempFileItem> = new Map();
+
+    // Cache for built-in group TempFileItems — avoids recreating on every fire(undefined)
+    private builtInItemsCache: TempFileItem[] | null = null;
+    private builtInFilesSnapshot: string[] = [];
 
     // Per-group file lists mirroring vscode.window.tabGroups.all (in-memory only, not persisted)
     private builtInEditorGroups: EditorGroupInfo[] = [];
@@ -82,9 +88,10 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             'virtualTabs:hasWorkspace',
             this.configScopes.length > 0
         );
+        this.updateScopeHeadersContext();
 
         this.loadGroups();
-        if (this.groups.length === 0) {
+        if (!this.groups.some(g => g.builtIn)) {
             this.initBuiltInGroup();
         }
     }
@@ -94,8 +101,10 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
      */
     public reinitializeScopes(): void {
         this.configScopes = this.applyScopeOrder(ConfigScopeDiscovery.discover());
-        if (this.activeScopeId && !this.configScopes.some(scope => scope.id === this.activeScopeId)) {
-            this.activeScopeId = undefined;
+        for (const id of [...this.activeScopeIds]) {
+            if (id !== BUILTIN_SCOPE_ID && !this.configScopes.some(scope => scope.id === id)) {
+                this.activeScopeIds.delete(id);
+            }
         }
         for (const scope of this.configScopes) {
             if (!this.expandedScopeIds.has(scope.id)) {
@@ -110,6 +119,8 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             this.migrateLegacyWorkspaceConfig(scope, gm);
             this.groupManagers.set(scope.id, gm);
         }
+
+        this.updateScopeHeadersContext();
 
         // 重新載入所有群組
         const builtInGroups = this.groups.filter(g => g.builtIn);
@@ -159,15 +170,47 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         return this.expandedScopeIds.has(id);
     }
 
-    getActiveScopeId(): string | undefined {
-        return this.activeScopeId;
+    getActiveScopeIds(): ReadonlySet<string> {
+        return this.activeScopeIds;
     }
 
-    setActiveScopeId(scopeId: string | undefined): void {
-        this.activeScopeId = scopeId && this.configScopes.some(scope => scope.id === scopeId)
-            ? scopeId
-            : undefined;
-        this.refresh(false);
+    setActiveScopeIds(ids: string[]): void {
+        this.activeScopeIds = new Set(
+            ids.filter(id => id === BUILTIN_SCOPE_ID || this.configScopes.some(scope => scope.id === id))
+        );
+        this.updateScopeHeadersContext();
+        // Scope filter only changes the root-level structure; built-in group files are unchanged.
+        // Fire directly instead of going through refresh() to avoid redundant builtIn sync.
+        this._onDidChangeTreeData.fire(undefined);
+    }
+
+    private computeHasScopeHeaders(): boolean {
+        const isFiltered = this.activeScopeIds.size > 0;
+        if (isFiltered) {
+            const visibleScopes = this.configScopes.filter(s => this.activeScopeIds.has(s.id));
+            return visibleScopes.length !== 1;
+        }
+        return this.configScopes.length > 1;
+    }
+
+    private updateScopeHeadersContext(): void {
+        vscode.commands.executeCommand(
+            'setContext',
+            'virtualTabs:hasMultipleScopes',
+            this.computeHasScopeHeaders()
+        );
+    }
+
+    /** Compute the treeView.description string reflecting the active scope filter. */
+    computeScopeDescription(): string | undefined {
+        if (this.activeScopeIds.size === 0) return undefined;
+        const labels: string[] = [];
+        if (this.activeScopeIds.has(BUILTIN_SCOPE_ID)) labels.push(I18n.getBuiltInGroupName());
+        for (const scope of this.configScopes) {
+            if (this.activeScopeIds.has(scope.id)) labels.push(this.getScopeLabel(scope));
+        }
+        if (labels.length === 0) return undefined;
+        return labels.length === 1 ? labels[0] : `${labels.length} scopes`;
     }
 
     getScopeLabel(scope: ConfigScope): string {
@@ -688,15 +731,15 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
     syncBuiltInGroup(): boolean {
         let changed = false;
         const builtIn = this.groups.find(g => g.builtIn);
-        
+
         if (builtIn) {
             const newEditorGroups = this.computeEditorGroups();
             const openUris = newEditorGroups.flatMap(g => g.files);
-            
+
             const oldFiles = builtIn.files || [];
             const oldSet = new Set(oldFiles);
             const newSet = new Set(openUris);
-            
+
             let setsEqual = oldSet.size === newSet.size;
             if (setsEqual) {
                 for (const uri of newSet) {
@@ -727,8 +770,11 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                     builtIn.files = openUris;
                 }
 
+                this.builtInItemsCache = null;
                 this.saveGroups();
-                this._onDidChangeTreeData.fire(undefined);
+                // Target only the built-in subtree — avoids re-rendering all expanded custom groups
+                const builtInItem = this.getBuiltInFolderItem();
+                this._onDidChangeTreeData.fire(builtInItem);
                 changed = true;
             }
         }
@@ -754,6 +800,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 .filter((uri): uri is vscode.Uri => !!uri)
                 .map(uri => uri.toString());
             builtIn.files = openUris;
+            this.builtInItemsCache = null;
         }
 
         if (save) {
@@ -763,12 +810,21 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
     }
 
     addGroup() {
-        if (this.activeScopeId) {
-            this.createGroupInScope(this.activeScopeId);
+        const nonBuiltinActive = [...this.activeScopeIds].filter(id => id !== BUILTIN_SCOPE_ID);
+        if (nonBuiltinActive.length === 1) {
+            this.createGroupInScope(nonBuiltinActive[0]);
             return;
         }
 
-        // Auto-generate name: New Group 1, 2, ...
+        // Multi-scope: fall back to the first configScope so the group has a sourceScopeId
+        // and is rendered under the correct ScopeHeaderItem.
+        const fallbackScopeId = this.configScopes[0]?.id;
+        if (fallbackScopeId) {
+            this.createGroupInScope(fallbackScopeId);
+            return;
+        }
+
+        // No configScopes at all — legacy single-scope fallback
         let idx = 1;
         let name = I18n.getGroupName(undefined, idx);
         while (this.groups.some(g => g.name === name)) {
@@ -811,6 +867,9 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             files: uniqueFiles,
             sourceScopeId: scopeId
         });
+
+        // Ensure the scope header is expanded so the new group is immediately visible
+        this.expandedScopeIds.add(scopeId);
 
         if (save) {
             this.refresh(false);
@@ -1520,7 +1579,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         // 2. Fallback: Search the built-in group (Currently Open Files)
         const builtInIdx = this.groups.findIndex(g => g.builtIn);
         if (builtInIdx === -1) return undefined;
-        
+
         const group = this.groups[builtInIdx];
         if (!group || !group.files) return undefined;
 
@@ -1540,7 +1599,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         const matchedUri = vscode.Uri.parse(matchedStr);
         const subId = (this.builtInEditorGroups.length > 1 && viewColumn !== undefined) ? viewColumn.toString() : undefined;
         const expectedId = `virtualTabsFile:${group.id}${subId ? ':' + subId : ''}:${matchedUri.toString()}`;
-        
+
         // First try: return cached exact instance from the registry
         const cached = this.fileItemRegistry.get(expectedId);
         if (cached) return cached;
@@ -1565,58 +1624,83 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 return [noWorkspaceItem];
             }
 
-            if (this.activeScopeId) {
-                return this.groups
-                    .map((g, idx) => ({ group: g, idx }))
-                    .filter(({ group }) =>
-                        !group.parentGroupId &&
-                        !group.builtIn &&
-                        group.sourceScopeId === this.activeScopeId
-                    )
-                    .map(({ group, idx }) => {
-                        const item = new TempFolderItem(group.name, idx, group.id, group.builtIn);
-                        item.collapsibleState = this.isGroupExpanded(group.id)
-                            ? vscode.TreeItemCollapsibleState.Expanded
-                            : vscode.TreeItemCollapsibleState.Collapsed;
-                        return item;
-                    });
-            }
+            const makeFolderItem = (group: TempGroup, idx: number) => {
+                const item = new TempFolderItem(group.name, idx, group.id, group.builtIn);
+                item.collapsibleState = this.isGroupExpanded(group.id)
+                    ? vscode.TreeItemCollapsibleState.Expanded
+                    : vscode.TreeItemCollapsibleState.Collapsed;
+                return item;
+            };
 
-            // Root Level: Show top-level groups (no parentGroupId)
-            const hasMultipleScopes = this.configScopes.length > 1;
+            const isFiltered = this.activeScopeIds.size > 0;
 
-            if (hasMultipleScopes) {
-                // 多 scope：頂層只顯示 ScopeHeaderItem，群組改放到 scope 節點底下
-                const scopeItems = this.configScopes.map(scope =>
+            if (isFiltered) {
+                const showBuiltIn = this.activeScopeIds.has(BUILTIN_SCOPE_ID);
+                const visibleScopes = this.configScopes.filter(s => this.activeScopeIds.has(s.id));
+
+                const builtInItems = showBuiltIn
+                    ? this.groups
+                        .map((g, idx) => ({ group: g, idx }))
+                        .filter(({ group }) => group.builtIn)
+                        .map(({ group, idx }) => makeFolderItem(group, idx))
+                    : [];
+
+                // 只有 built-in（沒有 repo scope）
+                if (visibleScopes.length === 0) {
+                    return builtInItems;
+                }
+
+                // 單一 repo scope 且不含 built-in：平面顯示（與舊的單選行為一致）
+                if (visibleScopes.length === 1 && !showBuiltIn) {
+                    return this.groups
+                        .map((g, idx) => ({ group: g, idx }))
+                        .filter(({ group }) =>
+                            !group.parentGroupId &&
+                            !group.builtIn &&
+                            group.sourceScopeId === visibleScopes[0].id
+                        )
+                        .map(({ group, idx }) => makeFolderItem(group, idx));
+                }
+
+                // 單一 repo scope + built-in：built-in 在前，該 scope 的群組平面顯示
+                if (visibleScopes.length === 1 && showBuiltIn) {
+                    const scopeGroups = this.groups
+                        .map((g, idx) => ({ group: g, idx }))
+                        .filter(({ group }) =>
+                            !group.parentGroupId &&
+                            !group.builtIn &&
+                            group.sourceScopeId === visibleScopes[0].id
+                        )
+                        .map(({ group, idx }) => makeFolderItem(group, idx));
+                    return [...builtInItems, ...scopeGroups];
+                }
+
+                // 多個 repo scope（含或不含 built-in）：ScopeHeaderItem
+                const scopeItems = visibleScopes.map(scope =>
                     new ScopeHeaderItem(scope, true, this.isScopeExpanded(scope.id))
                 );
-
-                // 內建群組放在最前面
-                const builtInItems = this.groups
-                    .map((g, idx) => ({ group: g, idx }))
-                    .filter(({ group }) => group.builtIn)
-                    .map(({ group, idx }) => {
-                        const item = new TempFolderItem(group.name, idx, group.id, group.builtIn);
-                        item.collapsibleState = this.isGroupExpanded(group.id)
-                            ? vscode.TreeItemCollapsibleState.Expanded
-                            : vscode.TreeItemCollapsibleState.Collapsed;
-                        return item;
-                    });
-
                 return [...builtInItems, ...scopeItems];
             }
 
-            // 單一 scope 或無 scope：保留現有平面顯示行為
+            // 無篩選：保留原有行為
+            const hasMultipleScopes = this.configScopes.length > 1;
+
+            if (hasMultipleScopes) {
+                const scopeItems = this.configScopes.map(scope =>
+                    new ScopeHeaderItem(scope, true, this.isScopeExpanded(scope.id))
+                );
+                const builtInItems = this.groups
+                    .map((g, idx) => ({ group: g, idx }))
+                    .filter(({ group }) => group.builtIn)
+                    .map(({ group, idx }) => makeFolderItem(group, idx));
+                return [...builtInItems, ...scopeItems];
+            }
+
+            // 單一 scope 或無 scope
             return this.groups
-                .map((g, idx) => ({ group: g, idx })) // Map to preserve original index
+                .map((g, idx) => ({ group: g, idx }))
                 .filter(({ group }) => !group.parentGroupId)
-                .map(({ group, idx }) => {
-                    const item = new TempFolderItem(group.name, idx, group.id, group.builtIn);
-                    item.collapsibleState = this.isGroupExpanded(group.id)
-                        ? vscode.TreeItemCollapsibleState.Expanded
-                        : vscode.TreeItemCollapsibleState.Collapsed;
-                    return item;
-                });
+                .map(({ group, idx }) => makeFolderItem(group, idx));
         }
 
         // Expanded Scope Node: Show top-level groups belonging to this scope
@@ -1647,7 +1731,9 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
 
             if (!group) return [];
 
-            // Built-in group with multiple editor groups: render editor-group sub-nodes
+            // Built-in group with multiple editor groups: render editor-group sub-nodes.
+            // NOTE: The builtInItemsCache is NOT used in this split-editor path — each EditorGroupItem
+            // renders its own children lazily, so caching at this level doesn't help.
             if (group.builtIn && this.builtInEditorGroups.length > 1) {
                 this.fileItemRegistry.clear();
                 return this.builtInEditorGroups.map(eg =>
@@ -1674,17 +1760,28 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
 
             // 2. Files
             if (group.files && group.files.length > 0) {
+                // Built-in group: return cached items when file list is unchanged
+                if (group.builtIn) {
+                    if (
+                        this.builtInItemsCache &&
+                        this.arraysEqualInOrder(this.builtInFilesSnapshot, group.files)
+                    ) {
+                        // Restore registry from cache so reveal() still works
+                        for (const item of this.builtInItemsCache) {
+                            if (item.id) this.fileItemRegistry.set(item.id, item);
+                        }
+                        items.push(...this.builtInItemsCache);
+                        return items;
+                    }
+                    this.fileItemRegistry.clear();
+                }
+
                 // Apply sorting before rendering
                 const sortedFiles = FileSorter.sortFiles(
                     group.files,
                     group.sortBy || 'none',
                     group.sortOrder || 'asc'
                 );
-
-                // Clear stale registrations for this group before re-populating
-                if (group.builtIn) {
-                    this.fileItemRegistry.clear();
-                }
 
                 const fileItems = sortedFiles.map(uriStr => {
                     const uri = vscode.Uri.parse(uriStr);
@@ -1698,12 +1795,16 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                     // Check if file has bookmarks (v0.2.0)
                     const bookmarks = BookmarkManager.getBookmarksForFile(group, uriStr);
                     if (bookmarks.length > 0) {
-                        // Set file as expandable if it has bookmarks
                         fileItem.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
                     }
 
                     return fileItem;
                 });
+
+                if (group.builtIn) {
+                    this.builtInItemsCache = fileItems;
+                    this.builtInFilesSnapshot = [...group.files];
+                }
 
                 items.push(...fileItems);
             }

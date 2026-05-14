@@ -49,11 +49,11 @@ describe('Virtual Tabs – Basic UI', function () {
         expect(title.toLowerCase()).to.include('virtual tabs');
     });
 
-    it('Add Group button is visible in the sidebar toolbar', async function () {
+    it('Add Group button is NOT visible in the sidebar toolbar (multi-root workspace uses per-scope inline buttons)', async function () {
         const sidebar = (await viewControl.openView()) as SideBarView;
         const titlePart = sidebar.getTitlePart();
         const actions = await titlePart.getActions();
         const titles = await Promise.all(actions.map((a) => a.getTitle()));
-        expect(titles.some((t: string) => /add group/i.test(t))).to.be.true;
+        expect(titles.some((t: string) => /add group/i.test(t))).to.be.false;
     });
 });

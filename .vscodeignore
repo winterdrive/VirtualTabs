@@ -8,6 +8,7 @@ tsconfig.test.ui.json
 jest.config.js
 package-lock.json
 *.map
+test-ui-output*.txt
 .vscode-test/**
 test-resources/
 

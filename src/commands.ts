@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { TempFoldersProvider } from './provider';
+import { TempFoldersProvider, BUILTIN_SCOPE_ID } from './provider';
 import { TempFileItem, TempFolderItem, BookmarkItem } from './treeItems';
 import { I18n } from './i18n';
 import { BookmarkManager } from './core/BookmarkManager';
@@ -12,6 +12,7 @@ import { SendToManager } from './sendTo';
 
 // Global clipboard for VirtualTabs items
 let globalClipboardItems: (TempFileItem | TempFolderItem)[] = [];
+
 
 type FileCommandTarget = TempFileItem | vscode.Uri | { resourceUri?: vscode.Uri } | undefined;
 type ShellKind = 'powershell' | 'cmd' | 'posix' | 'other';
@@ -283,37 +284,39 @@ export function registerCommands(
 
     context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.refresh', () => {
         provider.reinitializeScopes();
-        const activeScope = provider.configScopes.find(scope => scope.id === provider.getActiveScopeId());
-        context.workspaceState.update('virtualTabs.activeScope', activeScope?.id);
+        // Persist the (possibly trimmed) active scope set after stale IDs are removed
+        context.workspaceState.update('virtualTabs.activeScopes', [...provider.getActiveScopeIds()]);
         if (treeView) {
-            treeView.description = activeScope ? provider.getScopeLabel(activeScope) : undefined;
+            treeView.description = provider.computeScopeDescription();
         }
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.selectScope', async () => {
-        const currentScopeId = provider.getActiveScopeId();
-        const items: Array<vscode.QuickPickItem & { scopeId?: string }> = [
+        const currentIds = provider.getActiveScopeIds();
+        const items: Array<vscode.QuickPickItem & { scopeId: string }> = [
             {
-                label: 'All Scopes',
-                description: currentScopeId ? undefined : 'Current',
-                scopeId: undefined
+                label: I18n.getBuiltInGroupName(),
+                scopeId: BUILTIN_SCOPE_ID,
+                picked: currentIds.has(BUILTIN_SCOPE_ID)
             },
             ...provider.configScopes.map(scope => ({
                 label: provider.getScopeLabel(scope),
-                description: currentScopeId === scope.id ? 'Current' : undefined,
-                scopeId: scope.id
+                scopeId: scope.id,
+                picked: currentIds.has(scope.id)
             }))
         ];
 
         const picked = await vscode.window.showQuickPick(items, {
-            placeHolder: 'Select Virtual Tabs scope'
+            placeHolder: 'Select scopes to show (empty = show all)',
+            canPickMany: true
         });
         if (!picked) return;
 
-        provider.setActiveScopeId(picked.scopeId);
-        context.workspaceState.update('virtualTabs.activeScope', picked.scopeId);
+        const selectedIds = picked.map(p => p.scopeId);
+        provider.setActiveScopeIds(selectedIds);
+        context.workspaceState.update('virtualTabs.activeScopes', selectedIds);
         if (treeView) {
-            treeView.description = picked.scopeId ? picked.label : undefined;
+            treeView.description = provider.computeScopeDescription();
         }
     }));
 
@@ -1719,76 +1722,76 @@ export function registerCommands(
         item: TempFolderItem | TempFileItem | undefined,
         includeGroupFolderOverride?: boolean
     ) => {
-            const destFolders = await SendToManager.pickDestination(context);
-            if (!destFolders) { return; }
+        const destFolders = await SendToManager.pickDestination(context);
+        if (!destFolders) { return; }
 
-            let uris: vscode.Uri[] = [];
-            if (item instanceof TempFolderItem) {
-                const rootGroup = provider.groups[item.groupIdx];
-                if (!rootGroup) { return; }
+        let uris: vscode.Uri[] = [];
+        if (item instanceof TempFolderItem) {
+            const rootGroup = provider.groups[item.groupIdx];
+            if (!rootGroup) { return; }
 
-                const includeGroupFolder = includeGroupFolderOverride ?? true;
+            const includeGroupFolder = includeGroupFolderOverride ?? true;
 
-                const sanitizeSegment = (seg: string): string => {
-                    const cleaned = seg.replace(/[<>:"/\\|?*]/g, '_').trim();
-                    return cleaned.replace(/[. ]+$/g, '') || '_';
-                };
+            const sanitizeSegment = (seg: string): string => {
+                const cleaned = seg.replace(/[<>:"/\\|?*]/g, '_').trim();
+                return cleaned.replace(/[. ]+$/g, '') || '_';
+            };
 
-                const groupMap = new Map<string, TempGroup>();
-                for (const g of provider.groups) {
-                    if (g?.id) groupMap.set(g.id, g);
-                }
-
-                const buildRelativePathFromSelected = (group: TempGroup): string[] => {
-                    const names: string[] = [];
-                    let current: TempGroup | undefined = group;
-                    while (current) {
-                        names.push(sanitizeSegment(current.name));
-                        if (current.id === rootGroup.id) {
-                            break;
-                        }
-                        const parentId = current.parentGroupId;
-                        if (!parentId) break;
-                        current = groupMap.get(parentId);
-                    }
-                    const reversed = names.reverse();
-                    // Ensure selected group is the base even if parent linkage is broken.
-                    if (reversed.length === 0 || reversed[0] !== sanitizeSegment(rootGroup.name)) {
-                        return [sanitizeSegment(rootGroup.name)];
-                    }
-                    return reversed;
-                };
-
-                const itemsToSend: Array<{ uri: vscode.Uri; subdir: string }> = [];
-
-                const stack: TempGroup[] = [rootGroup];
-                while (stack.length > 0) {
-                    const g = stack.pop()!;
-                    const groupPathParts = buildRelativePathFromSelected(g);
-                    const relParts = includeGroupFolder ? groupPathParts : groupPathParts.slice(1);
-                    const subdir = relParts.length > 0 ? path.join(...relParts) : '';
-
-                    if (Array.isArray(g.files)) {
-                        for (const f of g.files) {
-                            itemsToSend.push({ uri: vscode.Uri.parse(f), subdir });
-                        }
-                    }
-
-                    for (const child of provider.groups) {
-                        if (child.parentGroupId === g.id) {
-                            stack.push(child);
-                        }
-                    }
-                }
-
-                await SendToManager.sendFilesWithSubdirs(itemsToSend, destFolders, destFolders.join(', '));
-                return;
-            } else if (item instanceof TempFileItem) {
-                const selected = provider.getSelectedFileItems();
-                uris = selected.length > 0 ? selected.map(s => s.uri) : [item.uri];
+            const groupMap = new Map<string, TempGroup>();
+            for (const g of provider.groups) {
+                if (g?.id) groupMap.set(g.id, g);
             }
 
-            await SendToManager.sendFiles(uris, destFolders, destFolders.join(', '));
+            const buildRelativePathFromSelected = (group: TempGroup): string[] => {
+                const names: string[] = [];
+                let current: TempGroup | undefined = group;
+                while (current) {
+                    names.push(sanitizeSegment(current.name));
+                    if (current.id === rootGroup.id) {
+                        break;
+                    }
+                    const parentId = current.parentGroupId;
+                    if (!parentId) break;
+                    current = groupMap.get(parentId);
+                }
+                const reversed = names.reverse();
+                // Ensure selected group is the base even if parent linkage is broken.
+                if (reversed.length === 0 || reversed[0] !== sanitizeSegment(rootGroup.name)) {
+                    return [sanitizeSegment(rootGroup.name)];
+                }
+                return reversed;
+            };
+
+            const itemsToSend: Array<{ uri: vscode.Uri; subdir: string }> = [];
+
+            const stack: TempGroup[] = [rootGroup];
+            while (stack.length > 0) {
+                const g = stack.pop()!;
+                const groupPathParts = buildRelativePathFromSelected(g);
+                const relParts = includeGroupFolder ? groupPathParts : groupPathParts.slice(1);
+                const subdir = relParts.length > 0 ? path.join(...relParts) : '';
+
+                if (Array.isArray(g.files)) {
+                    for (const f of g.files) {
+                        itemsToSend.push({ uri: vscode.Uri.parse(f), subdir });
+                    }
+                }
+
+                for (const child of provider.groups) {
+                    if (child.parentGroupId === g.id) {
+                        stack.push(child);
+                    }
+                }
+            }
+
+            await SendToManager.sendFilesWithSubdirs(itemsToSend, destFolders, destFolders.join(', '));
+            return;
+        } else if (item instanceof TempFileItem) {
+            const selected = provider.getSelectedFileItems();
+            uris = selected.length > 0 ? selected.map(s => s.uri) : [item.uri];
+        }
+
+        await SendToManager.sendFiles(uris, destFolders, destFolders.join(', '));
     };
 
     // Send files to a selected destination

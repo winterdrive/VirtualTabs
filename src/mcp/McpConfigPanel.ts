@@ -127,6 +127,9 @@ export class McpConfigPanel {
                     case 'copyToClipboard':
                         vscode.env.clipboard.writeText(message.text);
                         return;
+                    case 'openSettings':
+                        vscode.commands.executeCommand('workbench.action.openSettings', '@ext:winterdrive.virtual-tabs');
+                        return;
                 }
             },
             null,
@@ -470,12 +473,49 @@ export class McpConfigPanel {
             color: var(--vscode-inputValidation-warningForeground);
             font-size: 12px;
         }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+        .page-header h1 {
+            margin: 0;
+        }
+        .settings-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--vscode-button-secondaryBackground);
+            color: var(--vscode-button-secondaryForeground);
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .settings-btn:hover {
+            background: var(--vscode-button-secondaryHoverBackground);
+        }
+        .settings-btn:focus-visible {
+            outline: 2px solid var(--vscode-focusBorder);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>${i18n.title}</h1>
-        
+        <div class="page-header">
+            <h1>${i18n.title}</h1>
+            <button class="settings-btn" id="open-settings-btn" type="button">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.1 1L9.8 3.1C10.2 3.3 10.6 3.5 11 3.8L13.1 3.1L14.9 6.3L13.3 7.9C13.3 8.1 13.4 8.3 13.4 8.5C13.4 8.7 13.3 8.9 13.3 9.1L14.9 10.7L13.1 13.9L11 13.2C10.6 13.5 10.2 13.7 9.8 13.9L9.1 16H5.6L4.9 13.9C4.5 13.7 4.1 13.5 3.7 13.2L1.6 13.9L-0.2 10.7L1.4 9.1C1.4 8.9 1.3 8.7 1.3 8.5C1.3 8.3 1.4 8.1 1.4 7.9L-0.2 6.3L1.6 3.1L3.7 3.8C4.1 3.5 4.5 3.3 4.9 3.1L5.6 1H9.1ZM7.4 5.5C6 5.5 4.9 6.6 4.9 8C4.9 9.4 6 10.5 7.4 10.5C8.8 10.5 9.9 9.4 9.9 8C9.9 6.6 8.8 5.5 7.4 5.5Z"/>
+                </svg>
+                Settings
+            </button>
+        </div>
+
         <div class="instructions">
             <p><strong>${i18n.tipTitle}</strong> ${i18n.tipBody}</p>
             <p>${i18n.concurrencyNote}</p>
@@ -756,6 +796,9 @@ export class McpConfigPanel {
 
         document.getElementById('copy-active').addEventListener('click', event => copyActive(event.target));
         document.getElementById('workspace-select').addEventListener('change', renderAll);
+        document.getElementById('open-settings-btn').addEventListener('click', () => {
+            vscode.postMessage({ command: 'openSettings' });
+        });
         renderAll();
     </script>
 </body>

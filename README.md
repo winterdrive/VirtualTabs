@@ -87,7 +87,7 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 ### ⚡ Workflow Boosters
 
 - **Smart Copy Menu** — Unified copy options for names, paths, and total file content.
-- **Directory Drag & Drop** — Drag folders to add all files recursively.
+- **Directory Drag & Drop** — Drag folders to add files recursively while skipping hidden directories.
 - **Clipboard Operations** — Full Cut/Copy/Paste support for files and groups.
 - **Smart Organization** — Auto-group by extension, date, or sort by various criteria.
 
@@ -98,12 +98,12 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 ### 📁 Group Management
 
 - **Create/Rename**: Right-click panel or groups to manage.
-- **Multi-root scopes**: In a multi-root workspace, each detected project appears as its own section. Use the scope header to add a group, open that scope's config, reveal its storage, or clear only that scope.
+- **Multi-root scopes**: In a multi-root workspace, each detected project appears as its own section. Use the inline **Add Group** button on the scope header to create groups; the panel title `+` button is intentionally hidden in multi-root mode to keep group creation scoped to the correct project. In single-root mode the panel title button is still present.
 - **Sub-Groups**: Right-click a group → **Add Sub-Group** (or drag one group into another).
 - **Auto-Sync**: The built-in "Open Editors" group automatically tracks your native tabs.
 - **Drag & Drop**:
   - **Files**: Drag files from Explorer into groups.
-  - **Folders**: Drag folders to recursively add all files inside.
+  - **Folders**: Drag folders to recursively add files inside; directories whose names start with `.` are skipped, while dotfiles such as `.gitignore` are still included.
   - **Multi-select**: Hold `Ctrl/Cmd` to drag multiple files at once.
 
 ![Drag and Drop Demo](docs/assets/drag_drop_demo.png)

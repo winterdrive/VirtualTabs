@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
 import { TempFoldersProvider } from './provider';
 import { TempFoldersDragAndDropController } from './dragAndDrop';
 import { registerCommands } from './commands';
 import { I18n } from './i18n';
 import { TempFolderItem, TempFileItem, ScopeHeaderItem } from './treeItems';
 import { ConfigScope } from './types';
+
 
 /**
  * 為每個 ConfigScope 建立 FileSystemWatcher，監看 .vscode/virtualTab.json。
@@ -56,7 +55,7 @@ async function deployMcpServer(context: vscode.ExtensionContext): Promise<string
     try {
         // 確保目標目錄存在
         await vscode.workspace.fs.createDirectory(targetDir);
-        
+
 
         // 讀取原始 MCP server 檔案內容
         const sourceContent = await vscode.workspace.fs.readFile(sourceFile);
@@ -101,8 +100,12 @@ export async function activate(context: vscode.ExtensionContext) {
     const expandedScopesKey = 'virtualTabs.expandedScopes';
     const expandedScopeIds = context.workspaceState.get<string[]>(expandedScopesKey, []);
     provider.setExpandedScopeIds(expandedScopeIds);
-    const activeScopeKey = 'virtualTabs.activeScope';
-    provider.setActiveScopeId(context.workspaceState.get<string | undefined>(activeScopeKey, undefined));
+    // 遷移舊的單選 storage key 到新的多選格式
+    const legacyActiveScopeKey = 'virtualTabs.activeScope';
+    const activeScopesKey = 'virtualTabs.activeScopes';
+    const legacyId = context.workspaceState.get<string | undefined>(legacyActiveScopeKey, undefined);
+    const storedIds = context.workspaceState.get<string[]>(activeScopesKey, legacyId ? [legacyId] : []);
+    provider.setActiveScopeIds(storedIds);
     const dragAndDropController = new TempFoldersDragAndDropController(provider);
 
     // Create tree view, enable multi-select
@@ -112,8 +115,7 @@ export async function activate(context: vscode.ExtensionContext) {
         canSelectMany: true
     });
     context.subscriptions.push(treeView);
-    const activeScope = provider.configScopes.find(scope => scope.id === provider.getActiveScopeId());
-    treeView.description = activeScope ? provider.getScopeLabel(activeScope) : undefined;
+    treeView.description = provider.computeScopeDescription();
 
     // Pass the tree view to the provider for selection management
     provider.setTreeView(treeView);
