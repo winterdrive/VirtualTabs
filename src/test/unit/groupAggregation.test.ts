@@ -119,3 +119,5 @@ describe('群組聚合邏輯單元測試', () => {
         expect(aggregated[0].files).toEqual(['file1.ts', 'file2.ts']);
     });
 });
+
+export {};

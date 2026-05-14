@@ -135,3 +135,5 @@ describe('computeScopeDescription', () => {
         });
     });
 });
+
+export {};

@@ -91,3 +91,5 @@ describe('addGroup scope 自動決定邏輯', () => {
         });
     });
 });
+
+export {};
