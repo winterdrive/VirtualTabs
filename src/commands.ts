@@ -633,10 +633,19 @@ export function registerCommands(
     context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeSelectedFilesFromGroup', (item?: TempFileItem) => {
         const filesToRemove = resolveTargetItems(item, provider);
         if (filesToRemove.length === 0) return;
+        const filesByGroup = new Map<number, TempFileItem[]>();
+        for (const fileItem of filesToRemove) {
+            const current = filesByGroup.get(fileItem.groupIdx);
+            if (current) {
+                current.push(fileItem);
+            } else {
+                filesByGroup.set(fileItem.groupIdx, [fileItem]);
+            }
+        }
 
-        // Use the group index from the first file item
-        const fileItem = filesToRemove[0];
-        provider.removeFilesFromGroup(fileItem.groupIdx, filesToRemove);
+        for (const [groupIdx, groupFiles] of filesByGroup) {
+            provider.removeFilesFromGroup(groupIdx, groupFiles);
+        }
     }));
 
     // Group context menu "Add selected files to group"
@@ -846,34 +855,19 @@ export function registerCommands(
 
 
         const executeRemove = () => {
-            let hasChanges = false;
-
+            const filesByGroup = new Map<number, TempFileItem[]>();
             for (const fileItem of filesToRemove) {
                 if (!(fileItem instanceof TempFileItem)) continue;
-
-                const groupIdx = fileItem.groupIdx;
-                const group = provider.groups[groupIdx];
-
-                if (group && group.files) {
-                    const fileUri = fileItem.uri.toString();
-                    const originalLength = group.files.length;
-                    group.files = group.files.filter(uri => uri !== fileUri);
-
-                    if (group.files.length < originalLength) {
-                        hasChanges = true;
-                        // Remove associated bookmarks
-                        if (group.bookmarks && group.bookmarks[fileUri]) {
-                            delete group.bookmarks[fileUri];
-                            if (Object.keys(group.bookmarks).length === 0) {
-                                delete group.bookmarks;
-                            }
-                        }
-                    }
+                const current = filesByGroup.get(fileItem.groupIdx);
+                if (current) {
+                    current.push(fileItem);
+                } else {
+                    filesByGroup.set(fileItem.groupIdx, [fileItem]);
                 }
             }
 
-            if (hasChanges) {
-                provider.refresh();
+            for (const [groupIdx, groupFiles] of filesByGroup) {
+                provider.removeFilesFromGroup(groupIdx, groupFiles);
             }
         };
 
@@ -1822,4 +1816,3 @@ export function registerCommands(
         })
     );
 }
-
