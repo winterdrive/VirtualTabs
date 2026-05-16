@@ -2,7 +2,7 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
-## [Unreleased]
+## [0.6.0] - 2026-05-16
 
 ### Changed
 
@@ -15,8 +15,9 @@ All notable changes to the "VirtualTabs" extension will be documented in this fi
 
 ### Tests and CI
 
-- Added focused unit coverage for file-entry matching across URI, absolute path, and workspace-relative path storage forms.
-- Added `npm run test:coverage` and updated PR validation to run Jest coverage for the file-entry matching helper before packaging.
+- Added focused unit coverage for file-entry matching, group file removal, command target grouping, provider-level removal behavior, bookmark cleanup, multi-root scope isolation, and legacy workspace-root fallback.
+- Added VS Code UI coverage for removing reloaded workspace-relative files from single and separate groups.
+- Added `npm run test:coverage` and updated PR validation to run Jest coverage for the issue-critical core helpers before packaging.
 
 ## [0.5.5] - 2026-05-13
 
