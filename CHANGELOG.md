@@ -11,6 +11,12 @@ All notable changes to the "VirtualTabs" extension will be documented in this fi
 ### Fixed
 
 - Directory drag-and-drop now skips hidden directories whose names start with `.`, while still including dotfiles such as `.gitignore` and `.editorconfig`.
+- Removing selected files from a group now works when the group stores workspace-relative file paths after config reload.
+
+### Tests and CI
+
+- Added focused unit coverage for file-entry matching across URI, absolute path, and workspace-relative path storage forms.
+- Added `npm run test:coverage` and updated PR validation to run Jest coverage for the file-entry matching helper before packaging.
 
 ## [0.5.5] - 2026-05-13
 

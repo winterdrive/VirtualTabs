@@ -9,7 +9,7 @@ import { BookmarkManager } from './core/BookmarkManager';
 import { GroupManager, OptimisticLockError } from './core/GroupManager';
 import { PathUtils } from './core/PathUtils';
 import { ConfigScopeDiscovery } from './core/ConfigScopeDiscovery';
-import { matchesStoredFileEntry } from './core/FileEntryMatcher';
+import { removeStoredFileEntriesFromGroup } from './core/GroupFileRemoval';
 
 export const BUILTIN_SCOPE_ID = '__builtin__';
 
@@ -1336,26 +1336,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             fsPath: item.uri.fsPath
         }));
 
-        const originalLength = group.files.length;
-        group.files = group.files.filter(storedEntry =>
-            !targets.some(target => matchesStoredFileEntry(storedEntry, target.uri, target.fsPath, scopeRoot))
-        );
-
-        if (group.bookmarks) {
-            for (const bookmarkKey of Object.keys(group.bookmarks)) {
-                const shouldDelete = targets.some(target =>
-                    matchesStoredFileEntry(bookmarkKey, target.uri, target.fsPath, scopeRoot)
-                );
-                if (shouldDelete) {
-                    delete group.bookmarks[bookmarkKey];
-                }
-            }
-            if (Object.keys(group.bookmarks).length === 0) {
-                delete group.bookmarks;
-            }
-        }
-
-        if (group.files.length !== originalLength) {
+        if (removeStoredFileEntriesFromGroup(group, targets, scopeRoot)) {
             this.refresh();
         }
     }

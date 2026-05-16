@@ -36,3 +36,4 @@ test-resources/
 # Testing
 /coverage
 test-ui-output.txt
+docs/assets/fix_rounded_corners.py

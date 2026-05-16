@@ -64,8 +64,14 @@ async function getVisibleTreeLabels(): Promise<string[]> {
 async function openVirtualTabsView(): Promise<SideBarView> {
     await dismissOnboardingOverlay();
     const activityBar = new ActivityBar();
-    const viewControl = (await activityBar.getViewControl('Virtual Tabs')) as ViewControl;
+    const viewControl = await VSBrowser.instance.driver.wait(async () => {
+        await dismissOnboardingOverlay();
+        return await activityBar.getViewControl('Virtual Tabs') as ViewControl | undefined;
+    }, 30_000, 'Virtual Tabs icon not found in Activity Bar');
     expect(viewControl, 'Virtual Tabs icon not found in Activity Bar').to.not.be.undefined;
+    if (!viewControl) {
+        throw new Error('Virtual Tabs icon not found in Activity Bar');
+    }
 
     let sidebar: SideBarView;
     try {
@@ -125,6 +131,12 @@ async function clickToolbarButton(sidebar: SideBarView, titlePattern: RegExp): P
     }, 10_000, `Toolbar button matching "${titlePattern}" not found`);
 }
 
+async function reloadVirtualTabsView(): Promise<SideBarView> {
+    const sidebar = await openVirtualTabsView();
+    await clickToolbarButton(sidebar, /refresh/i);
+    return sidebar;
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -151,7 +163,7 @@ describe('Virtual Tabs – Built-in 群組初始化與可見性', function () {
             { id: 'existing-2', name: 'Bug Fixes', files: [] }
         ]);
 
-        await openVirtualTabsView();
+        await reloadVirtualTabsView();
 
         // 自訂群組可見
         await waitForTreeLabel('Feature Group');
@@ -165,7 +177,7 @@ describe('Virtual Tabs – Built-in 群組初始化與可見性', function () {
         writeConfig(repoAConfigPath, []);
         writeConfig(repoBConfigPath, []);
 
-        await openVirtualTabsView();
+        await reloadVirtualTabsView();
 
         // 沒有任何自訂群組
         await waitForTreeLabelAbsent('Feature Group');
@@ -180,10 +192,7 @@ describe('Virtual Tabs – Built-in 群組初始化與可見性', function () {
         ]);
         writeConfig(repoBConfigPath, []);
 
-        const sidebar = await openVirtualTabsView();
-
-        // 用 Refresh 強制從磁碟載入（不依賴 FileSystemWatcher 的非同步時機）
-        await clickToolbarButton(sidebar, /refresh/i);
+        const sidebar = await reloadVirtualTabsView();
 
         // 第一次 Refresh 後：built-in 群組與自訂群組均應存在
         await waitForTreeLabel(/currently open|open files|已開啟|目前開啟/i);
@@ -203,7 +212,7 @@ describe('Virtual Tabs – Built-in 群組初始化與可見性', function () {
         writeConfig(repoAConfigPath, repoAOriginal);
         writeConfig(repoBConfigPath, repoBOriginal);
 
-        await openVirtualTabsView();
+        await reloadVirtualTabsView();
 
         // built-in 群組在最頂部
         await waitForTreeLabel(/currently open|open files|已開啟|目前開啟/i);
@@ -221,7 +230,7 @@ describe('Virtual Tabs – Built-in 群組初始化與可見性', function () {
         writeConfig(repoAConfigPath, repoAOriginal);
         writeConfig(repoBConfigPath, repoBOriginal);
 
-        await openVirtualTabsView();
+        await reloadVirtualTabsView();
 
         const labels = await getVisibleTreeLabels();
 

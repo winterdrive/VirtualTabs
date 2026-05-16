@@ -7,5 +7,21 @@ module.exports = {
     modulePathIgnorePatterns: ['<rootDir>/.vscode-test/'],
     transform: {
         '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }]
+    },
+    moduleNameMapper: {
+        '^(\\.{1,2}/.*)\\.js$': '$1'
+    },
+    collectCoverageFrom: [
+        'src/core/FileEntryMatcher.ts',
+        'src/core/GroupFileRemoval.ts',
+        'src/core/GroupFileTargets.ts'
+    ],
+    coverageThreshold: {
+        global: {
+            statements: 90,
+            branches: 80,
+            functions: 90,
+            lines: 90
+        }
     }
 };

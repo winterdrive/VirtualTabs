@@ -9,6 +9,7 @@ import { executeWithConfirmation } from './util';
 import { SkillGenerator } from './mcp/SkillGenerator';
 import { McpConfigPanel } from './mcp/McpConfigPanel';
 import { SendToManager } from './sendTo';
+import { groupItemsByGroupIdx } from './core/GroupFileTargets';
 
 // Global clipboard for VirtualTabs items
 let globalClipboardItems: (TempFileItem | TempFolderItem)[] = [];
@@ -633,15 +634,7 @@ export function registerCommands(
     context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeSelectedFilesFromGroup', (item?: TempFileItem) => {
         const filesToRemove = resolveTargetItems(item, provider);
         if (filesToRemove.length === 0) return;
-        const filesByGroup = new Map<number, TempFileItem[]>();
-        for (const fileItem of filesToRemove) {
-            const current = filesByGroup.get(fileItem.groupIdx);
-            if (current) {
-                current.push(fileItem);
-            } else {
-                filesByGroup.set(fileItem.groupIdx, [fileItem]);
-            }
-        }
+        const filesByGroup = groupItemsByGroupIdx(filesToRemove);
 
         for (const [groupIdx, groupFiles] of filesByGroup) {
             provider.removeFilesFromGroup(groupIdx, groupFiles);
@@ -855,16 +848,9 @@ export function registerCommands(
 
 
         const executeRemove = () => {
-            const filesByGroup = new Map<number, TempFileItem[]>();
-            for (const fileItem of filesToRemove) {
-                if (!(fileItem instanceof TempFileItem)) continue;
-                const current = filesByGroup.get(fileItem.groupIdx);
-                if (current) {
-                    current.push(fileItem);
-                } else {
-                    filesByGroup.set(fileItem.groupIdx, [fileItem]);
-                }
-            }
+            const filesByGroup = groupItemsByGroupIdx(
+                filesToRemove.filter((fileItem): fileItem is TempFileItem => fileItem instanceof TempFileItem)
+            );
 
             for (const [groupIdx, groupFiles] of filesByGroup) {
                 provider.removeFilesFromGroup(groupIdx, groupFiles);

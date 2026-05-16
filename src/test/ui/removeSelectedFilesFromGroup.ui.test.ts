@@ -18,6 +18,10 @@ const repoAConfigPath = path.join(repoAPath, '.vscode', 'virtualTab.json');
 const repoAOriginal = [{ id: 'repo-a-existing', name: 'Repo A Existing', files: [] }];
 const regressionFileRelativePath = 'src/remove-selected-file-regression.ts';
 const regressionFileAbsolutePath = path.join(repoAPath, regressionFileRelativePath);
+const firstGroupFileRelativePath = 'src/remove-selected-first-group.ts';
+const secondGroupFileRelativePath = 'src/remove-selected-second-group.ts';
+const firstGroupFileAbsolutePath = path.join(repoAPath, firstGroupFileRelativePath);
+const secondGroupFileAbsolutePath = path.join(repoAPath, secondGroupFileRelativePath);
 
 function writeConfig(configPath: string, groups: object[]): void {
     fs.writeFileSync(configPath, `${JSON.stringify(groups, null, 2)}\n`);
@@ -134,8 +138,14 @@ describe('Virtual Tabs - Remove selected files from group', function () {
 
     after(async function () {
         await new EditorView().closeAllEditors();
-        if (fs.existsSync(regressionFileAbsolutePath)) {
-            fs.unlinkSync(regressionFileAbsolutePath);
+        for (const filePath of [
+            regressionFileAbsolutePath,
+            firstGroupFileAbsolutePath,
+            secondGroupFileAbsolutePath
+        ]) {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
         }
         writeConfig(repoAConfigPath, repoAOriginal);
     });
@@ -171,5 +181,63 @@ describe('Virtual Tabs - Remove selected files from group', function () {
         }, 15_000, 'Selected file was not removed from virtualTab.json');
 
         await waitForTreeLabelAbsent('remove-selected-file-regression.ts');
+    });
+
+    it('removes reloaded relative-path files from separate groups without cross-group leakage', async function () {
+        fs.mkdirSync(path.dirname(firstGroupFileAbsolutePath), { recursive: true });
+        fs.writeFileSync(firstGroupFileAbsolutePath, 'export const removeSelectedFirstGroup = true;\n');
+        fs.writeFileSync(secondGroupFileAbsolutePath, 'export const removeSelectedSecondGroup = true;\n');
+
+        writeConfig(repoAConfigPath, [
+            {
+                id: 'remove-selected-first-group',
+                name: 'Remove Selected First Group',
+                files: [firstGroupFileRelativePath]
+            },
+            {
+                id: 'remove-selected-second-group',
+                name: 'Remove Selected Second Group',
+                files: [secondGroupFileRelativePath]
+            }
+        ]);
+
+        const sidebar = await openVirtualTabsView();
+        await clickRefresh(sidebar);
+        const section = await getVirtualTabsSection(sidebar);
+
+        const firstGroupItem = await findTreeItem(section, 'Remove Selected First Group');
+        await firstGroupItem.expand();
+        const secondGroupItem = await findTreeItem(section, 'Remove Selected Second Group');
+        await secondGroupItem.expand();
+        await waitForTreeLabel('remove-selected-first-group.ts');
+        await waitForTreeLabel('remove-selected-second-group.ts');
+
+        const firstFileItem = await findTreeItem(section, 'remove-selected-first-group.ts');
+        await firstFileItem.select();
+        await new Workbench().executeCommand('Remove Selected Files from Group');
+
+        await VSBrowser.instance.driver.wait(() => {
+            const groups = readConfig(repoAConfigPath);
+            const first = groups.find(group => group.id === 'remove-selected-first-group');
+            const second = groups.find(group => group.id === 'remove-selected-second-group');
+            return !!first && !!second &&
+                Array.isArray(first.files) && first.files.length === 0 &&
+                Array.isArray(second.files) && second.files.includes(secondGroupFileRelativePath);
+        }, 15_000, 'First group file was not removed or second group changed unexpectedly');
+        await waitForTreeLabelAbsent('remove-selected-first-group.ts');
+
+        const secondFileItem = await findTreeItem(section, 'remove-selected-second-group.ts');
+        await secondFileItem.select();
+        await new Workbench().executeCommand('Remove Selected Files from Group');
+
+        await VSBrowser.instance.driver.wait(() => {
+            const groups = readConfig(repoAConfigPath);
+            const first = groups.find(group => group.id === 'remove-selected-first-group');
+            const second = groups.find(group => group.id === 'remove-selected-second-group');
+            return !!first && !!second &&
+                Array.isArray(first.files) && first.files.length === 0 &&
+                Array.isArray(second.files) && second.files.length === 0;
+        }, 15_000, 'Second group file was not removed from virtualTab.json');
+        await waitForTreeLabelAbsent('remove-selected-second-group.ts');
     });
 });
