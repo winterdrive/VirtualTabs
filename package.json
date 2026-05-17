@@ -2,7 +2,7 @@
     "name": "virtual-tabs",
     "displayName": "VirtualTabs - Virtual File Directories & AI context management",
     "description": "%extension.description%",
-    "version": "0.5.8",
+    "version": "0.6.0",
     "publisher": "winterdrive",
     "icon": "docs/assets/virtualtabs_icon_128.png",
     "categories": [
@@ -683,6 +683,7 @@
     },
     "scripts": {
         "test": "tsc -p ./ && jest --runInBand",
+        "test:coverage": "jest --runInBand --coverage",
         "test:properties": "jest --runInBand src/test/properties",
         "test:ui:setup": "extest setup-tests",
         "test:ui": "tsc -p tsconfig.test.ui.json && extest setup-and-run \"out/test/ui/**/*.test.js\" -e \".vscode-test/extensions\" -r \"test-resources/multi-root/virtual-tabs.code-workspace\" -c 1.96.0",

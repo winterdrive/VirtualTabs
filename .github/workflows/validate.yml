@@ -55,8 +55,8 @@ jobs:
       - name: Type check
         run: tsc -p ./
 
-      - name: Run Unit and Property tests
-        run: npm test
+      - name: Run Unit and Property tests with coverage
+        run: npm run test:coverage
 
       - name: Package extension
         run: npx @vscode/vsce package --out virtual-tabs.vsix

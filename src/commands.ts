@@ -9,6 +9,7 @@ import { executeWithConfirmation } from './util';
 import { SkillGenerator } from './mcp/SkillGenerator';
 import { McpConfigPanel } from './mcp/McpConfigPanel';
 import { SendToManager } from './sendTo';
+import { groupItemsByGroupIdx } from './core/GroupFileTargets';
 
 // Global clipboard for VirtualTabs items
 let globalClipboardItems: (TempFileItem | TempFolderItem)[] = [];
@@ -633,10 +634,11 @@ export function registerCommands(
     context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.removeSelectedFilesFromGroup', (item?: TempFileItem) => {
         const filesToRemove = resolveTargetItems(item, provider);
         if (filesToRemove.length === 0) return;
+        const filesByGroup = groupItemsByGroupIdx(filesToRemove);
 
-        // Use the group index from the first file item
-        const fileItem = filesToRemove[0];
-        provider.removeFilesFromGroup(fileItem.groupIdx, filesToRemove);
+        for (const [groupIdx, groupFiles] of filesByGroup) {
+            provider.removeFilesFromGroup(groupIdx, groupFiles);
+        }
     }));
 
     // Group context menu "Add selected files to group"
@@ -846,34 +848,12 @@ export function registerCommands(
 
 
         const executeRemove = () => {
-            let hasChanges = false;
+            const filesByGroup = groupItemsByGroupIdx(
+                filesToRemove.filter((fileItem): fileItem is TempFileItem => fileItem instanceof TempFileItem)
+            );
 
-            for (const fileItem of filesToRemove) {
-                if (!(fileItem instanceof TempFileItem)) continue;
-
-                const groupIdx = fileItem.groupIdx;
-                const group = provider.groups[groupIdx];
-
-                if (group && group.files) {
-                    const fileUri = fileItem.uri.toString();
-                    const originalLength = group.files.length;
-                    group.files = group.files.filter(uri => uri !== fileUri);
-
-                    if (group.files.length < originalLength) {
-                        hasChanges = true;
-                        // Remove associated bookmarks
-                        if (group.bookmarks && group.bookmarks[fileUri]) {
-                            delete group.bookmarks[fileUri];
-                            if (Object.keys(group.bookmarks).length === 0) {
-                                delete group.bookmarks;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (hasChanges) {
-                provider.refresh();
+            for (const [groupIdx, groupFiles] of filesByGroup) {
+                provider.removeFilesFromGroup(groupIdx, groupFiles);
             }
         };
 
@@ -1822,4 +1802,3 @@ export function registerCommands(
         })
     );
 }
-

@@ -137,6 +137,7 @@ VirtualTabs uses three automated test layers:
 | Layer | Command | Purpose |
 | :--- | :--- | :--- |
 | TypeScript + Jest unit tests | `npm run test` | Compiles the extension and runs Jest unit tests. |
+| Jest coverage gate | `npm run test:coverage` | Runs Jest with coverage enabled for focused unit-tested core helpers and enforces configured thresholds. |
 | Property tests | `npm run test:properties` | Exercises config scope discovery, path routing, and tree aggregation invariants with generated inputs. |
 | VS Code UI/E2E tests | `npm run test:ui` | Launches a real VS Code instance with `vscode-extension-tester` and verifies Activity Bar, sidebar, and multi-root scope behavior. |
 
@@ -144,9 +145,14 @@ VirtualTabs uses three automated test layers:
 
 ```bash
 npm run test
+npm run test:coverage
 npm run test:properties
 npm run test:ui
 ```
+
+### Coverage Gate
+
+`npm run test:coverage` uses Jest coverage and is part of the PR validation workflow. Coverage is intentionally scoped in `jest.config.js`; when adding files to `collectCoverageFrom`, add focused unit tests in the same PR so the gate remains meaningful instead of reflecting unrelated legacy or UI-heavy code.
 
 ### UI/E2E Test Setup
 

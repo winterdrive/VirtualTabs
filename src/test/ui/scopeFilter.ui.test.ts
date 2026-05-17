@@ -112,6 +112,34 @@ async function openVirtualTabsView(): Promise<SideBarView> {
     return sidebar;
 }
 
+async function clickToolbarButton(sidebar: SideBarView, titlePattern: RegExp): Promise<void> {
+    const driver = VSBrowser.instance.driver;
+    await driver.wait(async () => {
+        try {
+            const actions = await sidebar.getTitlePart().getActions();
+            for (const action of actions) {
+                const title = await action.getTitle();
+                if (titlePattern.test(title)) {
+                    await action.click();
+                    return true;
+                }
+            }
+            return false;
+        } catch (error) {
+            if ((error as Error).name === 'StaleElementReferenceError') {
+                return false;
+            }
+            throw error;
+        }
+    }, 10_000, `Toolbar button matching "${titlePattern}" not found`);
+}
+
+async function reloadVirtualTabsView(): Promise<SideBarView> {
+    const sidebar = await openVirtualTabsView();
+    await clickToolbarButton(sidebar, /refresh/i);
+    return sidebar;
+}
+
 // ─── QuickPick Helper ─────────────────────────────────────────────────────────
 
 /**
@@ -195,7 +223,9 @@ describe('Virtual Tabs – Scope 篩選器 UI', function () {
         writeConfig(repoBConfigPath, repoBOriginal);
         await VSBrowser.instance.waitForWorkbench();
         await dismissOnboardingOverlay();
-        await openVirtualTabsView();
+        await reloadVirtualTabsView();
+        await waitForSidebarLabel('Repo A Existing');
+        await waitForSidebarLabel('Repo B Existing');
 
         // 確保篩選器從「顯示全部」狀態開始
         await resetScopeFilter();
