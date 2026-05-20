@@ -180,6 +180,8 @@ describe('Virtual Tabs - Remove selected files from group', function () {
             return !!target && Array.isArray(target.files) && target.files.length === 0;
         }, 15_000, 'Selected file was not removed from virtualTab.json');
 
+        await new EditorView().closeAllEditors();
+        await clickRefresh(sidebar);
         await waitForTreeLabelAbsent('remove-selected-file-regression.ts');
     });
 
@@ -224,6 +226,8 @@ describe('Virtual Tabs - Remove selected files from group', function () {
                 Array.isArray(first.files) && first.files.length === 0 &&
                 Array.isArray(second.files) && second.files.includes(secondGroupFileRelativePath);
         }, 15_000, 'First group file was not removed or second group changed unexpectedly');
+        await new EditorView().closeAllEditors();
+        await clickRefresh(sidebar);
         await waitForTreeLabelAbsent('remove-selected-first-group.ts');
 
         const secondFileItem = await findTreeItem(section, 'remove-selected-second-group.ts');
@@ -238,6 +242,8 @@ describe('Virtual Tabs - Remove selected files from group', function () {
                 Array.isArray(first.files) && first.files.length === 0 &&
                 Array.isArray(second.files) && second.files.length === 0;
         }, 15_000, 'Second group file was not removed from virtualTab.json');
+        await new EditorView().closeAllEditors();
+        await clickRefresh(sidebar);
         await waitForTreeLabelAbsent('remove-selected-second-group.ts');
     });
 });

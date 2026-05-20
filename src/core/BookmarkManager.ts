@@ -1,6 +1,7 @@
 import { GroupManager } from './GroupManager.js';
 import { FileManager } from './FileManager.js';
 import { VTBookmark, BookmarkInfo, TempGroup } from '../types.js';
+import { PathUtils } from './PathUtils.js';
 
 /**
  * BookmarkManager
@@ -64,10 +65,11 @@ export class BookmarkManager {
     bookmarkId: string,
     updatedBookmark: VTBookmark
   ): boolean {
-    if (!group.bookmarks || !group.bookmarks[fileUri]) return false;
-    const index = group.bookmarks[fileUri].findIndex(b => b.id === bookmarkId);
+    const bookmarkKey = BookmarkManager.findBookmarkKey(group, fileUri);
+    if (!group.bookmarks || !bookmarkKey) return false;
+    const index = group.bookmarks[bookmarkKey].findIndex(b => b.id === bookmarkId);
     if (index === -1) return false;
-    group.bookmarks[fileUri][index] = updatedBookmark;
+    group.bookmarks[bookmarkKey][index] = updatedBookmark;
     return true;
   }
 
@@ -77,18 +79,50 @@ export class BookmarkManager {
     fileUri: string,
     bookmarkId: string
   ): boolean {
-    if (!group.bookmarks || !group.bookmarks[fileUri]) return false;
-    const index = group.bookmarks[fileUri].findIndex(b => b.id === bookmarkId);
+    const bookmarkKey = BookmarkManager.findBookmarkKey(group, fileUri);
+    if (!group.bookmarks || !bookmarkKey) return false;
+    const index = group.bookmarks[bookmarkKey].findIndex(b => b.id === bookmarkId);
     if (index === -1) return false;
-    group.bookmarks[fileUri].splice(index, 1);
-    if (group.bookmarks[fileUri].length === 0) delete group.bookmarks[fileUri];
+    group.bookmarks[bookmarkKey].splice(index, 1);
+    if (group.bookmarks[bookmarkKey].length === 0) delete group.bookmarks[bookmarkKey];
     return true;
   }
 
   /** Get all bookmarks for a file (sorted by line number) */
   static getBookmarksForFile(group: TempGroup, fileUri: string): VTBookmark[] {
-    if (!group.bookmarks || !group.bookmarks[fileUri]) return [];
-    return [...group.bookmarks[fileUri]].sort((a, b) => a.line - b.line);
+    const bookmarkKey = BookmarkManager.findBookmarkKey(group, fileUri);
+    if (!group.bookmarks || !bookmarkKey) return [];
+    return [...group.bookmarks[bookmarkKey]].sort((a, b) => a.line - b.line);
+  }
+
+  private static findBookmarkKey(group: TempGroup, fileUri: string): string | undefined {
+    if (!group.bookmarks) return undefined;
+    if (group.bookmarks[fileUri]) return fileUri;
+
+    const target = BookmarkManager.normalizeFileKey(fileUri);
+    return Object.keys(group.bookmarks).find(key => BookmarkManager.normalizeFileKey(key) === target);
+  }
+
+  private static normalizeFileKey(fileUri: string): string {
+    try {
+      return BookmarkManager.normalizeFsPath(PathUtils.toFsPath(fileUri));
+    } catch {
+      if (fileUri.startsWith('file://')) {
+        try {
+          let pathname = decodeURIComponent(new URL(fileUri).pathname);
+          pathname = pathname.replace(/^\/([A-Za-z]:)/, '$1');
+          return BookmarkManager.normalizeFsPath(pathname);
+        } catch {
+          // Fall through to raw string normalization below.
+        }
+      }
+      return BookmarkManager.normalizeFsPath(fileUri);
+    }
+  }
+
+  private static normalizeFsPath(filePath: string): string {
+    const normalized = filePath.replace(/\\/g, '/');
+    return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
   }
 
   /** Find a bookmark by ID within a single group */

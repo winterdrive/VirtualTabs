@@ -58,6 +58,23 @@ async function dismissOnboardingOverlay(): Promise<void> {
     }, 5_000, 'Onboarding overlay did not disappear');
 }
 
+async function dismissContextViews(): Promise<void> {
+    const driver = VSBrowser.instance.driver;
+    await driver.actions().sendKeys(Key.ESCAPE).perform().catch(() => undefined);
+    await driver.sleep(150);
+    await driver.actions().sendKeys(Key.ESCAPE).perform().catch(() => undefined);
+    await driver.wait(async () => {
+        const menus = await driver.findElements(By.css('.context-view.monaco-menu-container'));
+        for (const menu of menus) {
+            try {
+                if (await menu.isDisplayed()) {
+                    return false;
+                }
+            } catch { /* stale */ }
+        }
+        return true;
+    }, 2_000).catch(() => undefined);
+}
 async function getVisibleSidebarLabels(): Promise<string[]> {
     const driver = VSBrowser.instance.driver;
     // Read only from the sidebar (not QuickPick) by scoping to .pane-body
@@ -126,7 +143,8 @@ async function clickToolbarButton(sidebar: SideBarView, titlePattern: RegExp): P
             }
             return false;
         } catch (error) {
-            if ((error as Error).name === 'StaleElementReferenceError') {
+            const name = (error as Error).name;
+            if (name === 'StaleElementReferenceError' || name === 'ElementClickInterceptedError') {
                 return false;
             }
             throw error;
@@ -150,6 +168,7 @@ async function reloadVirtualTabsView(): Promise<SideBarView> {
  */
 async function applyScopeFilter(labelsToSelect: string[]): Promise<void> {
     const driver = VSBrowser.instance.driver;
+    await dismissContextViews();
 
     // 用 Selenium 找到並點擊 "Select Scope" toolbar button（走真實瀏覽器事件）
     const selectScopeBtn = await driver.wait(async () => {
@@ -161,7 +180,11 @@ async function applyScopeFilter(labelsToSelect: string[]): Promise<void> {
         return null;
     }, 10_000, 'Could not find "Select Scope" toolbar button') as Awaited<ReturnType<typeof driver.findElement>>;
 
-    await selectScopeBtn.click();
+    try {
+        await selectScopeBtn.click();
+    } catch {
+        await driver.executeScript('arguments[0].click()', selectScopeBtn);
+    }
 
     // 等 QuickPick widget 出現
     await driver.wait(async () => {
