@@ -123,7 +123,8 @@ async function clickToolbarButton(sidebar: SideBarView, titlePattern: RegExp): P
             }
             return false;
         } catch (error) {
-            if ((error as Error).name === 'StaleElementReferenceError') {
+            const name = (error as Error).name;
+            if (name === 'StaleElementReferenceError' || name === 'ElementClickInterceptedError') {
                 return false;
             }
             throw error;
