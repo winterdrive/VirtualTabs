@@ -2,6 +2,12 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.6.1] - 2026-05-22
+
+- **Fixed:** Config reload notification now uses the status bar (auto-dismisses after 3 s) instead of a popup that required manual dismissal. Resolves [#50](https://github.com/winterdrive/vscode-virtual-tabs/issues/50).
+- **Tests:** Added unit tests for the reload notification message-building and dispatch logic, covering success, failure, `isInternalSaving`, and i18n fallback cases.
+- **Tests:** Added VS Code UI tests verifying that a status bar message appears (not a popup) when `virtualTab.json` is externally modified.
+
 ## [0.6.0] - 2026-05-16
 
 ### Changed
