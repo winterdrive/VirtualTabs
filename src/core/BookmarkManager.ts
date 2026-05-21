@@ -44,8 +44,9 @@ export class BookmarkManager {
   /** Add a bookmark to a group's in-memory data */
   static addBookmarkToGroup(group: TempGroup, fileUri: string, bookmark: VTBookmark): void {
     if (!group.bookmarks) group.bookmarks = {};
-    if (!group.bookmarks[fileUri]) group.bookmarks[fileUri] = [];
-    group.bookmarks[fileUri].push(bookmark);
+    const bookmarkKey = BookmarkManager.findBookmarkKey(group, fileUri) ?? fileUri;
+    if (!group.bookmarks[bookmarkKey]) group.bookmarks[bookmarkKey] = [];
+    group.bookmarks[bookmarkKey].push(bookmark);
   }
 
   /** Return a copy with the label updated */

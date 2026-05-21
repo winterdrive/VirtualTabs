@@ -1064,6 +1064,29 @@ export function registerCommands(
 
             const fileUri = editor.document.uri.toString();
             const position = editor.selection.active;
+            const isSameFileUri = (a: string, b: string): boolean => {
+                if (a === b) {
+                    return true;
+                }
+                try {
+                    const aPath = vscode.Uri.parse(a).fsPath;
+                    const bPath = vscode.Uri.parse(b).fsPath;
+                    return process.platform === 'win32'
+                        ? aPath.toLowerCase() === bPath.toLowerCase()
+                        : aPath === bPath;
+                } catch {
+                    return false;
+                }
+            };
+            const groupHasFile = (group: TempGroup, candidateUri: string): boolean =>
+                (group.files ?? []).some(existing => isSameFileUri(existing, candidateUri));
+            const getGroupScopeDescription = (group: TempGroup): string | undefined => {
+                if (provider.configScopes.length <= 1 || !group.sourceScopeId) {
+                    return undefined;
+                }
+                const scope = provider.configScopes.find(s => s.id === group.sourceScopeId);
+                return scope ? provider.getScopeLabel(scope) : undefined;
+            };
 
             // 1. Smart Labeling: Line {n} ({code snippet})
             const lineContent = editor.document.lineAt(position.line).text.trim();
@@ -1097,7 +1120,7 @@ export function registerCommands(
             }
 
             // Find groups containing this file
-            const containingGroups = customGroups.filter(g => g.files?.includes(fileUri));
+            const containingGroups = customGroups.filter(g => groupHasFile(g, fileUri));
 
             let targetGroup;
 
@@ -1108,6 +1131,7 @@ export function registerCommands(
                 // Scenario B: File belongs to multiple groups -> Ask user
                 const groupItems = containingGroups.map(g => ({
                     label: g.name,
+                    description: getGroupScopeDescription(g),
                     group: g
                 }));
                 const selected = await vscode.window.showQuickPick(groupItems, {
@@ -1119,6 +1143,7 @@ export function registerCommands(
                 // Scenario C: File not in any group -> Ask user to pick any group
                 const groupItems = customGroups.map(g => ({
                     label: g.name,
+                    description: getGroupScopeDescription(g),
                     group: g
                 }));
                 const selected = await vscode.window.showQuickPick(groupItems, {
@@ -1129,7 +1154,9 @@ export function registerCommands(
 
                 // Add file to group automatically
                 if (!targetGroup.files) targetGroup.files = [];
-                targetGroup.files.push(fileUri);
+                if (!groupHasFile(targetGroup, fileUri)) {
+                    targetGroup.files.push(fileUri);
+                }
             }
 
             // 3. Create Bookmark (No Input Box!)
@@ -1140,7 +1167,8 @@ export function registerCommands(
                 '' // Description empty by default
             );
 
-            BookmarkManager.addBookmarkToGroup(targetGroup, fileUri, bookmark);
+            const bookmarkFileKey = (targetGroup.files ?? []).find(existing => isSameFileUri(existing, fileUri)) ?? fileUri;
+            BookmarkManager.addBookmarkToGroup(targetGroup, bookmarkFileKey, bookmark);
             provider.refresh();
 
             // Subtle feedback
