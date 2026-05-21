@@ -428,9 +428,8 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         if (success) {
             this.refresh(false); // UI only, do NOT save back to disk to avoid overwriting user's manual edit
 
-            // Use a persistent status bar message
             const msg = I18n.getMessage('message.configReloaded') || 'VirtualTabs: Config reloaded';
-            vscode.window.showInformationMessage(msg); // Shift to notification because status bar is too subtle/volatile
+            vscode.window.setStatusBarMessage(msg, 3000);
         }
     }
 
