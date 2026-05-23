@@ -100,6 +100,28 @@ async function getVirtualTabsSection(sidebar: SideBarView): Promise<CustomTreeSe
     );
 }
 
+async function clickToolbarButton(sidebar: SideBarView, titlePattern: RegExp): Promise<void> {
+    const driver = VSBrowser.instance.driver;
+    await driver.wait(async () => {
+        try {
+            const actions = await sidebar.getTitlePart().getActions();
+            for (const action of actions) {
+                const title = await action.getTitle();
+                if (titlePattern.test(title)) {
+                    await action.click();
+                    return true;
+                }
+            }
+            return false;
+        } catch (error) {
+            const name = (error as Error).name;
+            if (name === 'StaleElementReferenceError' || name === 'ElementClickInterceptedError') {
+                return false;
+            }
+            throw error;
+        }
+    }, 10_000, `Toolbar button matching "${titlePattern}" not found`);
+}
 async function findTreeItem(section: CustomTreeSection, label: string, timeoutMs: number = 10_000): Promise<TreeItem> {
     const driver = VSBrowser.instance.driver;
     await driver.wait(async () => (await section.findItem(label)) !== undefined, timeoutMs, `Tree item "${label}" not found`);
@@ -146,8 +168,12 @@ describe('Virtual Tabs - Multi-root scopes UI', function () {
     this.timeout(60_000);
 
     before(async function () {
+        writeConfig(repoAConfigPath, repoAInitialConfig);
+        writeConfig(repoBConfigPath, repoBInitialConfig);
         await VSBrowser.instance.waitForWorkbench();
         await dismissOnboardingOverlay();
+        const sidebar = await openVirtualTabsView();
+        await clickToolbarButton(sidebar, /refresh/i);
     });
 
     after(async function () {
