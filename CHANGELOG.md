@@ -2,260 +2,254 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
-## [0.6.0] - 2026-05-16
+## [0.6.2] - Config Reload Status Bar Notification - 2026-05-25
 
-### Changed
+### 🔔 Config Reload Notification
 
-- Multi-root workspace: the panel title **Add Group** (`+`) button is now hidden. Each project scope's inline button handles group creation instead, keeping the action close to the target scope. Single-root workspaces are unaffected and still show the panel title button.
+- **Status bar instead of popup**: The "Config reloaded" message now appears in the status bar for 3 s and auto-dismisses, instead of a popup requiring manual dismissal. Resolves [#50](https://github.com/winterdrive/vscode-virtual-tabs/issues/50).
 
-### Fixed
+### 🧪 Reload Notification Tests
 
-- Directory drag-and-drop now skips hidden directories whose names start with `.`, while still including dotfiles such as `.gitignore` and `.editorconfig`.
-- Removing selected files from a group now works when the group stores workspace-relative file paths after config reload.
+- **Unit tests**: Added coverage for message-building i18n fallback and dispatch logic — success, failure, `isInternalSaving`, and empty i18n string cases.
+- **UI tests**: Added VS Code UI test verifying the status bar shows the reload message and no popup notification appears.
 
-### Tests and CI
+## [0.6.1] - Bookmark Deduplication & E2E Coverage - 2026-05-22
 
-- Added focused unit coverage for file-entry matching, group file removal, command target grouping, provider-level removal behavior, bookmark cleanup, multi-root scope isolation, and legacy workspace-root fallback.
-- Added VS Code UI coverage for removing reloaded workspace-relative files from single and separate groups.
-- Added `npm run test:coverage` and updated PR validation to run Jest coverage for the issue-critical core helpers before packaging.
+### 🔖 Bookmark Deduplication
 
-## [0.5.5] - 2026-05-13
+- **Duplicate bookmark fix**: Bookmarks for the same file added with different URI casing (e.g. `D:` vs `d:`) are now correctly deduplicated.
 
-### Changed
+### 🧪 Executable File & Sort Submenu Tests
 
-- Improved automated publishing for the VS Code Marketplace and Open VSX release flow.
-- Added validation and UI test workflows to keep multi-root workspace support safer to maintain.
+- **E2E tests**: Added tests for executable file inline Run button and Sort Files submenu availability in both custom and built-in groups.
+- **Unit tests**: Added bookmark deduplication unit tests.
 
-## [0.5.0] - 2026-05-10
+## [0.6.0] - Multi-root Workspace Refinements - 2026-05-16
 
-### Added
+### 🌲 Multi-root Workspace UX
 
-- Added multi-root workspace scope support. VirtualTabs now detects workspace folders and shows one scope section per project so groups can stay attached to the correct repo in a multi-root workspace.
-- Added scope-level actions for adding groups, moving scopes, opening the scope config, revealing scope storage, and clearing a scope.
-- Added automated coverage for config scope discovery, path routing, tree aggregation, source scope IDs, and multi-root UI behavior.
+- **Per-scope Add Group button**: The panel title **Add Group** (`+`) button is hidden in multi-root workspaces. Each project scope's inline button handles group creation, keeping the action next to the target scope. Single-root workspaces are unaffected.
 
-### Changed
+### 🐛 Drag-drop & Config Reload Fixes
 
-- Group creation and persistence now route through the selected/discovered scope instead of assuming a single workspace-level config.
-- Release packaging now excludes UI test output and local test runner cache from the VSIX.
+- **Hidden directory exclusion**: Directory drag-and-drop now skips hidden directories (`.git`, `.vscode`, etc.) while still including dotfiles like `.gitignore` and `.editorconfig`.
+- **Relative path reload**: Removing selected files from a group now works correctly when the group stores workspace-relative paths after a config reload.
 
-## [0.4.10] - 2026-04-17
+### 🧪 Test Coverage & CI
 
-### Changed
+- **Unit coverage**: Added focused coverage for file-entry matching, group file removal, command target grouping, provider-level removal, bookmark cleanup, multi-root scope isolation, and legacy workspace-root fallback.
+- **UI coverage**: Added VS Code UI tests for removing reloaded workspace-relative files from single and separate groups.
+- **CI**: Added `npm run test:coverage` and updated PR validation to run Jest coverage before packaging.
 
-- Prepared internal config-scope groundwork for multi-root workspace support.
-- Expanded test infrastructure for unit, property, and VS Code UI tests.
+## [0.5.5] - Publishing & CI Improvements - 2026-05-13
 
-## [0.4.9] - 2026-04-04
+### 🚀 Publishing & CI Workflows
+
+- **Automated publishing**: Improved VS Code Marketplace and Open VSX release flow.
+- **Validation workflows**: Added CI workflows for test validation and UI testing to keep multi-root workspace support safer to maintain.
+
+## [0.5.0] - Multi-root Workspace Scope Support - 2026-05-10
+
+### 🌍 Multi-root Workspace Scope Support
+
+- **Per-folder scopes**: VirtualTabs now detects workspace folders and shows one scope section per project, so groups stay attached to the correct repo in a multi-root workspace.
+- **Scope-level actions**: Added inline buttons for adding groups, moving scopes, opening scope config, revealing scope storage, and clearing a scope.
+- **Scoped persistence**: Group creation and save now route through the selected/discovered scope instead of a single workspace-level config.
+- **Automated scope tests**: Added coverage for config scope discovery, path routing, tree aggregation, source scope IDs, and multi-root UI behavior.
+
+### 🔧 Release Packaging
+
+- **VSIX cleanup**: Release packaging now excludes UI test output and the local test runner cache from the VSIX.
+
+## [0.4.10] - Config Scope Groundwork - 2026-04-17
+
+### 🏗 Config Scope & Test Infrastructure Prep
+
+- **Internal groundwork**: Prepared config-scope architecture for multi-root workspace support.
+- **Test infrastructure**: Expanded unit, property, and VS Code UI test infrastructure.
+
+## [0.4.9] - File Reordering in Custom Groups - 2026-04-04
 
 > **Special Thanks**: [@onelaview](https://github.com/onelaview) for the original idea! 🎉
 
-### Added
+### ↕️ File Reordering in Custom Groups
 
-- **File Reordering in Custom Groups**: Files within a custom group can now be reordered via drag & drop, `Alt+↑` / `Alt+↓` keyboard shortcuts, or the right-click context menu (**Move File Up** / **Move File Down**).
-- **Native Open Editors → VT Sync**: Reordering tabs in the native Open Editors panel now automatically updates the order in the VirtualTabs built-in group.
+- **File reordering**: Files within a custom group can now be reordered via drag & drop, `Alt+↑` / `Alt+↓` keyboard shortcuts, or the right-click context menu (**Move File Up** / **Move File Down**).
+- **Native Open Editors → VT sync**: Reordering tabs in the native Open Editors panel now automatically updates the order in the VirtualTabs built-in group.
 
-### Fixed
+### 🐛 Windows URI Encoding Fix
 
-- Fixed duplicate file detection when adding files to a group. URI encoding differences on Windows (`d%3A` vs `d:`) could cause the same file to be added twice.
-- Fixed file reordering (both drag & drop and keyboard) silently failing on Windows due to the same URI encoding mismatch.
+- **Duplicate file detection**: Fixed a bug where URI encoding differences on Windows (`d%3A` vs `d:`) caused the same file to be added twice to a group.
+- **Reordering on Windows**: Fixed drag & drop and keyboard reordering silently failing on Windows due to the same URI encoding mismatch.
 
-## [0.4.8] - 2026-04-03
+## [0.4.8] - Send To — File & Group Transfer - 2026-04-03
 
 > **Special Thanks**: [@jianfulin](https://github.com/jianfulin) for the original idea and contribution! 🎉
 
-### Added
+### 📤 Send To — File & Group Transfer
 
 - **Send to...**: Send selected files or an entire group to a destination folder via a Quick Pick UI.
-- **Configured Targets**: Load targets from `.vscode/sendTargets.json` and show them as `$(rocket)` entries in the Quick Pick.
-- **Multi-Path Targets**: A single target can define multiple destination paths and will send to all of them.
+- **Configured Targets**: Load targets from `.vscode/sendTargets.json` and show them as `$(rocket)` entries.
+- **Multi-Path Targets**: A single target can define multiple destination paths and sends to all of them.
 - **Recent Destinations**: "Browse" destinations are remembered and shown under **Recent**.
-- **Group Structure Preserved**: Sending a group preserves its nested sub-group structure in the destination folder.
-- **Include/Exclude Group Folder**: Group send now offers two explicit commands to include or exclude the outer group folder.
-- **On-demand Template**: When no configured targets exist, the Quick Pick offers an option to create a `.vscode/sendTargets.json` template.
+- **Group Structure Preserved**: Sending a group preserves its nested sub-group structure in the destination.
+- **Include/Exclude Group Folder**: Two explicit commands to include or exclude the outer group folder when sending.
+- **On-demand Template**: When no configured targets exist, the Quick Pick offers to create a `.vscode/sendTargets.json` template.
 
-### Fixed
+### 🐛 Optimistic Lock Fix on Empty Config
 
-- Fixed a config reload edge case where clearing `.vscode/virtualTab.json` (empty array) could prevent future saves due to optimistic lock version mismatch.
+- **Config reload edge case**: Fixed a bug where clearing `virtualTab.json` to an empty array prevented future saves due to an optimistic lock version mismatch.
 
-## [0.4.6] - 2026-03-26
+## [0.4.6] - Inline Close File & Editor Group IDs - 2026-03-26
 
-### Added
+### ✕ Inline Close File Button & Editor Group Stability
 
-- **Inline "Close File" Button**: Added a standard `$(close)` (x) button to all file items in the VirtualTabs tree view. Users can now close editor tabs directly from the sidebar, matching the native VS Code "Open Editors" experience.
-- **Enhanced Duplicate ID Handling**: Improved `TempFileItem` ID generation by incorporating the `viewColumn` (Editor Group index) to ensure every item in the "Currently Open Files" group remains unique, even when the same file is open in multiple split editors.
+- **Inline "Close File" button**: Added a standard `$(close)` (×) button to all file items in the tree view — close editor tabs directly from the sidebar, matching native VS Code "Open Editors" UX.
+- **Enhanced Duplicate ID Handling**: `TempFileItem` IDs now incorporate the `viewColumn` (editor group index), ensuring every item in "Currently Open Files" is unique even when the same file is open in multiple split editors.
+- **TreeView error fix**: Resolved the "Element with id … is already registered" error when working with multiple editor groups.
 
-### Fixed
+## [0.4.5] - Auto Reveal & Editor Group Clustering - 2026-03-22
 
-- Resolved the "Element with id ... is already registered" error in the TreeView when working with multiple editor groups.
+### 🎯 Auto Reveal Active File & Editor Group Clustering
 
-## [0.4.5] - 2026-03-22
+- **Auto Reveal Active File**: The tree view now automatically scrolls to and highlights the active file in "Currently Open Files". Toggle via `virtualTabs.autoRevealActiveFile`.
+- **Editor Group Clustering**: When multiple editor groups are open, "Currently Open Files" hierarchically organizes tabs by editor group (Group 1, Group 2, …) for a clearer workspace overview.
 
-### Added
+## [0.4.0] - MCP Server & AI Agent Integration - 2026-03-01
 
-- **Auto Reveal Active File**: The VirtualTabs tree view now automatically scrolls to and highlights the currently active file in the "Currently Open Files" group. This behavior can be toggled via the `virtualTabs.autoRevealActiveFile` setting.
-- **Editor Group Clustering**: When multiple editor groups are open, the "Currently Open Files" group now hierarchically organizes tabs by their respective editor group (Group 1, Group 2, etc.), providing a clearer structural overview of the workspace.
+### 🤖 MCP Server & AI Agent Integration
 
-## [0.4.0] - 2026-03-01
-
-### Added
-
-- **MCP Server Integration**: A fully bundled MCP server (`dist/mcp/index.js`) ships with the extension, enabling AI agents (Cursor, GitHub Copilot, Claude Code, Kiro IDE, Antigravity) to manage file groups programmatically via the Model Context Protocol.
-- **Agent Skill Generation** (`VirtualTabs: Generate Agent Skill`): Generates a target-specific skill file (`.mdc` for Cursor, `SKILL.md` for others) containing tool documentation and a four-layer safety decision tree. The skill prominently clarifies that VirtualTabs groups are **purely virtual** — no files are moved on disk — preventing a common class of agent misunderstandings.
-- **MCP Config Panel** (`VirtualTabs: Show MCP Config`): A webview panel displaying ready-to-copy MCP server configuration JSON for each supported AI client (Cursor, GitHub Copilot, Claude Code, Kiro IDE, Antigravity).
+- **MCP Server**: A bundled MCP server (`dist/mcp/index.js`) enables AI agents (Cursor, GitHub Copilot, Claude Code, Kiro IDE, Antigravity) to manage file groups via the Model Context Protocol.
+- **Agent Skill Generation** (`VirtualTabs: Generate Agent Skill`): Generates a target-specific skill file (`.mdc` for Cursor, `SKILL.md` for others) with tool documentation and a four-layer safety decision tree.
+- **MCP Config Panel** (`VirtualTabs: Show MCP Config`): A webview with ready-to-copy MCP server configuration JSON for each supported AI client.
 - **MCP Tools**: `list_groups`, `create_group`, `rename_group`, `move_group`, `delete_group`, `add_files_to_group`, `remove_files_from_group`, `explore_project`, `read_file`, `create_bookmark`, `delete_bookmark`, `list_bookmarks`, `set_group_sorting`, `auto_group_by_extension`, `auto_group_by_date`.
-- **Safety Fallback MCP Tools**: `validate_json_structure` and `append_group_to_json` for use when primary tools fail; both enforce workspace-relative paths, detect duplicate group names, and auto-create backups before any write.
-- **Bundled CLI Script** (`vt.bundle.js`): A self-contained Node.js CLI bundled alongside each generated skill file as a Layer 3 last-resort fallback. Supports `list-groups`, `add-group`, `add-files`, and `remove-group` commands with automatic workspace-root detection.
-- **Shared Core Library** (`src/core/`): Core business logic for group management, file operations, bookmarks, path utilities, and project exploration is now maintained in a single shared library consumed by both the VS Code extension and the MCP server, ensuring consistent behaviour across all surfaces.
+- **Safety Fallback Tools**: `validate_json_structure` and `append_group_to_json` enforce workspace-relative paths, detect duplicate group names, and auto-create backups before any write.
+- **Bundled CLI** (`vt.bundle.js`): A self-contained Node.js CLI for `list-groups`, `add-group`, `add-files`, and `remove-group` as a last-resort fallback.
 
-### Changed
+### 🏗 Shared Core Library & Refactoring
 
-- Toolbar now shows **MCP Config**, **Generate Skill**, and **Add Group** buttons in the VirtualTabs tree view header.
-- MCP server managers refactored as thin wrappers over the new `src/core/` shared library, eliminating duplicate logic.
+- **Shared Core** (`src/core/`): Business logic for group management, file operations, bookmarks, path utilities, and project exploration is now a single shared library consumed by both the VS Code extension and the MCP server.
+- **MCP server refactored**: MCP server managers are now thin wrappers over `src/core/`, eliminating duplicate logic.
+- **Toolbar**: Added **MCP Config**, **Generate Skill**, and **Add Group** buttons to the tree view header.
 
-### Fixed
+### 🐛 Config Filename Fix
 
-- Corrected config filename reference from `virtualTabs.json` (wrong) to `virtualTab.json` (correct) throughout the codebase and documentation.
+- **Correct config filename**: Fixed references from the wrong `virtualTabs.json` to the correct `virtualTab.json` throughout the codebase and documentation.
 
-## [0.3.13] - 2026-02-23
+## [0.3.13] - Recursive Group Operations - 2026-02-23
 
-### Added
+### 🔁 Recursive Group Operations & Enhanced Drag & Drop
 
-- **Recursive Group Operations**: "Open All" and "Close All" commands on a parent group now recursively include all files within its nested sub-groups.
-- **Enhanced Drag & Drop**: Dragging a group now properly recursively resolves all its nested files for external drops (e.g. dragging into editor or other extensions).
+- **Recursive "Open/Close All"**: "Open All" and "Close All" on a parent group now recursively include all files in nested sub-groups.
+- **Recursive drag resolution**: Dragging a group now properly resolves all nested files for external drops (e.g. into the editor or other extensions).
 
-### Fixed
+### 🐛 F2 Rename Shortcut Fix
 
-- Fixed a bug where assigning the `F2` shortcut to "Rename Group" would fail to target the correctly focused group.
+- **F2 rename target**: Fixed a bug where the `F2` shortcut for "Rename Group" would target the wrong group.
 
-## [0.3.12] - 2026-02-21
+## [0.3.12] - Live "Currently Open Files" & Sponsor Button - 2026-02-21
 
-### Added
+### 📂 Live "Currently Open Files" Tracking
 
-- **"Currently Open Files" Live Tracking**: The built-in group "Currently Open Files" now dynamically updates and perfectly mirrors your actual VS Code editor tabs, serving as a live workspace overview.
+- **Live editor tab sync**: The built-in "Currently Open Files" group now dynamically mirrors actual VS Code editor tabs in real time.
 
-### Changed
+### 💝 Sponsor Button
 
-- Improved UI/UX for the Sponsor button, replacing the generic text with a recognizable Ko-fi button in the VirtualTabs tree view to support the project.
+- **Ko-fi button**: Replaced the generic sponsor text with a Ko-fi button in the tree view.
 
-## [0.3.7 ~ 0.3.11] - 2026-01 to 2026-02
+## [0.3.7 ~ 0.3.11] - Input Box UX & TreeView Stability - 2026-01 to 2026-02
 
-### Added
+### 🗂 Input Box UX & TreeView Stability
 
 - **Input Box UX**: Added Cancel buttons and improved validation messages for group creation and renaming input boxes.
+- **TreeView stabilization**: Rapid group creation/deletion now correctly reflects the underlying `virtualTab.json` state without ghost items.
 
-### Fixed
+## [0.3.6] - Multi-select Copy & Unified Copy Menu - 2026-01-14
 
-- Stabilized the custom TreeView rendering, ensuring that rapid group creation/deletion accurately reflects the underlying `.vscode/virtualTab.json` state without ghost items.
+### 📋 Multi-select Copy & Unified Copy Menu
 
-## [0.3.6] - 2026-01-14
+- **Multi-select Copy**: All copy commands now support multi-selection — Copy File Name, Copy Relative Path (with deduplication), Copy Absolute Path (with deduplication), and Copy Group Context (handles mixed files + groups + bookmarks for AI prompt preparation).
+- **Unified Copy Menu**: Consolidated 4 duplicate copy submenus into a single adaptive menu, drastically reducing UI clutter.
 
-### Added
+### 🔧 Selection Logic & Command Fixes
 
-- **🎯 Multi-select Copy (Core Productivity Feature)**: All copy commands now support multi-selection:
-  - `Copy File Name` - Select multiple files/groups and copy all names at once.
-  - `Copy Relative Path` - Multi-select support with automatic deduplication.
-  - `Copy Absolute Path` - Multi-select support with automatic deduplication.
-  - `Copy Group Context` - Enhanced to handle mixed selections (files + groups + bookmarks) for better AI prompt preparation.
+- **Robust selection**: Refactored core commands to consistently prioritize multi-selection over right-clicked items via a unified `resolveTargetItems` helper.
+- **Context menu precision**: Strict `viewItem` regex checks prevent command "ghosting" on unrelated items.
+- **Type safety**: Replaced legacy duck typing with `instanceof` checks and Set-based cycle detection for circular references.
+- **Command namespace**: Renamed `deleteFile` to `virtualTabs.deleteFile` for system compatibility.
+- **Bookmark context**: `Copy Group Context` now correctly handles bookmark items with hierarchical group paths.
 
-### Changed
-
-- **Unified Copy Menu**: Consolidated 4 duplicate copy submenus into a single smart menu that adapts to selection type, drastically reducing UI clutter.
-- **Robust Selection Logic**: Refactored core commands to consistently prioritize multi-selection over right-clicked items using a unified `resolveTargetItems` helper.
-- **Improved Context Menu Precision**: Strict `viewItem` regex checks prevent command "ghosting" on unrelated items.
-- **Type Safety & Reliability**: Replaced legacy Duck Typing with `instanceof` checks and implemented Set-based cycle detection for circular references.
-
-### Fixed
-
-- **Command Namespace Conflict**: Renamed `deleteFile` to `virtualTabs.deleteFile` for better system compatibility.
-- **Bookmark Context Handling**: `Copy Group Context` now correctly handles bookmark items and displays hierarchical group paths.
-
-## [0.3.3] - 2025-12-31
+## [0.3.3] - Configurable Delete Confirmation - 2025-12-31
 
 > **Special Thanks**: [@jianfulin](https://github.com/jianfulin) for the major contribution! 🎉
 
-### Added
+### ✅ Configurable Delete Confirmation Dialogs
 
-- **Configurable Confirmation Dialogs**: New setting `virtualTabs.confirmBeforeDelete` to control whether confirmation dialogs appear before deleting groups or files (default: enabled).
-- Confirmation messages now support internationalization (i18n) for English, Traditional Chinese, and Simplified Chinese.
+- **`virtualTabs.confirmBeforeDelete` setting**: Controls whether a confirmation dialog appears before deleting groups or files (default: enabled).
+- **i18n support**: Confirmation messages support English, Traditional Chinese, and Simplified Chinese.
+- **`executeWithConfirmation` utility**: Refactored confirmation logic into a reusable helper in `util.ts`.
 
-### Changed
-
-- Refactored confirmation logic into reusable `executeWithConfirmation` utility function in `util.ts`.
-- Improved user experience with modal confirmation dialogs for delete operations.
-
-## [0.3.2] - 2025-12-21
+## [0.3.2] - Group Reordering & Executable Files - 2025-12-21
 
 > **Special Thanks**: [@jianfulin](https://github.com/jianfulin) for the major contribution! 🎉
 
-### Added
+### ↕️ Group Reordering & Executable File Support
 
 - **Group Reordering**: Move groups up or down via context menu commands.
-- **Executable File Support**: `.bat` and `.exe` files now have an inline "Run" button. Clicking the file itself still opens it in editor for consistency.
-- **Expanded State Persistence**: Remember which groups are expanded/collapsed across VS Code restarts.
-- Persist group/bookmark data to `.vscode/virtualTab.json`.
-- Store file references in `virtualTab.json` as paths relative to the workspace root.
+- **Executable File Support**: `.bat` and `.exe` files now have an inline "Run" button. Clicking the file still opens it in the editor.
+- **Expanded State Persistence**: Group expanded/collapsed state is remembered across VS Code restarts.
 
-### Changed
+### 🗃 Storage & Persistence Improvements
 
-- **Storage Location**: Moved `virtualTab.json` from workspace root to `.vscode/virtualTab.json` for cleaner project structure.
-- Allow duplicate group names when IDs differ.
+- **New storage location**: Moved `virtualTab.json` from the workspace root to `.vscode/virtualTab.json`.
+- **Workspace-relative paths**: File references in `virtualTab.json` are now stored as paths relative to the workspace root.
+- **Cross-platform terminal**: Improved shell command quoting for cross-platform terminal execution.
 
-### Fixed
+## [0.3.0] - Sub-Groups, AI Context & Drag & Drop - 2025-12-13
 
-- Improved shell command quoting for cross-platform terminal execution.
+### 🗂 Sub-Groups & Hierarchical Structure
 
-## [0.3.0] - 2025-12-13
+- **Sub-Groups**: Create hierarchical group organization by adding sub-groups or dragging groups onto each other.
+- **Unique group IDs**: Groups now require unique IDs for stable references (auto-migrated from older versions).
+- **Context menus**: Reorganized with separate submenus for different item types.
 
-### Added
+### 🤖 AI Context Export
 
-- **Sub-Groups & Nested Structure**: Create hierarchical group organization by adding sub-groups or dragging groups onto each other.
-- **AI Context Export**: Copy all files in a group as LLM-ready markdown with "Copy Context for AI" command.
-- **Unified Copy Menu**: New submenu with smart behavior - copies work differently on groups vs files.
+- **Copy Context for AI**: Copy all files in a group as LLM-ready markdown with the "Copy Context for AI" command.
+
+### 📁 Directory Drag & Drop & Copy Operations
+
 - **Directory Drag & Drop**: Drag folders from Explorer to recursively add all files within.
-- **Copy/Paste/Delete Commands**: Full clipboard operations for files and groups within VirtualTabs.
+- **Copy/Paste/Delete**: Full clipboard operations for files and groups.
 - **Multi-select Delete**: Delete multiple groups or files at once.
 - **File Move with Bookmarks**: Dragging files between groups preserves their bookmarks.
 
-### Changed
+### 🐛 Circular Nesting & Bookmark Fixes
 
-- Groups now require unique IDs for stable references (auto-migrated from older versions).
-- Improved drag-and-drop controller with better file/group/directory detection.
-- Context menus reorganized with separate submenus for different item types.
-- Copy File Name/Path commands now work on groups (copies all files recursively).
+- **Circular nesting**: Fixed detection when dragging groups to prevent circular parent-child references.
+- **Bookmark preservation**: Fixed bookmarks being lost when moving files between groups.
+- **Large file context**: Improved error handling when copying large file contexts.
 
-### Fixed
+## [0.2.0] - Task-Oriented Bookmarks - 2025-12-01
 
-- Fixed circular nesting detection when dragging groups.
-- Fixed bookmark preservation when moving files between groups.
-- Improved error handling for large file context copying.
+### 🔖 Task-Oriented Bookmarks
 
-## [0.2.0] - 2025-12-01
-
-### Added
-
-- **Task-Oriented Bookmarks**: You can now add bookmarks to specific lines of code within your VirtualTabs groups.
-- **Smart Flow**: Right-click to add bookmarks instantly without annoying input boxes. The system automatically labels them based on line content.
-- **Bookmark Navigation**: Click on a bookmark in the sidebar to jump directly to the code location.
+- **Line Bookmarks**: Add bookmarks to specific lines of code within VirtualTabs groups.
+- **Smart Flow**: Right-click to add bookmarks instantly — auto-labelled from line content, no input box required.
+- **Bookmark Navigation**: Click a bookmark in the sidebar to jump directly to that code location.
 - **Bookmark Management**: Edit bookmark labels and descriptions, or remove them via the context menu.
 
-### Changed
+### 🐛 TreeView & Icon Fixes
 
-- Improved TreeView performance when handling groups with many files.
-- Updated `package.json` to include new bookmark commands and menus.
-- Refined UI for file items in the sidebar (click to open).
+- **TreeView performance**: Improved performance when handling groups with many files.
+- **File icon fix**: Fixed file icons not displaying correctly in some themes.
 
-### Fixed
+## [0.1.0] - Initial Release - 2025-11-20
 
-- Fixed an issue where file icons might not display correctly in some themes.
+### 🎉 Initial Release
 
-## [0.1.0] - 2025-11-20
-
-### Added
-
-- Initial release of VirtualTabs.
-- Custom file grouping.
-- Built-in "Open Editors" group.
-- File sorting (Name, Path, Extension, Modified Time).
-- Auto-group by modification date.
-- Internationalization (i18n) support for English, Traditional Chinese, and Simplified Chinese.
+- **Custom file grouping**: Organize files into named virtual groups without moving them on disk.
+- **Built-in "Open Editors" group**: Live-synced view of currently open editor tabs.
+- **File sorting**: Sort by Name, Path, Extension, or Modified Time.
+- **Auto-group by date**: Automatically group files by their modification date.
+- **i18n**: English, Traditional Chinese, and Simplified Chinese support.
