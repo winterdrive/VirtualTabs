@@ -68,10 +68,11 @@ export async function showCaption(driver: WebDriver, text: string, durationMs: n
 
 export async function showClickRipple(driver: WebDriver, element: WebElement): Promise<void> {
     await driver.executeScript(`
-        if (!document.getElementById('vt-demo-ripple-style')) {
+        const styleId = 'vt-demo-ripple-style';
+        if (!document.getElementById(styleId)) {
             const s = document.createElement('style');
-            s.id = 'vt-demo-ripple-style';
-            s.textContent = '@keyframes vtRipple{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(1.7)}}';
+            s.id = styleId;
+            s.textContent = \`@keyframes vtRipple{from{transform:scale(0.35);opacity:0.95}to{transform:scale(2.4);opacity:0}}\`;
             document.head.appendChild(s);
         }
         const t = arguments[0];
@@ -95,7 +96,7 @@ export async function showClickRipple(driver: WebDriver, element: WebElement): P
         document.body.appendChild(d);
         setTimeout(() => d.remove(), 560);
     `, element);
-    await sleep(500);
+    // No sleep here — caller must use recording.pause(500) so frames are captured while ripple is animating
 }
 
 // ─── VS Code navigation ───────────────────────────────────────────────────────
@@ -195,31 +196,37 @@ export async function expandTreeItem(driver: WebDriver, label: string): Promise<
     await sleep(600);
 }
 
-export async function rightClickTreeItem(driver: WebDriver, label: string): Promise<void> {
-    const row = await driver.wait(async () => {
+export async function findTreeRow(driver: WebDriver, label: string): Promise<WebElement> {
+    return driver.wait(async () => {
         const rows = await driver.findElements(By.css('.monaco-list-row'));
         for (const r of rows) {
             const text = await r.getText().catch(() => '');
             if (text.includes(label)) { return r; }
         }
         return null;
-    }, 10_000, `Tree item "${label}" not found for right-click`);
-    await showClickRipple(driver, row!);
-    await driver.actions().contextClick(row!).perform();
+    }, 10_000, `Tree item "${label}" not found`) as Promise<WebElement>;
+}
+
+export async function rightClickTreeItem(driver: WebDriver, label: string): Promise<void> {
+    const row = await findTreeRow(driver, label);
+    await driver.actions().contextClick(row).perform();
     await sleep(400);
 }
 
-export async function clickContextMenuItem(driver: WebDriver, label: string): Promise<void> {
-    const item = await driver.wait(async () => {
+export async function findContextMenuItem(driver: WebDriver, label: string): Promise<WebElement> {
+    return driver.wait(async () => {
         const items = await driver.findElements(By.css('.action-label'));
         for (const el of items) {
             const text = await el.getText().catch(() => '');
             if (text.trim() === label) { return el; }
         }
         return null;
-    }, 5_000, `Context menu item "${label}" not found`);
-    await showClickRipple(driver, item!);
-    await item!.click();
+    }, 5_000, `Context menu item "${label}" not found`) as Promise<WebElement>;
+}
+
+export async function clickContextMenuItem(driver: WebDriver, label: string): Promise<void> {
+    const item = await findContextMenuItem(driver, label);
+    await item.click();
     await sleep(400);
 }
 

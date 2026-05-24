@@ -4,9 +4,8 @@
  * Story: files buried across 4 directories → one Virtual Tab Group →
  * right-click → AI context copied in one click.
  *
- * Output: test-results/demo-a-raw.mp4
- * Run:    npm run test:ui:demo:a
- * GIF:    npm run demo:gif:a
+ * Output: test-results/demo-raw.mp4
+ * Run:    npm run test:ui:demo
  */
 
 import { By, WebDriver } from 'selenium-webdriver';
@@ -19,7 +18,9 @@ import {
     waitForTreeLabel,
     clickRefresh,
     expandTreeItem,
+    findTreeRow,
     rightClickTreeItem,
+    findContextMenuItem,
     clickContextMenuItem,
     dismissOnboarding,
 } from './demoHelpers';
@@ -38,10 +39,10 @@ const FULL_GROUP = [{
 
 async function ensureExplorerExpanded(driver: WebDriver, label: string): Promise<void> {
     await driver.wait(async () => {
-        const rows = await driver.findElements(By.css('.monaco-list-row'));
+        const rows = await driver.findElements(By.css('.sidebar .pane-body .monaco-list-row'));
         for (const row of rows) {
             const text = await row.getText().catch(() => '');
-            if (text.trim().toLowerCase() !== label.toLowerCase()) { continue; }
+            if (!text.trim().toLowerCase().includes(label.toLowerCase())) { continue; }
             if (await row.getAttribute('aria-expanded') === 'false') { await row.click(); }
             return true;
         }
@@ -53,7 +54,7 @@ async function ensureExplorerExpanded(driver: WebDriver, label: string): Promise
 describe('Demo A – File Organization + AI Context', function () {
     this.timeout(120_000);
 
-    const recording = UiRecording.productDemo('demo-a');
+    const recording = UiRecording.productDemo('demo');
     const d = () => VSBrowser.instance.driver;
 
     before(async function () {
@@ -112,17 +113,31 @@ describe('Demo A – File Organization + AI Context', function () {
         await waitForTreeLabel(d(), 'login.ts');
         await recording.pause(400);
 
-        // ── Caption 2: label the result + announce the next action ────────────
-        await recording.step('One group. One right-click for AI context.', 2_000);
+        // ── Caption 2: label the result, announce right-click ───────────────────
+        await recording.step('One group. Right-click to copy AI context.', 2_000);
 
         // ── Action: right-click → Copy… → Copy Context for AI ─────────────────
+        const authRow = await findTreeRow(d(), 'Auth Feature');
+        await showClickRipple(d(), authRow);
+        await recording.pause(500);
         await rightClickTreeItem(d(), 'Auth Feature');
-        await recording.pause(400);
+        await recording.pause(1_200);          // hold: viewer reads context menu
+
+        const copyMenu = await findContextMenuItem(d(), 'Copy...');
+        await showClickRipple(d(), copyMenu);
+        await recording.pause(500);
+        // ── Caption 3: ripple signals copy is coming; caption predicts outcome ──
+        await recording.step('Paste-ready for Claude, ChatGPT, or Copilot.', 1_000);
         await clickContextMenuItem(d(), 'Copy...');
-        await recording.pause(300);
+        await recording.pause(600);            // sub-menu appears
+
+        // ── Action: click Copy Context for AI (caption 3 stays on screen) ──────
+        const copyAiMenu = await findContextMenuItem(d(), 'Copy Context for AI');
+        await showClickRipple(d(), copyAiMenu);
+        await recording.pause(500);
         await clickContextMenuItem(d(), 'Copy Context for AI');
 
-        // Inject green toast (auto-removes after 5s)
+        // Inject green toast — caption 3 still showing
         await d().executeScript(`
             const old = document.getElementById('vt-demo-confirm');
             if (old) old.remove();
@@ -145,11 +160,7 @@ describe('Demo A – File Organization + AI Context', function () {
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 5000);
         `);
-        await recording.pause(800);            // settle: toast now visible
-
-        // ── Caption 3: label the result — toast is on screen ──────────────────
-        await recording.step('Paste-ready for Claude, ChatGPT, or Copilot.', 2_000);
-        await recording.pause(1_500);          // ending hold
+        await recording.pause(2_500);          // ending hold: caption 3 + toast both visible
 
         await dismissOnboarding(d());
     });

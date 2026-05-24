@@ -5,7 +5,7 @@ const outDir = path.join(process.cwd(), 'test-results')
 fs.mkdirSync(outDir, { recursive: true })
 
 const settings = {
-    'window.zoomLevel': 2,
+    'window.zoomLevel': 4,
     'workbench.startupEditor': 'none',
     'workbench.welcomePage.walkthroughs.openOnInstall': false,
     'workbench.tips.enabled': false,
