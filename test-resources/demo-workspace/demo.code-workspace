@@ -1,0 +1,10 @@
+{
+  "folders": [
+    { "path": "." }
+  ],
+  "settings": {
+    "workbench.startupEditor": "none",
+    "workbench.tips.enabled": false,
+    "workbench.welcome.enabled": false
+  }
+}

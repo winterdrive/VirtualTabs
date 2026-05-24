@@ -687,6 +687,12 @@
         "test:properties": "jest --runInBand src/test/properties",
         "test:ui:setup": "extest setup-tests",
         "test:ui": "tsc -p tsconfig.test.ui.json && extest setup-and-run \"out/test/ui/**/*.test.js\" -e \".vscode-test/extensions\" -r \"test-resources/multi-root/virtual-tabs.code-workspace\" -c 1.96.0",
+        "test:ui:demo:a": "node src/test/ui/demo/write-demo-settings.cjs && tsc -p tsconfig.test.ui.json && extest setup-and-run \"out/test/ui/demo/groupOrganize.demo.js\" -e \".vscode-test/extensions\" -r \"test-resources/demo-workspace\" -c 1.96.0 -o \"test-results/demo-vscode-settings.generated.json\"",
+        "test:ui:demo:b": "node src/test/ui/demo/write-demo-settings.cjs && tsc -p tsconfig.test.ui.json && extest setup-and-run \"out/test/ui/demo/aiContext.demo.js\" -e \".vscode-test/extensions\" -r \"test-resources/demo-workspace\" -c 1.96.0 -o \"test-results/demo-vscode-settings.generated.json\"",
+        "test:ui:demo:c": "node src/test/ui/demo/write-demo-settings.cjs && tsc -p tsconfig.test.ui.json && extest setup-and-run \"out/test/ui/demo/persistence.demo.js\" -e \".vscode-test/extensions\" -r \"test-results/demo-workspace\" -c 1.96.0 -o \"test-results/demo-vscode-settings.generated.json\"",
+        "demo:gif:a": "ffmpeg -y -i test-results/demo-a-raw.mp4 -vf \"fps=12,scale=1280:-2:flags=lanczos\" docs/assets/demo-organize.gif",
+        "demo:gif:b": "ffmpeg -y -i test-results/demo-b-raw.mp4 -vf \"fps=12,scale=1280:-2:flags=lanczos\" docs/assets/demo-ai-context.gif",
+        "demo:gif:c": "ffmpeg -y -i test-results/demo-c-raw.mp4 -vf \"fps=12,scale=1280:-2:flags=lanczos\" docs/assets/demo-persistence.gif",
         "vscode:prepublish": "npm run build:vt && npm run build:mcp && tsc -p ./",
         "build:mcp": "esbuild mcp-server/src/index.ts --bundle --platform=node --target=node18 --format=cjs --outfile=dist/mcp/index.js --external:vscode",
         "build:vt": "npx tsx scripts/bundle-vt.ts"
