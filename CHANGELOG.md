@@ -2,6 +2,18 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.0] - Agent Skill - 2026-05-24
+
+### 🧠 Agent Skill (npx skills add)
+
+- Added `skills/virtualtabs/SKILL.md` as SSOT for `npx skills add winterdrive/VirtualTabs`
+- Refactored `SkillGenerator.ts`: button-generated skill now reads from bundled `SKILL.md` instead of hardcoded inline template, keeping it always in sync
+
+### 🔧 Internal
+
+- Added `build:skills` script to sync SKILL.md and `vt.bundle.js` into `dist/skills/virtualtabs/`
+- `vscode:prepublish` now runs `build:skills` automatically
+
 ## [0.6.2] - Config Reload Status Bar Notification - 2026-05-25
 
 ### 🔔 Config Reload Notification

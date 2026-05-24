@@ -1,0 +1,12 @@
+# Normalize line endings to LF on commit
+* text=auto eol=lf
+
+# Binary assets — disable text diff and merge
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+
+# Generated bundles - suppress diff, exclude from language stats
+skills/*/scripts/*.bundle.js -diff linguist-generated=true
