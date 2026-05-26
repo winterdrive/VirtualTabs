@@ -57,6 +57,8 @@
 
 ## 🚀 快速開始 (Quick Start)
 
+![VirtualTabs 產品示範](docs/assets/virtualtabs-product-demo.gif)
+
 ### 安裝
 
 1. 開啟 VS Code。

@@ -61,6 +61,8 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 
 ## 🚀 Quick Start
 
+![VirtualTabs product demo](docs/assets/virtualtabs-product-demo.gif)
+
 ### Installation
 
 1. Open VS Code.
