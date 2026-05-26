@@ -5,7 +5,7 @@
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/vscode-virtual-tabs/llms.txt)
 
-[繁體中文](../README.zh-TW.md) | [English](../README.md) | 日本語 | [한국어](README.ko.md) | [简体中文](README.zh-CN.md)
+[繁體中文](README.zh-TW.md) | [English](../README.md) | 日本語 | [한국어](README.ko.md) | [简体中文](README.zh-CN.md)
 
 ![VirtualTabs - VS Code File Grouping and AI Context Extension](assets/vscode-virtualtabs-grouping-banner.png)
 
