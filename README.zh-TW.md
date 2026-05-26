@@ -3,11 +3,11 @@
 [![Visual Studio Marketplace Version](https://vsmarketplacebadges.dev/version-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
 [![Open VSX Version](https://img.shields.io/open-vsx/v/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
-[![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/VirtualTabs/llms.txt)
+[![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/vscode-virtual-tabs/llms.txt)
 <!-- [![VS Marketplace Installs](https://vsmarketplacebadges.dev/installs-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs) -->
 <!-- [![VS Marketplace Downloads](https://vsmarketplacebadges.dev/downloads-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs) -->
 
-繁體中文 | **[English](./README.md)**
+繁體中文 | **[English](./README.md)** | [日本語](./docs/README.ja.md) | [한국어](./docs/README.ko.md) | [简体中文](./docs/README.zh-CN.md)
 
 ![VirtualTabs - VS Code File Grouping and AI Context Extension](docs/assets/vscode-virtualtabs-grouping-banner.png)
 
@@ -83,6 +83,7 @@
 - **AI 上下文匯出** — 一鍵複製所有檔案為 LLM 就緒的 Markdown 格式。
 - **便攜設定** — 設定儲存於 `.vscode/virtualTab.json`，方便團隊共享。
 - **AI Agent 整合 (MCP)** — 讓 AI 代理（Cursor、Claude 等）程序化管理您的群組。
+- **Agent Skill 產生器** — 直接從擴充套件產生可重用的 `virtualtabs` skill/rule，交給 AI agent 使用。
 - **Multi-root 工作區範圍** — 在 multi-root 專案中依每個工作區資料夾分開保存群組。
 - **自動追蹤與同步** — 自動定位作用中檔案，並與原生編緝器分組同步。
 - **傳送至...** — 快速將選取的檔案或整個群組傳送到指定目的地。
@@ -145,6 +146,7 @@ VirtualTabs 透過 **Model Context Protocol (MCP)** 提供完整的 AI Agent 整
   ![安全決策樹](docs/assets/safety_decision_tree_zh.png)
 
 - ⚙️ **輕鬆配置**：使用 **MCP 設定面板** (命令：`VirtualTabs: Show MCP Config`) 獲取現成配置。
+- 🧠 **Agent Skills**：使用 **Generate Agent Skill** 為 Claude Code、GitHub Copilot、Kiro、Antigravity、Cline 或 Cursor 產生可重用的 `virtualtabs` skill/rule。
 
 👉 **詳細配置請參閱 [MCP 設定指南](./docs/mcp-setup.zh-TW.md)。**
 
