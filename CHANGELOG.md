@@ -2,6 +2,30 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.1] - Demo Recording Pipeline - 2026-05-26
+
+### 🎬 Product Demo Recording
+
+- Added `npm run test:ui:demo` for a focused VS Code UI demo flow that records the VirtualTabs group organization and AI-context workflow.
+- Added a dedicated `test-resources/demo-workspace` fixture so demo recording uses stable, product-like files instead of ad hoc local workspace state.
+- Added demo helpers for captions, click ripples, context-menu interaction, and deterministic recording settings output under `test-results/`.
+
+### 🧪 Demo Harness
+
+- Kept the demo flow separate from the regular `npm run test:ui` regression suite so product recording can evolve without making CI UI tests slower or more fragile.
+
+## [0.7.0] - Agent Skill - 2026-05-24
+
+### 🧠 Agent Skill (npx skills add)
+
+- Added `skills/virtualtabs/SKILL.md` as SSOT for `npx skills add winterdrive/VirtualTabs`
+- Refactored `SkillGenerator.ts`: button-generated skill now reads from bundled `SKILL.md` instead of hardcoded inline template, keeping it always in sync
+
+### 🔧 Internal
+
+- Added `build:skills` script to sync SKILL.md and `vt.bundle.js` into `dist/skills/virtualtabs/`
+- `vscode:prepublish` now runs `build:skills` automatically
+
 ## [0.6.2] - Config Reload Status Bar Notification - 2026-05-25
 
 ### 🔔 Config Reload Notification

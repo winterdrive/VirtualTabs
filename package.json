@@ -2,7 +2,7 @@
     "name": "virtual-tabs",
     "displayName": "VirtualTabs - Virtual File Directories & AI context management",
     "description": "%extension.description%",
-    "version": "0.6.2",
+    "version": "0.7.1",
     "publisher": "winterdrive",
     "icon": "docs/assets/virtualtabs_icon_128.png",
     "categories": [
@@ -688,9 +688,10 @@
         "test:ui:setup": "extest setup-tests",
         "test:ui": "tsc -p tsconfig.test.ui.json && extest setup-and-run \"out/test/ui/**/*.test.js\" -e \".vscode-test/extensions\" -r \"test-resources/multi-root/virtual-tabs.code-workspace\" -c 1.96.0",
         "test:ui:demo": "node src/test/ui/demo/write-demo-settings.cjs && tsc -p tsconfig.test.ui.json && node -e \"const fs=require('fs');const p=require('path').join(require('os').tmpdir(),'test-resources','settings');if(fs.existsSync(p))fs.rmSync(p,{recursive:true,force:true})\" && extest setup-and-run \"out/test/ui/demo/groupOrganize.demo.js\" -e \".vscode-test/extensions\" -r \"test-resources/demo-workspace\" -c 1.96.0 -o \"test-results/demo-vscode-settings.generated.json\"",
-        "vscode:prepublish": "npm run build:vt && npm run build:mcp && tsc -p ./",
+        "vscode:prepublish": "npm run build:vt && npm run build:mcp && tsc -p ./ && npm run build:skills",
         "build:mcp": "esbuild mcp-server/src/index.ts --bundle --platform=node --target=node18 --format=cjs --outfile=dist/mcp/index.js --external:vscode",
-        "build:vt": "npx tsx scripts/bundle-vt.ts"
+        "build:vt": "npx tsx scripts/bundle-vt.ts",
+        "build:skills": "node -e \"const fs=require('fs');fs.mkdirSync('dist/skills/virtualtabs',{recursive:true});fs.copyFileSync('skills/virtualtabs/SKILL.md','dist/skills/virtualtabs/SKILL.md');fs.mkdirSync('skills/virtualtabs/scripts',{recursive:true});fs.copyFileSync('dist/vt.bundle.js','skills/virtualtabs/scripts/vt.bundle.js')\""
     },
     "devDependencies": {
         "@modelcontextprotocol/sdk": "^1.27.1",
