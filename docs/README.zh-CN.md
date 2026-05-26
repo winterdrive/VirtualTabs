@@ -44,7 +44,11 @@
 
 VirtualTabs 内置 MCP server，并提供 **VirtualTabs: Show MCP Config** 面板来生成可直接粘贴的客户端配置。连接后，Cursor、Claude、Copilot、Kiro、Antigravity 等 agent 可以读取组、创建组、加入文件、管理书签并导出 AI context。
 
-使用 **Generate Agent Skill** 可以生成结构化的 `virtualtabs` skill/rule，让另一个 AI agent 知道 VirtualTabs 组是虚拟的、应优先使用 MCP 工具、并避免误改真实文件系统。
+使用 **Generate Agent Skill** 可以生成结构化的 `virtualtabs` skill/rule，让另一个 AI agent 知道 VirtualTabs 组是虚拟的、应优先使用 MCP 工具、并避免误改真实文件系统。或直接安装正式 skill：
+
+```bash
+npx skills add winterdrive/VirtualTabs
+```
 
 详细设置请参阅 [MCP Setup Guide](mcp-setup.md)。
 

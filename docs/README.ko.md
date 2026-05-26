@@ -44,7 +44,11 @@
 
 VirtualTabs에는 MCP server가 내장되어 있으며, **VirtualTabs: Show MCP Config** 패널에서 AI 클라이언트 설정을 복사할 수 있습니다. 연결 후 Cursor, Claude, Copilot, Kiro, Antigravity 등의 agent는 그룹 목록 조회, 그룹 생성, 파일 추가, 북마크 관리, AI context 내보내기를 수행할 수 있습니다.
 
-**Generate Agent Skill**을 사용하면 다른 AI agent가 VirtualTabs를 올바르게 사용하도록 돕는 구조화된 `virtualtabs` skill/rule을 생성할 수 있습니다. 이 skill은 VirtualTabs 그룹이 실제 파일 시스템 폴더가 아니라 가상 그룹이라는 점을 명확히 안내합니다.
+**Generate Agent Skill**을 사용하면 다른 AI agent가 VirtualTabs를 올바르게 사용하도록 돕는 구조화된 `virtualtabs` skill/rule을 생성할 수 있습니다. 이 skill은 VirtualTabs 그룹이 실제 파일 시스템 폴더가 아니라 가상 그룹이라는 점을 명확히 안내합니다. 공식 skill을 직접 설치할 수도 있습니다:
+
+```bash
+npx skills add winterdrive/VirtualTabs
+```
 
 자세한 내용은 [MCP Setup Guide](mcp-setup.md)를 참고하세요.
 

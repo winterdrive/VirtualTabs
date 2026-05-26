@@ -146,7 +146,11 @@ VirtualTabs 透過 **Model Context Protocol (MCP)** 提供完整的 AI Agent 整
   ![安全決策樹](assets/safety_decision_tree_zh.png)
 
 - ⚙️ **輕鬆配置**：使用 **MCP 設定面板** (命令：`VirtualTabs: Show MCP Config`) 獲取現成配置。
-- 🧠 **Agent Skills**：使用 **Generate Agent Skill** 為 Claude Code、GitHub Copilot、Kiro、Antigravity、Cline 或 Cursor 產生可重用的 `virtualtabs` skill/rule。
+- 🧠 **Agent Skills**：使用 **Generate Agent Skill** 為 Claude Code、GitHub Copilot、Kiro、Antigravity、Cline 或 Cursor 產生可重用的 `virtualtabs` skill/rule。或直接安裝正式 skill：
+
+  ```bash
+  npx skills add winterdrive/VirtualTabs
+  ```
 
 👉 **詳細配置請參閱 [MCP 設定指南](mcp-setup.zh-TW.md)。**
 

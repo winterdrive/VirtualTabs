@@ -146,7 +146,11 @@ VirtualTabs provides full AI agent integration via the **Model Context Protocol 
   ![Safety Decision Tree](docs/assets/safety_decision_tree_en.png)
 
 - ⚙️ **Easy Config**: Use the **MCP Config Panel** (command: `VirtualTabs: Show MCP Config`) to get ready-to-paste settings.
-- 🧠 **Agent Skills**: Use **Generate Agent Skill** to create a reusable `virtualtabs` skill/rule for Claude Code, GitHub Copilot, Kiro, Antigravity, Cline, or Cursor.
+- 🧠 **Agent Skills**: Use **Generate Agent Skill** to create a reusable `virtualtabs` skill/rule for Claude Code, GitHub Copilot, Kiro, Antigravity, Cline, or Cursor. Or install the canonical skill directly:
+
+  ```bash
+  npx skills add winterdrive/VirtualTabs
+  ```
 
 👉 **See the [MCP Setup Guide](./docs/mcp-setup.md) for detailed IDE configuration.**
 
