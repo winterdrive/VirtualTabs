@@ -2,6 +2,17 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.2] - Auto Group Scope Fix - 2026-06-02
+
+### 🐛 Bug Fix
+
+- **Auto group saved to wrong scope in multi-root workspace** ([#56](https://github.com/winterdrive/vscode-virtual-tabs/issues/56)): Auto groups created by "Auto Group by Extension" and "Auto Group by Modified Date" now correctly inherit the source group's `sourceScopeId`, so they are saved to the right project root's `.vscode/virtualTab.json`. Previously, missing `sourceScopeId` caused the save route to fall back to the first workspace root, making auto groups disappear on reload in multi-root workspaces.
+
+### 🧪 Tests
+
+- **Unit tests**: 13 tests verifying `sourceScopeId` inheritance for both extension and date auto groups, including edge cases (no scope, non-first scope, empty input).
+- **E2E tests**: 2 UI tests confirming auto groups land in the correct root's config file and leave the other root's config untouched.
+
 ## [0.7.1] - Demo Recording Pipeline - 2026-05-26
 
 ### 🎬 Product Demo Recording
