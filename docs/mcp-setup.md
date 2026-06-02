@@ -43,6 +43,7 @@ Select your AI tool below to see the configuration steps:
 ## 🛡️ Safety & Agent Skills
 
 VirtualTabs can generate custom "Skills" (instruction files) for your agents:
+
 * **Cursor**: Generates `.mdc` rules.
 * **Other Agents**: Generates `SKILL.md`.
 

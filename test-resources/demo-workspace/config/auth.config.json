@@ -1,0 +1,7 @@
+{
+  "provider": "oauth2",
+  "clientId": "demo-app-client",
+  "tokenEndpoint": "/api/auth/token",
+  "scopes": ["read:user", "write:session"],
+  "sessionTtlSeconds": 3600
+}

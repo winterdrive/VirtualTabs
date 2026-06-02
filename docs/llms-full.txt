@@ -7,11 +7,11 @@
 [![Visual Studio Marketplace Version](https://vsmarketplacebadges.dev/version-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs)
 [![Open VSX Version](https://img.shields.io/open-vsx/v/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
-[![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/VirtualTabs/llms.txt)
+[![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/vscode-virtual-tabs/llms.txt)
 <!-- [![VS Marketplace Installs](https://vsmarketplacebadges.dev/installs-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs) -->
 <!-- [![VS Marketplace Downloads](https://vsmarketplacebadges.dev/downloads-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs) -->
 
-[繁體中文](./README.zh-TW.md)
+[繁體中文](./docs/README.zh-TW.md) | [日本語](./docs/README.ja.md) | [한국어](./docs/README.ko.md) | [简体中文](./docs/README.zh-CN.md) | English
 
 ![VirtualTabs - VS Code File Grouping and AI Context Extension](docs/assets/vscode-virtualtabs-grouping-banner.png)
 
@@ -61,6 +61,8 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 
 ## 🚀 Quick Start
 
+![VirtualTabs product demo](docs/assets/virtualtabs-product-demo.gif)
+
 ### Installation
 
 1. Open VS Code.
@@ -85,6 +87,7 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 - **AI Context Export** — One-click copy all files as LLM-ready context.
 - **Portable Config** — Settings saved to `.vscode/virtualTab.json` for team sharing.
 - **AI Agent Integration (MCP)** — Connect AI agents (Cursor, Claude, etc.) to manage groups programmatically.
+- **Agent Skill Generator** — Generate reusable `virtualtabs` skills/rules for AI agents directly from the extension.
 - **Multi-Root Workspace Scopes** — Keep groups separated per workspace folder in multi-root projects.
 - **Auto Reveal & Sync** — Automatically focus active files and sync with native editor groups.
 - **Send to...** — Quickly send selected files or groups to pre-configured destinations.
@@ -147,6 +150,7 @@ VirtualTabs provides full AI agent integration via the **Model Context Protocol 
   ![Safety Decision Tree](docs/assets/safety_decision_tree_en.png)
 
 - ⚙️ **Easy Config**: Use the **MCP Config Panel** (command: `VirtualTabs: Show MCP Config`) to get ready-to-paste settings.
+- 🧠 **Agent Skills**: Use **Generate Agent Skill** to create a reusable `virtualtabs` skill/rule for Claude Code, GitHub Copilot, Kiro, Antigravity, Cline, or Cursor.
 
 👉 **See the [MCP Setup Guide](./docs/mcp-setup.md) for detailed IDE configuration.**
 

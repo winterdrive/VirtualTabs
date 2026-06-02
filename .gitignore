@@ -26,6 +26,11 @@ test-resources/
 !test-resources/
 !test-resources/multi-root/
 !test-resources/multi-root/**
+!test-resources/demo-workspace/
+!test-resources/demo-workspace/**
+
+# Demo recording raw output (keep GIFs, discard MP4 sources)
+test-results/
 
 # AI Agents & Assistants
 /.gemini

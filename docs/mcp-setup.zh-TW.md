@@ -43,6 +43,7 @@ VirtualTabs 內建了一個完整打包的 MCP 伺服器 (`dist/mcp/index.js`)�
 ## 🛡️ 安全性與 Agent 技能 (Skills)
 
 VirtualTabs 可為您的代理生成自定義的「技能檔案」：
+
 * **Cursor**：生成 `.mdc` 規則。
 * **其他代理**：生成 `SKILL.md` 指令文檔。
 

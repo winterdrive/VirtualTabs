@@ -18,4 +18,4 @@ User-agent: Claude-Web
 Allow: /
 
 # Link to the AI-friendly spec if available at root
-# Sitemap: https://winterdrive.github.io/VirtualTabs/sitemap.xml
+# Sitemap: https://winterdrive.github.io/vscode-virtual-tabs/sitemap.xml
