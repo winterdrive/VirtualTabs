@@ -1390,7 +1390,8 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             name: `${I18n.getAutoGroupName(ext)} @ ${group.name}`, // Naming: .ext @ Source
             files,
             auto: true,
-            sourceGroupId: group.id
+            sourceGroupId: group.id,
+            sourceScopeId: group.sourceScopeId
         }));
 
         // Find fresh index of group because filtering might have shifted it
@@ -1458,8 +1459,8 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                     files,
                     auto: true,
                     autoGroupType: 'modifiedDate',
-                    sourceGroupId: group.id
-                    // Removed parentGroupId to make it sibling
+                    sourceGroupId: group.id,
+                    sourceScopeId: group.sourceScopeId
                 });
             }
         }

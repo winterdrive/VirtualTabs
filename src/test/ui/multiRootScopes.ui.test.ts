@@ -9,6 +9,7 @@ import {
     ViewControl,
     VSBrowser
 } from 'vscode-extension-tester';
+import { By, Key } from 'selenium-webdriver';
 import { expect } from 'chai';
 
 const fixtureRoot = path.resolve(__dirname, '../../../test-resources/multi-root');
@@ -156,12 +157,73 @@ async function getVisibleTreeLabels(): Promise<string[]> {
     `) as string[];
 }
 
-function readConfig(configPath: string): Array<{ name?: string }> {
-    return JSON.parse(fs.readFileSync(configPath, 'utf8')) as Array<{ name?: string }>;
+function readConfig(configPath: string): Array<{ name?: string; auto?: boolean }> {
+    return JSON.parse(fs.readFileSync(configPath, 'utf8')) as Array<{ name?: string; auto?: boolean }>;
 }
 
 function writeConfig(configPath: string, groups: Array<{ id: string; name: string; files: string[] }>): void {
     fs.writeFileSync(configPath, `${JSON.stringify(groups, null, 2)}\n`);
+}
+
+async function dismissContextViews(): Promise<void> {
+    const driver = VSBrowser.instance.driver;
+    const isMenuOpen = async (): Promise<boolean> => {
+        const menus = await driver.findElements(By.css('.context-view.monaco-menu-container'));
+        for (const menu of menus) {
+            try { if (await menu.isDisplayed()) return true; } catch { /* stale */ }
+        }
+        return false;
+    };
+    if (!(await isMenuOpen())) return;
+    await driver.actions().sendKeys(Key.ESCAPE).perform().catch(() => undefined);
+    await driver.sleep(150);
+    await driver.actions().sendKeys(Key.ESCAPE).perform().catch(() => undefined);
+    await driver.wait(async () => !(await isMenuOpen()), 2_000).catch(() => false);
+}
+
+async function rightClickAndSelectMenuItem(rowLabel: string, menuItemLabel: string): Promise<void> {
+    const driver = VSBrowser.instance.driver;
+    await dismissContextViews();
+
+    const row = await driver.wait(async () => {
+        const rows = await driver.findElements(By.css('.monaco-list-row'));
+        for (const r of rows) {
+            try {
+                const text = (await r.getText()).trim();
+                if (text.includes(rowLabel)) return r;
+            } catch { /* stale */ }
+        }
+        return null;
+    }, 10_000, `Tree row "${rowLabel}" not found`) as Awaited<ReturnType<typeof driver.findElement>>;
+
+    await driver.actions().click(row).perform();
+    await driver.sleep(300);
+    await driver.actions().contextClick(row).perform();
+
+    await driver.wait(async () => {
+        try {
+            const menu = await driver.findElement(By.css('.context-view.monaco-menu-container'));
+            return await menu.isDisplayed();
+        } catch { return false; }
+    }, 6_000, 'Context menu did not appear');
+
+    await driver.sleep(300);
+
+    const item = await driver.wait(async () => {
+        const items = await driver.findElements(
+            By.css('.context-view.monaco-menu-container .action-label')
+        );
+        for (const it of items) {
+            try {
+                const text = (await it.getText()).trim();
+                if (text === menuItemLabel) return it;
+            } catch { /* stale */ }
+        }
+        return null;
+    }, 5_000, `Context menu item "${menuItemLabel}" not found`) as Awaited<ReturnType<typeof driver.findElement>>;
+
+    await item.click();
+    await driver.sleep(500);
 }
 
 describe('Virtual Tabs - Multi-root scopes UI', function () {
@@ -221,5 +283,82 @@ describe('Virtual Tabs - Multi-root scopes UI', function () {
 
         expect(afterA).to.include(expectedName);
         expect(afterB).to.deep.equal(beforeB);
+    });
+
+    describe('auto group scope isolation (Issue #56)', function () {
+        const autoGroupSourceConfig = [
+            {
+                id: 'repo-b-auto-test',
+                name: 'Repo B Auto Test',
+                files: ['src/main.ts', 'config/app.json']
+            }
+        ];
+
+        before(async function () {
+            writeConfig(repoBConfigPath, autoGroupSourceConfig);
+            const sidebar = await openVirtualTabsView();
+            await clickToolbarButton(sidebar, /refresh/i);
+            await waitForTreeLabel('Repo B Auto Test');
+        });
+
+        after(async function () {
+            writeConfig(repoBConfigPath, repoBInitialConfig);
+            const sidebar = await openVirtualTabsView();
+            await clickToolbarButton(sidebar, /refresh/i);
+        });
+
+        it('auto group by extension on Repo-B group saves auto groups only to Repo-B config', async function () {
+            await rightClickAndSelectMenuItem('Repo B Auto Test', 'Auto Group by Extension');
+
+            // Auto groups should appear in the tree
+            await waitForTreeLabel('.ts @ Repo B Auto Test', 15_000);
+
+            // Wait for Repo-B config to be persisted
+            await VSBrowser.instance.driver.wait(() => {
+                const names = readConfig(repoBConfigPath).map(g => g.name);
+                return names.some(n => n && n.includes('.ts @ Repo B Auto Test'));
+            }, 10_000, 'Auto group .ts was not persisted to Repo-B config');
+
+            const repoBGroups = readConfig(repoBConfigPath);
+            const repoAGroups = readConfig(repoAConfigPath);
+
+            // Both extension buckets saved to Repo-B
+            expect(repoBGroups.some(g => g.name && g.name.includes('.ts @ Repo B Auto Test'))).to.be.true;
+            expect(repoBGroups.some(g => g.name && g.name.includes('.json @ Repo B Auto Test'))).to.be.true;
+
+            // Repo-A config must be untouched
+            expect(repoAGroups.some(g => g.name && g.name.includes('Auto Test'))).to.be.false;
+        });
+
+        it('auto group by modified date on Repo-B group saves auto groups only to Repo-B config', async function () {
+            // Reset Repo-B config before this test so previous auto groups don't interfere
+            writeConfig(repoBConfigPath, autoGroupSourceConfig);
+            const sidebar = await openVirtualTabsView();
+            await clickToolbarButton(sidebar, /refresh/i);
+            await waitForTreeLabel('Repo B Auto Test');
+
+            await rightClickAndSelectMenuItem('Repo B Auto Test', 'Auto Group by Modified Date');
+
+            // At least one date bucket should appear
+            await VSBrowser.instance.driver.wait(async () => {
+                const labels = await getVisibleTreeLabels();
+                return labels.some(l => l.includes('@ Repo B Auto Test'));
+            }, 15_000, 'No date auto group appeared under Repo B Auto Test');
+
+            // Wait for persistence
+            await VSBrowser.instance.driver.wait(() => {
+                const groups = readConfig(repoBConfigPath);
+                return groups.some(g => g.auto === true);
+            }, 10_000, 'Date auto groups were not persisted to Repo-B config');
+
+            const repoBGroups = readConfig(repoBConfigPath);
+            const repoAGroups = readConfig(repoAConfigPath);
+
+            // Date auto groups landed in Repo-B
+            expect(repoBGroups.some(g => g.auto === true)).to.be.true;
+
+            // Repo-A config must be untouched
+            expect(repoAGroups.some(g => g.auto === true)).to.be.false;
+        });
     });
 });
