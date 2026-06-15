@@ -2,7 +2,7 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
-## [0.7.3] - Skill Installer UX - 2026-06-16
+## [0.7.4] - Skill Installer UX - 2026-06-16
 
 ### 🧠 Skill Installer UX (closes #25)
 
