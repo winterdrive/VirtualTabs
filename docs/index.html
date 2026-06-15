@@ -1,411 +1,329 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- ========================================
-         VirtualTabs Landing Page - Complete Meta Tags
-         ======================================== -->
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VirtualTabs - Virtual File Directories, AI Agent Integration & MCP Server for VS Code</title>
+<meta name="description" content="Organize files into Virtual File Directories with built-in MCP Server for AI agent integration. Perfect for MVC/MVVM & Monorepos.">
+<link rel="canonical" href="https://winterdrive.github.io/vscode-virtual-tabs/">
+<meta property="og:image" content="https://winterdrive.github.io/vscode-virtual-tabs/assets/vscode-virtualtabs-grouping-banner1024X512.png">
+<meta name="theme-color" content="#f8f5f0">
+<link rel="icon" type="image/png" href="assets/virtualtabs_icon_128.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CW9PD48QRG"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-CW9PD48QRG');</script>
+<style>
+:root{
+  --accent:#c2500a; --accent-dim:#9a3d07; --accent-glow:rgba(194,80,10,.1);
+  --p:#f8f5f0; --p2:#f0ece4; --p3:#e6e0d6;
+  --ink:#13100c; --ink2:#2b2620; --ink3:#564e43; --ink4:#908578; --ink5:#c5beb4;
+  --r:rgba(19,16,12,.07); --rs:rgba(19,16,12,.13);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Geist',sans-serif;background:var(--p);color:var(--ink3);line-height:1.65;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 16% 12%,rgba(255,255,255,.58),transparent 28%),radial-gradient(circle at 82% 18%,var(--accent-glow),transparent 28%),linear-gradient(115deg,transparent 0 48%,rgba(19,16,12,.026) 48% 48.45%,transparent 48.45% 100%);}
+a{color:inherit;text-decoration:none}
+.skip{position:absolute;top:-40px;left:0;background:var(--ink);color:var(--p);padding:8px 16px;z-index:999;transition:top .2s}.skip:focus{top:0}
 
-    <!-- Basic Meta Tags -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+/* NAV */
+nav{position:sticky;top:16px;z-index:100;background:rgba(248,245,240,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--r);border-radius:14px;padding:0 18px 0 16px;display:flex;align-items:center;justify-content:space-between;height:58px;width:calc(100% - 48px);max-width:1180px;margin:16px auto 0;box-shadow:0 8px 28px rgba(19,16,12,.045)}
+.nav-brand{display:flex;align-items:center;gap:11px}
+.nav-brand img{width:26px;height:26px;border-radius:6px}
+.nav-name{font-family:'Instrument Serif',serif;font-size:1.08rem;color:var(--ink);letter-spacing:-.01em}
+.nav-links{display:flex;align-items:center;gap:18px;font-size:.82rem;color:var(--ink4)}
+.nav-links a{transition:color .15s,background .15s,transform .15s;letter-spacing:.01em}.nav-links a:hover{color:var(--ink)}
+.nav-github{background:var(--ink);color:var(--p)!important;padding:9px 16px;border-radius:8px;font-weight:500;line-height:1}.nav-github:hover{background:#2b2620;transform:translateY(-1px)}
 
-    <!-- Primary Meta Tags -->
-    <title>VirtualTabs - Virtual File Directories, AI Agent Integration & MCP Server for VS Code</title>
-    <meta name="title" content="VirtualTabs - Virtual File Directories, AI Agent Integration & MCP Server for VS Code">
-    <meta name="description"
-        content="Organize files into Virtual File Directories with built-in MCP Server for AI agent integration (Cursor, Copilot, Claude, Kiro, Antigravity). Generate Agent Skills, manage groups programmatically. Perfect for MVC/MVVM & Monorepos.">
-    <meta name="keywords"
-        content="VS Code extension, virtual file directories, tab organization, AI context, MCP, Model Context Protocol, Agent Skill, Cursor, Copilot, Claude, AI agent, monorepo, productivity, workspace organizer, chatgpt, mvc, mvvm">
-    <meta name="author" content="winterdrive">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="English">
-    <meta name="revisit-after" content="7 days">
+/* HERO */
+.hero{display:grid;grid-template-columns:.9fr 1.1fr;min-height:82dvh;border:1px solid var(--r);border-radius:20px;overflow:hidden;max-width:1180px;margin:24px auto 0;background:rgba(255,255,255,.28);box-shadow:0 24px 80px rgba(19,16,12,.075)}
+.hero-l{padding:104px 68px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--r)}
+.eyebrow{display:flex;align-items:center;gap:10px;font-size:.7rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:32px}
+.eyebrow::before{content:'';display:block;width:32px;height:1px;background:var(--accent)}
+h1{font-family:'Instrument Serif',serif;font-size:clamp(3rem,5.5vw,4.8rem);line-height:1.03;letter-spacing:-.03em;color:var(--ink);margin-bottom:24px;text-wrap:balance}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{font-size:1.05rem;font-weight:300;color:var(--ink3);max-width:420px;line-height:1.8;margin-bottom:44px;text-wrap:pretty}
+.actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;font-family:'Geist',sans-serif;font-size:.88rem;font-weight:500;border-radius:8px;transition:transform .45s cubic-bezier(.32,.72,0,1),box-shadow .45s cubic-bezier(.32,.72,0,1),opacity .2s;cursor:pointer;letter-spacing:.01em}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.98)}
+.btn-p{background:var(--ink);color:var(--p);box-shadow:none}
+.btn-p:hover{box-shadow:0 10px 30px rgba(19,16,12,.16)}
+.btn-o{background:transparent;color:var(--ink3);border:1px solid var(--rs)}
+.btn-o:hover{background:var(--p2);color:var(--ink)}
+.btn-vsx{background:transparent;color:var(--ink4);border:1px solid var(--r);font-size:.82rem}
+.btn-vsx:hover{color:var(--ink);border-color:var(--rs)}
+.source-link{display:block;width:max-content;margin-top:12px;font-size:.86rem;color:var(--ink4);transition:color .15s}.source-link:hover{color:var(--ink)}
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://winterdrive.github.io/vscode-virtual-tabs/">
+/* Hero-r: concept diagram should stay fully visible inside the dark panel */
+.hero-r{background:linear-gradient(135deg,rgba(19,16,12,.98),rgba(19,16,12,.88));display:flex;align-items:stretch;overflow:hidden;position:relative;padding:10px}
+.hero-r::before{content:'';position:absolute;inset:10px;border:1px solid rgba(255,255,255,.08);border-radius:14px;pointer-events:none;z-index:1}
+.hero-r img{width:100%;height:100%;object-fit:contain;object-position:center;display:block;opacity:.95;transition:opacity .6s cubic-bezier(.32,.72,0,1);border-radius:14px}
+.hero-r:hover img{opacity:1}
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://winterdrive.github.io/vscode-virtual-tabs/">
-    <meta property="og:title" content="VirtualTabs - Custom File Groups, AI Agent Integration & MCP for VS Code">
-    <meta property="og:description"
-        content="Organize files into custom virtual groups with MCP Server for AI agent integration. Generate Agent Skills for Cursor, Copilot, Claude, Kiro, Antigravity. AI-ready context export, multi-root workspace scopes, and persistent workspace management.">
-    <meta property="og:image"
-        content="https://winterdrive.github.io/vscode-virtual-tabs/assets/vscode-virtualtabs-grouping-banner1024X512.png">
-    <meta property="og:image:width" content="1024">
-    <meta property="og:image:height" content="512">
-    <meta property="og:image:alt" content="VirtualTabs VS Code Extension - File Grouping Interface">
-    <meta property="og:site_name" content="VirtualTabs">
-    <meta property="og:locale" content="en_US">
+/* STAT ROW */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--r);border-radius:16px;max-width:1180px;margin:22px auto 0;background:rgba(255,255,255,.36);overflow:hidden}
+.stat{padding:34px 42px;border-right:1px solid var(--r)}
+.stat:last-child{border-right:none}
+.stat-v{font-family:'Instrument Serif',serif;font-size:3rem;line-height:1;color:var(--ink);letter-spacing:-.04em;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.stat-l{font-size:.72rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink5)}
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://winterdrive.github.io/vscode-virtual-tabs/">
-    <meta property="twitter:title" content="VirtualTabs - Custom File Groups, AI Agent Integration & MCP for VS Code">
-    <meta property="twitter:description"
-        content="Organize files into custom virtual groups with MCP Server for AI agent integration. Generate Agent Skills for Cursor, Copilot, Claude, Kiro, Antigravity. Multi-root scopes and persistent workspace management.">
-    <meta property="twitter:image"
-        content="https://winterdrive.github.io/vscode-virtual-tabs/assets/vscode-virtualtabs-grouping-banner1024X512.png">
-    <meta property="twitter:image:alt" content="VirtualTabs VS Code Extension - File Grouping Interface">
-    <meta property="twitter:creator" content="@winterdrive">
-    <meta property="twitter:site" content="@winterdrive">
+/* WORKFLOW FEATURES */
+.sec{padding:116px 52px;max-width:1180px;margin:0 auto}
+.sec-hd{text-align:center;margin-bottom:52px}
+.sec-hd h2{font-family:'Instrument Serif',serif;font-size:clamp(2rem,3.5vw,2.8rem);line-height:1.1;letter-spacing:-.03em;color:var(--ink);margin-bottom:12px}
+.sec-hd p{font-size:.9rem;color:var(--ink4);max-width:560px;margin:0 auto;line-height:1.72;text-wrap:pretty}
+.workflow-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+.flow-card{background:rgba(255,255,255,.5);border:1px solid var(--r);border-radius:14px;overflow:hidden;transition:background .35s cubic-bezier(.32,.72,0,1),transform .35s cubic-bezier(.32,.72,0,1),box-shadow .35s cubic-bezier(.32,.72,0,1);min-height:216px}
+.flow-card:hover{background:rgba(255,255,255,.68);transform:translateY(-3px);box-shadow:0 12px 38px rgba(19,16,12,.055)}
+.flow-card img{width:100%;height:auto;display:block;background:var(--ink);border-bottom:1px solid var(--r)}
+.flow-body{padding:30px 36px 34px}
+.flow-card:not(.featured) .flow-body{min-height:216px;display:flex;flex-direction:column;justify-content:center}
+.flow-num{font-family:'Geist Mono',monospace;font-size:.66rem;color:var(--ink5);letter-spacing:.1em;margin-bottom:14px;display:block}
+.flow-card h3{font-family:'Instrument Serif',serif;font-size:1.2rem;color:var(--ink);margin-bottom:9px;line-height:1.25}
+.flow-card p{font-size:.85rem;font-weight:300;color:var(--ink3);line-height:1.72;text-wrap:pretty}
+.flow-note{grid-column:span 2;background:linear-gradient(135deg,#211d18,#2b2620);color:var(--p);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:32px 36px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.flow-note .flow-num{color:rgba(248,245,240,.36)}
+.flow-note h3{font-family:'Instrument Serif',serif;font-size:1.2rem;color:var(--p);margin-bottom:9px;line-height:1.25}
+.flow-note p{font-size:.85rem;font-weight:300;color:rgba(248,245,240,.62);line-height:1.72;max-width:720px;text-wrap:pretty}
 
-    <!-- Additional SEO Meta Tags -->
-    <meta name="theme-color" content="#007ACC">
-    <meta name="msapplication-TileColor" content="#007ACC">
-    <meta name="application-name" content="VirtualTabs">
+/* DEMO GIF STRIP */
+.demo-strip{border-top:1px solid var(--r);background:var(--p2)}
+.demo-strip-inner{max-width:1180px;margin:0 auto;padding:96px 52px;display:grid;grid-template-columns:300px 1fr;gap:72px;align-items:center}
+.demo-copy .tag{font-size:.7rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:block}
+.demo-copy h2{font-family:'Instrument Serif',serif;font-size:1.95rem;line-height:1.12;letter-spacing:-.03em;color:var(--ink);margin-bottom:12px}
+.demo-copy p{font-size:.88rem;font-weight:300;color:var(--ink3);line-height:1.78;text-wrap:pretty}
+.demo-media{border-radius:18px;overflow:hidden;border:10px solid rgba(255,255,255,.42);box-shadow:0 18px 60px rgba(19,16,12,.09);background:rgba(255,255,255,.42)}
+.demo-media img{width:100%;height:auto;display:block}
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="assets/virtualtabs_icon_32.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/virtualtabs_icon_32.png">
-    <link rel="icon" type="image/png" sizes="64x64" href="assets/virtualtabs_icon_64.png">
-    <link rel="icon" type="image/png" sizes="128x128" href="assets/virtualtabs_icon_128.png">
-    <link rel="icon" type="image/png" sizes="256x256" href="assets/virtualtabs_icon_256.png">
-    <link rel="apple-touch-icon" sizes="128x128" href="assets/virtualtabs_icon_128.png">
+/* INSTALL */
+.install{background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(248,245,240,.78));color:var(--ink);padding:112px 52px;display:grid;grid-template-columns:.86fr 1.14fr;gap:88px;align-items:center;border-top:1px solid var(--r);border-bottom:1px solid var(--r)}
+.install h2{font-family:'Instrument Serif',serif;font-size:clamp(2rem,3.5vw,2.8rem);line-height:1.08;letter-spacing:-.03em;margin-bottom:16px}
+.install>div>p{font-size:.9rem;font-weight:300;color:var(--ink4);line-height:1.75;margin-bottom:24px}
+.install kbd{font-family:'Geist Mono',monospace;font-size:.82em;background:rgba(19,16,12,.06);border:1px solid var(--r);border-radius:3px;padding:1px 6px;color:var(--ink3)}
+.codeline{font-family:'Geist Mono',monospace;font-size:.9rem;color:#86efac;background:rgba(0,0,0,.32);padding:14px 20px;border-radius:7px;margin-bottom:24px;letter-spacing:.02em}
+.install>div>.codeline{background:var(--ink);color:#86efac;box-shadow:0 10px 30px rgba(19,16,12,.08)}
+.btn-l{display:inline-flex;align-items:center;background:var(--ink);border:1px solid var(--ink);color:var(--p);padding:13px 24px;border-radius:8px;font-size:.88rem;font-weight:500;transition:background .15s,transform .15s;cursor:pointer}
+.btn-l:hover{background:#2b2620;transform:translateY(-1px)}
+.install-panel{display:grid;gap:16px}
+.registry-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.registry-card{background:rgba(255,255,255,.5);border:1px solid var(--r);border-radius:14px;padding:30px 32px;min-height:210px;display:flex;flex-direction:column;align-items:flex-start;box-shadow:0 14px 42px rgba(19,16,12,.045)}
+.registry-label{font-family:'Geist Mono',monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:12px}
+.registry-card h3{font-family:'Instrument Serif',serif;font-size:1.3rem;font-weight:400;color:var(--ink);margin-bottom:10px}.registry-card p{font-size:.86rem;font-weight:300;color:var(--ink3);line-height:1.7;margin-bottom:18px;text-wrap:pretty}
+.registry-card .btn{margin-top:auto;font-size:.84rem;padding:11px 18px}
+.agent-setup{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:-24px}
+.agent-card{background:linear-gradient(135deg,#211d18,#2b2620);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:30px 32px;min-height:190px;box-shadow:0 18px 45px rgba(19,16,12,.1),inset 0 1px 0 rgba(255,255,255,.04)}
+.agent-label{font-family:'Geist Mono',monospace;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:12px}
+.agent-card h3{font-family:'Instrument Serif',serif;font-size:1.28rem;color:var(--p);font-weight:400;margin-bottom:10px}
+.agent-card p{font-size:.86rem;font-weight:300;color:rgba(248,245,240,.58);line-height:1.7;margin-bottom:18px;text-wrap:pretty}
+.agent-card .codeline{margin-bottom:0;font-size:.84rem;overflow-wrap:anywhere}
 
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "VirtualTabs - Virtual File Directories & AI Context",
-        "alternateName": "Virtual Tabs for VS Code",
-        "description": "Organize files into Virtual File Directories across project boundaries. Perfect for MVC/MVVM & Monorepos. Features AI-ready context export.",
-        "url": "https://winterdrive.github.io/vscode-virtual-tabs/",
-        "downloadUrl": "https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs",
-        "installUrl": "https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs",
-        "softwareVersion": "0.7.1",
-        "datePublished": "2024-01-01",
-        "dateModified": "2026-05-26",
-        "author": {
-            "@type": "Person",
-            "name": "winterdrive",
-            "url": "https://github.com/winterdrive"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "winterdrive"
-        },
-        "applicationCategory": "DeveloperApplication",
-        "applicationSubCategory": "Code Editor Extension",
-        "operatingSystem": "VS Code",
-        "softwareRequirements": "Visual Studio Code ^1.75.0",
-        "keywords": "virtual file directories, file grouping, virtual tabs, tab organization, workspace organizer, monorepo, productivity, ai context, mcp, model context protocol, agent skill, cursor, copilot, claude, kiro, antigravity, bookmarks, cross-directory, mvc, mvvm",
-        "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD",
-            "availability": "https://schema.org/InStock"
-        },
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.5",
-            "ratingCount": "100",
-            "bestRating": "5",
-            "worstRating": "1"
-        },
-        "screenshot": [
-            "https://winterdrive.github.io/vscode-virtual-tabs/assets/vscode-virtualtabs-grouping-banner.png",
-            "https://winterdrive.github.io/vscode-virtual-tabs/assets/virtualtabs-product-demo.gif",
-            "https://winterdrive.github.io/vscode-virtual-tabs/assets/ai_context_demo.png",
-            "https://winterdrive.github.io/vscode-virtual-tabs/assets/nested_groups_demo.png"
-        ],
-        "featureList": [
-            "File reordering via drag & drop and keyboard shortcuts",
-            "Send files or groups to configured destinations",
-            "Inline 'Close' button for editor tabs",
-            "Auto Reveal active file in tree view",
-            "MCP Server for AI agent integration",
-            "Agent Skill generation (Cursor, Copilot, Claude, Kiro, Antigravity)",
-            "Custom file grouping across directories",
-            "Multi-root workspace scopes with per-project configs",
-            "AI-ready context export",
-            "Persistent workspace management",
-            "Drag and drop file organization",
-            "Nested group support",
-            "Bookmark functionality",
-            "Monorepo development support"
-        ]
-    }
-    </script>
+/* COMPANION */
+.companion{padding:112px 52px;border-top:1px solid var(--r)}
+.comp-hd{margin-bottom:48px}
+.comp-hd h2{font-family:'Instrument Serif',serif;font-size:clamp(1.9rem,3vw,2.5rem);letter-spacing:-.03em;color:var(--ink);margin-bottom:10px}
+.comp-hd p{font-size:.9rem;font-weight:300;color:var(--ink3);line-height:1.75;max-width:520px;text-wrap:pretty}
+.comp-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1100px;margin:0 auto}
+.comp-card{border:1px solid var(--r);border-radius:14px;overflow:hidden;transition:border-color .35s cubic-bezier(.32,.72,0,1),transform .35s cubic-bezier(.32,.72,0,1),box-shadow .35s cubic-bezier(.32,.72,0,1);background:rgba(255,255,255,.42)}
+.comp-card:hover{border-color:var(--rs);transform:translateY(-3px);box-shadow:0 12px 38px rgba(19,16,12,.065)}
+.comp-thumb{aspect-ratio:2/1;border-bottom:1px solid var(--r);background:var(--ink);overflow:hidden}
+.comp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.comp-body{padding:28px 30px 30px}
+.comp-card h3{font-family:'Instrument Serif',serif;font-size:1.2rem;color:var(--ink);margin-bottom:10px}
+.comp-card p{font-size:.86rem;font-weight:300;color:var(--ink3);line-height:1.68;margin-bottom:20px;text-wrap:pretty}
 
-    <!-- LLMs.txt for AI Context -->
-    <link rel="llms-txt" type="text/markdown" href="/vscode-virtual-tabs/llms.txt" />
+/* FOOTER */
+footer{border-top:1px solid var(--r);padding:28px 52px;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:var(--ink5);flex-wrap:wrap;gap:12px}
+footer a{color:var(--ink5);transition:color .15s}footer a:hover{color:var(--ink)}
+.flinks{display:flex;gap:22px}
 
-    <!-- Preconnect for Performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://marketplace.visualstudio.com">
-    <link rel="preconnect" href="https://github.com">
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.reveal.visible{opacity:1;transform:none}
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CW9PD48QRG"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-CW9PD48QRG');
-    </script>
-
-    <style>
-        :root {
-            --primary: #007acc;
-            --dark: #1e1e1e;
-            --text: #d4d4d4;
-            --bg: #252526;
-        }
-
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            text-align: center;
-            padding: 60px 20px;
-            border-bottom: 1px solid #333;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            color: #9cdcfe;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            display: inline-block;
-            background: var(--primary);
-            color: white;
-            padding: 12px 24px;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 4px;
-            transition: 0.2s;
-            font-size: 1.1rem;
-        }
-
-        .btn:hover {
-            background: #005f9e;
-        }
-
-        .btn-github {
-            background: #333;
-            margin-left: 10px;
-        }
-
-        .btn-openvsx {
-            background: #7C2D99;
-            /* Open VSX Purple */
-            margin-left: 10px;
-        }
-
-        .hero-img {
-            width: 100%;
-            border-radius: 8px;
-            margin-top: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #444;
-        }
-
-        .demo-img {
-            width: 100%;
-            border-radius: 8px;
-            margin: 35px 0 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #444;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            padding: 60px 0;
-        }
-
-        .feature-card {
-            background: #333;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #444;
-        }
-
-        .feature-card h3 {
-            color: #fff;
-            margin-top: 0;
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 0.9rem;
-            border-top: 1px solid #333;
-        }
-
-        code {
-            background: #101010;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-family: 'Consolas', monospace;
-            color: #ce9178;
-        }
-    </style>
+@media(max-width:960px){
+  nav{top:8px;width:calc(100% - 24px);margin-top:8px;padding:0 14px}.nav-links a:not(.nav-github){display:none}.nav-github{padding:10px 16px}
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero-l{padding:72px 22px;border-right:none}
+  .hero-r{min-height:280px}
+  .stats{grid-template-columns:1fr}
+  .stat{border-right:none;border-bottom:1px solid var(--r);padding:26px 22px}
+  .sec{padding:64px 22px}
+  .sec-hd{text-align:left}
+  .sec-hd p{max-width:none;margin:0}
+  .workflow-grid{grid-template-columns:1fr}
+  .flow-note{grid-column:span 1}
+  .flow-body,.flow-card:not(.featured) .flow-body{padding:26px 24px 30px;min-height:auto}
+  .demo-strip-inner{grid-template-columns:1fr;gap:36px;padding:64px 22px}
+  .install{grid-template-columns:1fr;padding:72px 22px;gap:40px}.registry-grid{grid-template-columns:1fr}.registry-card{padding:26px 24px;min-height:auto}
+  .agent-setup{grid-template-columns:1fr;margin-top:0}
+  .agent-card{padding:26px 24px;min-height:auto}
+  .companion{padding:64px 22px}
+  .comp-cards{grid-template-columns:1fr}
+  footer{padding:24px 22px;flex-direction:column;text-align:center}
+}
+</style>
 </head>
-
 <body>
-
-    <header>
-        <div class="container">
-            <h1>VirtualTabs</h1>
-            <p class="subtitle">Task-Oriented File Grouping for VS Code — Organize Your Workspace, Your Way</p>
-
-            <div style="margin-bottom: 20px;">
-                <a href="https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs" class="btn"
-                    onclick="gtag('event', 'click', { 'event_category': 'CTA', 'event_label': 'Install Extension' })">⬇
-                    Install Extension</a>
-                <a href="https://github.com/winterdrive/vscode-virtual-tabs" class="btn btn-github"
-                    onclick="gtag('event', 'click', { 'event_category': 'Navigation', 'event_label': 'GitHub' })">View
-                    on GitHub</a>
-                <a href="https://open-vsx.org/extension/winterdrive/virtual-tabs" class="btn btn-openvsx"
-                    onclick="gtag('event', 'click', { 'event_category': 'CTA', 'event_label': 'Open VSX' })">Open
-                    VSX</a>
-            </div>
-
-            <img src="assets/vscode-virtualtabs-grouping-banner.png" alt="VirtualTabs VS Code Extension Interface"
-                class="hero-img">
-        </div>
-    </header>
-
-    <div class="container">
-        <h2 style="text-align: center; color: #fff; margin: 30px 0 10px; font-size: 2rem;">Organize Files Around the
-            Task</h2>
-        <img src="assets/virtualtabs-product-demo.gif" alt="VirtualTabs product demo" class="demo-img">
-
-        <div class="features">
-            <div class="feature-card">
-                <h3>📁 Logical Grouping</h3>
-                <p>Break free from folder structures. Group <code>Controller</code>, <code>View</code>, and
-                    <code>Style</code> files together in one logical tab, regardless of where they live on disk.
-                </p>
-            </div>
-            <div class="feature-card">
-                <h3>🤖 AI Context Export</h3>
-                <p>One-click copy. Export the entire file group content to your clipboard, perfectly formatted for
-                    ChatGPT, Claude, or Copilot context.</p>
-            </div>
-            <div class="feature-card">
-                <h3>💾 Persistent Workflow</h3>
-                <p>Native tabs disappear when you close VS Code. VirtualTabs stay. Your workspace context is saved
-                    automatically.</p>
-            </div>
-        </div>
-
-        <div style="margin: 80px 0;">
-            <h2 style="text-align: center; color: #fff; margin-bottom: 50px; font-size: 2rem;">✨ Core Capabilities</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 40px;">
-                <!-- Feature 1: Logical Grouping -->
-                <div style="background: #333; padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.3s;"
-                    onmouseover="this.style.transform='translateY(-5px)'"
-                    onmouseout="this.style.transform='translateY(0)'">
-                    <img src="assets/drag_drop_demo.png" alt="Virtual Grouping Interface"
-                        style="width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555;">
-                    <h3 style="color: #fff; margin-top: 0; font-size: 1.4rem;">📁 Smart Virtual Grouping</h3>
-                    <p style="font-size: 1rem; color: #bbb;">Organize files from across your codebase into meaningful
-                        groups. Drag folders to add files recursively while skipping hidden directories, or cherry-pick
-                        specific modules without touching
-                        your disk structure.</p>
-                </div>
-
-                <!-- Feature 2: AI Context -->
-                <div style="background: #333; padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.3s;"
-                    onmouseover="this.style.transform='translateY(-5px)'"
-                    onmouseout="this.style.transform='translateY(0)'">
-                    <img src="assets/ai_context_demo.png" alt="AI Context Export Tool"
-                        style="width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555;">
-                    <h3 style="color: #fff; margin-top: 0; font-size: 1.4rem;">🤖 AI-Ready Context Export</h3>
-                    <p style="font-size: 1rem; color: #bbb;">When you need it, export a task-scoped group as LLM-ready
-                        markdown in one click. Smart deduplication and binary file filtering included.</p>
-                </div>
-
-                <!-- Feature 3: Nested Groups -->
-                <div style="background: #333; padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.3s;"
-                    onmouseover="this.style.transform='translateY(-5px)'"
-                    onmouseout="this.style.transform='translateY(0)'">
-                    <img src="assets/nested_groups_demo.png" alt="Hierarchical Sub-groups"
-                        style="width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555;">
-                    <h3 style="color: #fff; margin-top: 0; font-size: 1.4rem;">📂 Hierarchical Organization</h3>
-                    <p style="font-size: 1rem; color: #bbb;">Manage complexity with unlimited nested sub-groups.
-                        Organize by architecture layers (e.g., MVC, MVVM) or specific project modules while maintaining
-                        a clean, high-level view.</p>
-                </div>
-
-                <!-- Feature 4: Bookmarks -->
-                <div style="background: #333; padding: 25px; border-radius: 12px; border: 1px solid #444; transition: transform 0.3s;"
-                    onmouseover="this.style.transform='translateY(-5px)'"
-                    onmouseout="this.style.transform='translateY(0)'">
-                    <img src="assets/bookmarks_feature.png" alt="Task-Oriented Bookmarks"
-                        style="width: 100%; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555;">
-                    <h3 style="color: #fff; margin-top: 0; font-size: 1.4rem;">🔖 Task-Oriented Bookmarks</h3>
-                    <p style="font-size: 1rem; color: #bbb;">Mark critical logic flows and decision points within your
-                        groups. Jump directly to specific code lines with one click, equipped with customizable labels
-                        and descriptions.</p>
-                </div>
-            </div>
-        </div>
-
-        <div style="text-align: center; margin: 40px 0;">
-            <h2>Installation</h2>
-            <p>Open VS Code Quick Open (<code>Ctrl+P</code>) and paste:</p>
-            <p><code>ext install winterdrive.virtual-tabs</code></p>
-        </div>
+<a href="#main" class="skip">Skip to content</a>
+<nav>
+  <div class="nav-brand"><img src="assets/virtualtabs_icon_128.png" alt="VirtualTabs"><span class="nav-name">VirtualTabs</span></div>
+  <div class="nav-links">
+    <a href="#features">Features</a><a href="#install">Install</a>
+    <a href="https://github.com/winterdrive/vscode-virtual-tabs" class="nav-github">GitHub</a>
+  </div>
+</nav>
+<main id="main">
+  <section class="hero">
+    <div class="hero-l">
+      <div class="eyebrow">VS Code Extension</div>
+      <h1>Organize files around the <em>task,</em><br>not the folder.</h1>
+      <p class="sub">Group files from anywhere in your codebase into one persistent view. MVC, MVVM, monorepo — VirtualTabs keeps context organized so your AI agent doesn't have to guess.
+        <a href="https://github.com/winterdrive/vscode-virtual-tabs" class="source-link">View source on GitHub -></a>
+      </p>
+      <div class="actions">
+        <a href="https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs" class="btn btn-p" onclick="gtag('event','click',{'event_category':'CTA','event_label':'Marketplace'})">VS Code Marketplace</a>
+        <a href="https://open-vsx.org/extension/winterdrive/virtual-tabs" class="btn btn-o" onclick="gtag('event','click',{'event_category':'CTA','event_label':'OpenVSX'})">Open VSX Registry</a>
+      </div>
     </div>
+    <div class="hero-r"><img src="assets/virtual_vs_physical_concept.png" alt="VirtualTabs virtual groups mapped over physical folders"></div>
+  </section>
 
-    <div style="background: #2d2d2d; padding: 40px 0; margin-top: 60px; border-top: 1px solid #444;">
-        <div class="container" style="text-align: center;">
-            <h2 style="color: #fff; margin-bottom: 15px;">🤝 Perfect Companion</h2>
-            <p style="color: #ccc; max-width: 600px; margin: 0 auto 30px; font-size: 1.1rem;">
-                <strong>VirtualTabs</strong> keeps your workspace organized. <strong>Quick Prompt</strong> keeps your
-                thoughts organized — capture ideas and queue next tasks while your agent runs, without switching
-                windows.
-            </p>
-            <div
-                style="display: inline-block; background: #333; padding: 25px; border-radius: 8px; border: 1px solid #555; max-width: 400px;">
-                <h3 style="margin-top: 0; color: #fff; margin-bottom: 10px;">🔥 Quick Prompt</h3>
-                <p style="color: #bbb; font-size: 0.95rem; margin-bottom: 20px;">Your in-IDE scratch pad for AI-assisted
-                    development. Capture next tasks while your agent runs — without breaking flow.</p>
-                <a href="https://winterdrive.github.io/vscode-quick-prompt/?utm_source=virtualtabs&utm_medium=landing&utm_campaign=cross_promotion"
-                    class="btn"
-                    onclick="gtag('event', 'click', { 'event_category': 'Cross-promotion', 'event_label': 'Quick Prompt' })"
-                    style="font-size: 1rem; background: #333; border: 1px solid #666;">View Quick Prompt</a>
-            </div>
-        </div>
+  <div class="stats reveal">
+    <div class="stat"><div class="stat-v">∞</div><div class="stat-l">Nested group depth</div></div>
+    <div class="stat"><div class="stat-v">1</div><div class="stat-l">Click to export AI context</div></div>
+    <div class="stat"><div class="stat-v">0</div><div class="stat-l">Changes to disk structure</div></div>
+  </div>
+
+  <section class="sec reveal" id="features">
+    <div class="sec-hd">
+      <h2>Build context<br>by task.</h2>
+      <p>Collect related files, shape them into a task view, then choose how to give that scoped context to your coding agent.</p>
     </div>
+    <div class="workflow-grid reveal">
+      <div class="flow-card">
+        <img src="assets/drag_drop_demo.png" alt="Drag folders to add recursively">
+        <div class="flow-body">
+          <span class="flow-num">01</span>
+          <h3>Collect files into a task group</h3>
+          <p>Drag files or folders from anywhere in the repo into one focused group. VirtualTabs gathers the related pieces while leaving the real folder structure untouched.</p>
+        </div>
+      </div>
+      <div class="flow-card">
+        <img src="assets/nested_groups_demo.png" alt="Nested file groups in VS Code">
+        <div class="flow-body">
+          <span class="flow-num">02</span>
+          <h3>Shape nested groups</h3>
+          <p>Arrange the task by feature, layer, or review pass instead of physical folder paths. The workspace becomes easier to scan without moving files on disk.</p>
+        </div>
+      </div>
+      <div class="flow-card">
+        <img src="assets/copy_menu_demo.png" alt="Copy Context for AI menu action">
+        <div class="flow-body">
+          <span class="flow-num">03</span>
+          <h3>Tip 1 : Copy context from the group</h3>
+          <p>Use this route when you want a portable prompt. Copy task-scoped markdown from the group menu, then paste it into ChatGPT, Claude, or any coding agent.</p>
+        </div>
+      </div>
+      <div class="flow-card">
+        <img src="assets/agent_chat_context_demo.png" alt="Selected VirtualTabs context attached to an AI chat">
+        <div class="flow-body">
+          <span class="flow-num">04</span>
+          <h3>Tip 2 : Drag context into agent chat</h3>
+          <p>Use this route when your agent chat accepts file context directly. Drag the selected VirtualTabs files into the chat box, so the conversation starts with the same curated task scope.</p>
+        </div>
+      </div>
+      <div class="flow-note">
+        <span class="flow-num">05</span>
+        <h3>Ask the agent with scoped context</h3>
+        <p>Either route keeps the conversation focused: refactor the grouped files, explain the selected feature, or review the change without dragging unrelated project noise into the prompt.</p>
+      </div>
+    </div>
+  </section>
 
-    <footer>
-        <p>Created by <a href="https://github.com/winterdrive" style="color:#666">winterdrive</a>. Open Source under MIT
-            License.</p>
-        <p><a href="/vscode-virtual-tabs/llms.txt" style="color:#444; text-decoration: none; font-size: 0.8rem;">[View
-                AI
-                Context]</a></p>
-    </footer>
+  <div class="demo-strip reveal">
+    <div class="demo-strip-inner">
+      <div class="demo-copy">
+        <span class="tag">Demo</span>
+        <h2>See it in motion.</h2>
+        <p>From scattered files to grouped workspace to AI-ready context — watch the workflow without leaving your editor.</p>
+      </div>
+      <div class="demo-media"><img src="assets/virtualtabs-product-demo.gif" alt="VirtualTabs product demo"></div>
+    </div>
+  </div>
 
+  <section class="install reveal" id="install">
+    <div>
+      <h2>Choose your registry.</h2>
+      <p>Marketplace and Open VSX are treated as equal install paths. For command-line install in VS Code, press <kbd>Ctrl+P</kbd> and paste:</p>
+      <div class="codeline">ext install winterdrive.virtual-tabs</div>
+    </div>
+    <div class="install-panel">
+      <div class="registry-grid" aria-label="Extension registries">
+        <div class="registry-card">
+          <span class="registry-label">Registry</span>
+          <h3>VS Code Marketplace</h3>
+          <p>Install from Microsoft Marketplace when you use the standard Visual Studio Code extension gallery.</p>
+          <a href="https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs" class="btn btn-p" onclick="gtag('event','click',{'event_category':'CTA','event_label':'Marketplace'})">Open Marketplace</a>
+        </div>
+        <div class="registry-card">
+          <span class="registry-label">Registry</span>
+          <h3>Open VSX Registry</h3>
+          <p>Install from Open VSX when your editor uses the open extension registry, including VSCodium-style setups.</p>
+          <a href="https://open-vsx.org/extension/winterdrive/virtual-tabs" class="btn btn-p" onclick="gtag('event','click',{'event_category':'CTA','event_label':'OpenVSX'})">Open VSX</a>
+        </div>
+      </div>
+    </div>
+    <div class="agent-setup" aria-label="Agent setup options">
+      <div class="agent-card">
+        <span class="agent-label">Agent Skill</span>
+        <h3>Install the VirtualTabs agent skill.</h3>
+        <p>Give Codex, Claude Code, and other skill-aware agents the VirtualTabs workflow, safety rules, and fallback CLI instructions.</p>
+        <div class="codeline">npx skills add winterdrive/VirtualTabs</div>
+      </div>
+      <div class="agent-card">
+        <span class="agent-label">MCP Setup</span>
+        <h3>Connect your agent tools.</h3>
+        <p>After installing the extension, open the VS Code Command Palette and run <strong>VirtualTabs: Show MCP Config</strong> to generate the right MCP JSON for Cursor, Claude Code, Cline, Kiro, Antigravity, or VS Code.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div style="border-top:1px solid var(--r)">
+  <div class="companion">
+    <div class="comp-hd" style="max-width:1100px;margin:0 auto 48px">
+      <h2>Works better together.</h2>
+      <p>VirtualTabs keeps your workspace organized. These companion extensions complete the picture.</p>
+    </div>
+    <div class="comp-cards">
+      <div class="comp-card">
+        <div class="comp-thumb"><img src="https://winterdrive.github.io/vscode-quick-prompt/assets/hero_banner1024X512.png" alt="Quick Prompt social preview banner"></div>
+        <div class="comp-body">
+          <h3>Quick Prompt</h3>
+          <p>Your in-IDE scratch pad. Capture ideas and queue next tasks while your AI agent is running — without breaking flow.</p>
+          <a href="https://winterdrive.github.io/vscode-quick-prompt/" class="btn btn-p" style="font-size:.84rem;padding:10px 20px;">Learn about Quick Prompt</a>
+        </div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-thumb"><img src="https://pain-labs.github.io/Edo-Tensei/assets/hero_banner.png" alt="Edo Tensei social preview banner"></div>
+        <div class="comp-body">
+          <h3>Edo Tensei</h3>
+          <p>Extract AI session histories from Cursor, Claude Code, Copilot, and more. One click copies a complete handoff prompt for the next agent.</p>
+          <a href="https://pain-labs.github.io/Edo-Tensei/" class="btn btn-o" style="font-size:.84rem;padding:10px 20px;">Learn about Edo Tensei</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>Created by <a href="https://github.com/winterdrive">winterdrive</a>. Open source under MIT License.</div>
+  <div class="flinks"><a href="https://github.com/winterdrive/vscode-virtual-tabs">GitHub</a><a href="https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs">Marketplace</a><a href="https://open-vsx.org/extension/winterdrive/virtual-tabs">Open VSX</a><a href="/vscode-virtual-tabs/llms.txt">AI context</a></div>
+</footer>
+<script>
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.06,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
 </body>
-
 </html>
