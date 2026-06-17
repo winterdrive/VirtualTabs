@@ -166,9 +166,8 @@
             },
             {
                 "command": "virtualTabs.generateAgentSkill",
-                "title": "Generate Agent Skill",
-                "icon": "$(robot)",
-                "shortTitle": "Agent Skill"
+                "title": "%command.generateAgentSkill.title%",
+                "icon": "$(cloud-download)"
             },
             {
                 "command": "virtualTabs.showMcpConfig",

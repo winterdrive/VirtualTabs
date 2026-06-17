@@ -42,12 +42,12 @@ Select your AI tool below to see the configuration steps:
 
 ## 🛡️ Safety & Agent Skills
 
-VirtualTabs can generate custom "Skills" (instruction files) for your agents:
+VirtualTabs can install the canonical agent skill, and can write custom skill/rule files when you need agent-specific output:
 
 * **Cursor**: Generates `.mdc` rules.
 * **Other Agents**: Generates `SKILL.md`.
 
-Command: `VirtualTabs: Generate Agent Skill`.
+Command: `VirtualTabs: Install Agent Skill`. Choose **Auto Install (Recommended)** for the standard install path, or **Generate Skill Files Manually** for agent-specific files.
 
 The generated skill includes a **four-layer safety decision tree** to ensure the AI uses the tools correctly and safely.
 

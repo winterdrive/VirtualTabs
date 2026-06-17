@@ -92,8 +92,8 @@ export class SkillGenerator {
                         value: 'auto' as const,
                     },
                     {
-                        label: '$(file-code) Manual Install',
-                        description: 'Pick one or more agents yourself',
+                        label: '$(file-code) Generate Skill Files Manually',
+                        description: 'Pick one or more agents and write files yourself',
                         value: 'manual' as const,
                     },
                 ];
