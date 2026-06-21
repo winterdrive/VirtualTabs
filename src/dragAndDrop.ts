@@ -2,17 +2,20 @@ import * as vscode from 'vscode';
 import { TempFoldersProvider } from './provider';
 import { TempFolderItem, TempFileItem, ScopeHeaderItem } from './treeItems';
 import { I18n } from './i18n';
+import { extractDataTransferFileUris, parseUriList, uniqueUriStrings } from './core/DropUriParser';
 
 // Drag-and-drop controller, allows files to be dragged into groups AND groups to be nested
 export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropController<vscode.TreeItem> {
     constructor(private provider: TempFoldersProvider) { }
 
     public readonly supportedTypes = [
+        'files',
         'text/uri-list',
         'application/vnd.code.tree.virtualTabsView',
         'application/vnd.code.tree.virtualTabsView.files'
     ];
     public readonly dropMimeTypes = [
+        'files',
         'text/uri-list',
         'application/vnd.code.tree.virtualTabsView',
         'application/vnd.code.tree.virtualTabsView.files'
@@ -88,21 +91,23 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
             }
         }
 
-        // Priority 2: Check for external file drag (uri-list)
-        // Condition: uri-list exists AND we did NOT successfully extract internal file items
+        // Priority 2: Check for external file drag.
+        // Condition: external URIs exist AND we did NOT successfully extract internal file items
         // Note: We do NOT use `!fileData` because fileData may exist but contain an invalid/serialized value
         const uriList = dataTransfer.get('text/uri-list');
-        if (uriList && !draggedFiles) {
+        const uriListText = uriList ? await this.readDataTransferString(uriList) : undefined;
+        const externalUris = uniqueUriStrings([
+            ...parseUriList(uriListText),
+            ...this.extractExternalFileUris(dataTransfer)
+        ]);
+        if (externalUris.length > 0 && !draggedFiles) {
             const targetGroup = this.determineTargetGroup(target);
             if (targetGroup || target instanceof ScopeHeaderItem) {
-                // Fix: support both \n and \r\n, trim whitespace and control characters from each URI
-                const uris = uriList.value.split(/\r?\n/).map((s: string) => s.trim()).filter(Boolean);
-
                 // Expand directories to get all files
                 const allFileUris: string[] = [];
-                for (const uriStr of uris) {
+                for (const uriStr of externalUris) {
                     try {
-                        const uri = vscode.Uri.parse(uriStr);
+                        const uri = this.toDroppedUri(uriStr);
                         const stat = await vscode.workspace.fs.stat(uri);
 
                         if (stat.type === vscode.FileType.Directory) {
@@ -111,7 +116,7 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
                             allFileUris.push(...filesInDir.map(f => f.toString()));
                         } else if (stat.type === vscode.FileType.File) {
                             // It's a file - add directly
-                            allFileUris.push(uriStr);
+                            allFileUris.push(uri.toString());
                         }
                     } catch (e) {
                         // If we can't stat it, try adding it directly (might be a valid file)
@@ -170,6 +175,32 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
         if (!allAreFileItems) return null;
 
         return value as TempFileItem[];
+    }
+
+    private async readDataTransferString(item: vscode.DataTransferItem): Promise<unknown> {
+        try {
+            return await item.asString();
+        } catch {
+            return item.value;
+        }
+    }
+
+    private extractExternalFileUris(dataTransfer: vscode.DataTransfer): string[] {
+        const files: vscode.DataTransferFile[] = [];
+        for (const [, item] of dataTransfer) {
+            const file = item.asFile();
+            if (file) {
+                files.push(file);
+            }
+        }
+        return extractDataTransferFileUris(files);
+    }
+
+    private toDroppedUri(uriStr: string): vscode.Uri {
+        if (/^[a-zA-Z]:[\\/]/.test(uriStr) || uriStr.startsWith('\\\\') || uriStr.startsWith('/')) {
+            return vscode.Uri.file(uriStr);
+        }
+        return vscode.Uri.parse(uriStr);
     }
 
     private determineTargetGroup(target: vscode.TreeItem | undefined): TempFolderItem | undefined {
