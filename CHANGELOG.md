@@ -2,6 +2,16 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.5] - Folder Drop DataTransfer Fix - 2026-06-21
+
+### 🐛 Bug Fix
+
+- **Folder drops from VS Code Explorer** ([#60](https://github.com/winterdrive/vscode-virtual-tabs/issues/60)): External folder drops now handle VS Code's special `files` DataTransfer MIME entries in addition to `text/uri-list`, so folders dragged from Explorer or the OS can be expanded and added to a VirtualTabs group.
+
+### 🧪 Tests
+
+- Added unit coverage for URI-list parsing, external DataTransfer file URI extraction, and duplicate URI handling.
+
 ## [0.7.4] - Skill Installer UX - 2026-06-16
 
 ### 🧠 Skill Installer UX (closes #25)
