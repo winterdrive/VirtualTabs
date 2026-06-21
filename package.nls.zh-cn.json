@@ -19,6 +19,7 @@
     "command.openSelectedFiles.title": "打开选中的文件",
     "command.closeSelectedFiles.title": "关闭选中的文件",
     "command.runFile.title": "执行",
+    "command.generateAgentSkill.title": "安装 Agent Skill",
     "command.removeSelectedFilesFromGroup.title": "从群组中移除选中的文件",
     "command.deleteFile.title": "删除文件",
     "command.copyFilePath.title": "复制绝对路径",

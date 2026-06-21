@@ -19,6 +19,7 @@
     "command.openSelectedFiles.title": "Open Selected Files",
     "command.closeSelectedFiles.title": "Close Selected Files",
     "command.runFile.title": "Run",
+    "command.generateAgentSkill.title": "Install Agent Skill",
     "command.removeSelectedFilesFromGroup.title": "Remove Selected Files from Group",
     "command.deleteFile.title": "Delete File",
     "command.copyFilePath.title": "Copy Absolute Path",

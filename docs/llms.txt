@@ -1,7 +1,7 @@
 # VirtualTabs
 > VirtualTabs is a VS Code extension with a bundled MCP Server for organizing files into persistent, cross-directory virtual groups and integrating with AI agents (Cursor, Copilot, Claude, Kiro, Antigravity).
 
-VirtualTabs helps developers manage complex workspaces by grouping related files regardless of location, including multi-root workspace projects with separate scope-level configs. It also provides Agent Skill generation for AI-driven workflows. A built-in MCP Server exposes 15+ tools for programmatic group management, ensuring that logical context is preserved even after closing the editor.
+VirtualTabs helps developers manage complex workspaces by grouping related files regardless of location, including multi-root workspace projects with separate scope-level configs. It also provides Agent Skill installation for AI-driven workflows, with manual skill/rule file generation available when needed. A built-in MCP Server exposes 15+ tools for programmatic group management, ensuring that logical context is preserved even after closing the editor.
 
 ## Documentation
 - [README](https://raw.githubusercontent.com/winterdrive/vscode-virtual-tabs/main/README.md): Core features, installation, and usage guide.

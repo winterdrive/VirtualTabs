@@ -83,7 +83,7 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 - **AI Context Export** — One-click copy all files as LLM-ready context.
 - **Portable Config** — Settings saved to `.vscode/virtualTab.json` for team sharing.
 - **AI Agent Integration (MCP)** — Connect AI agents (Cursor, Claude, etc.) to manage groups programmatically.
-- **Agent Skill Generator** — Generate reusable `virtualtabs` skills/rules for AI agents directly from the extension.
+- **Agent Skill Installer** — Run **VirtualTabs: Install Agent Skill** to install the canonical `virtualtabs` skill. Use **Generate Skill Files Manually** only when you need agent-specific skill/rule files.
 - **Multi-Root Workspace Scopes** — Keep groups separated per workspace folder in multi-root projects.
 - **Auto Reveal & Sync** — Automatically focus active files and sync with native editor groups.
 - **Send to...** — Quickly send selected files or groups to pre-configured destinations.
@@ -146,11 +146,13 @@ VirtualTabs provides full AI agent integration via the **Model Context Protocol 
   ![Safety Decision Tree](docs/assets/safety_decision_tree_en.png)
 
 - ⚙️ **Easy Config**: Use the **MCP Config Panel** (command: `VirtualTabs: Show MCP Config`) to get ready-to-paste settings.
-- 🧠 **Agent Skills**: Use **Generate Agent Skill** to create a reusable `virtualtabs` skill/rule for Claude Code, GitHub Copilot, Kiro, Antigravity, Cline, or Cursor. Or install the canonical skill directly:
+- 🧠 **Agent Skills**: Run **VirtualTabs: Install Agent Skill** and choose **Auto Install (Recommended)** to install the canonical `virtualtabs` skill. You can also run the same install command directly:
 
   ```bash
-  npx skills add winterdrive/VirtualTabs
+  npx skills add winterdrive/vscode-virtual-tabs
   ```
+
+  Choose **Generate Skill Files Manually** only when you need to write agent-specific skill/rule files yourself.
 
 👉 **See the [MCP Setup Guide](./docs/mcp-setup.md) for detailed IDE configuration.**
 

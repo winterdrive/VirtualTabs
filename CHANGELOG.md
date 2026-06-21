@@ -2,6 +2,16 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.4] - Skill Installer UX - 2026-06-16
+
+### 🧠 Skill Installer UX (closes #25)
+
+- **3-state install flow**: Workspace → Mode → Agents, with back navigation at every step
+- **Multi-root workspace support**: Shows workspace picker (with active-editor pre-selection hint) when multiple folders are open
+- **Auto Install**: `npx skills add winterdrive/vscode-virtual-tabs` launched in a terminal with one click
+- **Manual Install**: Multi-select agent picker; choose one or more of Cursor, Antigravity, Claude Code, GitHub Copilot, Kiro IDE, Cline, Gemini CLI
+- Added **Gemini CLI** as a supported install target (`.gemini/skills/virtualtabs/SKILL.md`)
+
 ## [0.7.2] - Auto Group Scope Fix - 2026-06-02
 
 ### 🐛 Bug Fix

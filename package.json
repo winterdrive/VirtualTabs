@@ -2,7 +2,7 @@
     "name": "virtual-tabs",
     "displayName": "VirtualTabs - Virtual File Directories & AI context management",
     "description": "%extension.description%",
-    "version": "0.7.3",
+    "version": "0.7.4",
     "publisher": "winterdrive",
     "icon": "docs/assets/virtualtabs_icon_128.png",
     "categories": [
@@ -166,9 +166,8 @@
             },
             {
                 "command": "virtualTabs.generateAgentSkill",
-                "title": "Generate Agent Skill",
-                "icon": "$(robot)",
-                "shortTitle": "Agent Skill"
+                "title": "%command.generateAgentSkill.title%",
+                "icon": "$(cloud-download)"
             },
             {
                 "command": "virtualTabs.showMcpConfig",

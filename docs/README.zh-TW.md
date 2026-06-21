@@ -83,7 +83,7 @@
 - **AI 上下文匯出** — 一鍵複製所有檔案為 LLM 就緒的 Markdown 格式。
 - **便攜設定** — 設定儲存於 `.vscode/virtualTab.json`，方便團隊共享。
 - **AI Agent 整合 (MCP)** — 讓 AI 代理（Cursor、Claude 等）程序化管理您的群組。
-- **Agent Skill 產生器** — 直接從擴充套件產生可重用的 `virtualtabs` skill/rule，交給 AI agent 使用。
+- **Agent Skill 安裝器** — 執行 **VirtualTabs: Install Agent Skill** 安裝正式 `virtualtabs` skill。只有需要自行寫入指定 agent 的 skill/rule 檔案時，才使用 **Generate Skill Files Manually**。
 - **Multi-root 工作區範圍** — 在 multi-root 專案中依每個工作區資料夾分開保存群組。
 - **自動追蹤與同步** — 自動定位作用中檔案，並與原生編緝器分組同步。
 - **傳送至...** — 快速將選取的檔案或整個群組傳送到指定目的地。
@@ -146,11 +146,13 @@ VirtualTabs 透過 **Model Context Protocol (MCP)** 提供完整的 AI Agent 整
   ![安全決策樹](assets/safety_decision_tree_zh.png)
 
 - ⚙️ **輕鬆配置**：使用 **MCP 設定面板** (命令：`VirtualTabs: Show MCP Config`) 獲取現成配置。
-- 🧠 **Agent Skills**：使用 **Generate Agent Skill** 為 Claude Code、GitHub Copilot、Kiro、Antigravity、Cline 或 Cursor 產生可重用的 `virtualtabs` skill/rule。或直接安裝正式 skill：
+- 🧠 **Agent Skills**：執行 **VirtualTabs: Install Agent Skill**，選擇 **Auto Install (Recommended)** 安裝正式 `virtualtabs` skill。你也可以直接執行同一條安裝命令：
 
   ```bash
-  npx skills add winterdrive/VirtualTabs
+  npx skills add winterdrive/vscode-virtual-tabs
   ```
+
+  只有需要自行寫入指定 agent 的 skill/rule 檔案時，才選 **Generate Skill Files Manually**。
 
 👉 **詳細配置請參閱 [MCP 設定指南](mcp-setup.zh-TW.md)。**
 

@@ -47,7 +47,7 @@ VirtualTabs 可為您的代理生成自定義的「技能檔案」：
 * **Cursor**：生成 `.mdc` 規則。
 * **其他代理**：生成 `SKILL.md` 指令文檔。
 
-執行命令：`VirtualTabs: Generate Agent Skill`。
+執行命令：`VirtualTabs: Install Agent Skill`。選擇 **Auto Install (Recommended)** 走標準安裝流程；只有需要指定 agent 檔案時，才選 **Generate Skill Files Manually**。
 
 生成的技能文件包含一個**四層安全決策樹**，確保 AI 能正確且安全地使用這些工具。
 

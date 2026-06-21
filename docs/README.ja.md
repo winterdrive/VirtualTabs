@@ -35,7 +35,7 @@
 - **AI Context Export**：グループ内のファイルを LLM が読みやすい Markdown としてコピーします。
 - **ポータブル設定**：グループ情報は `.vscode/virtualTab.json` に保存され、チームで共有できます。
 - **MCP 連携**：Model Context Protocol 経由で AI agent がグループを操作できます。
-- **Agent Skill Generator**：再利用可能な `virtualtabs` skill/rule を拡張内で生成できます。
+- **Agent Skill Installer**：**VirtualTabs: Install Agent Skill** を実行して公式 `virtualtabs` skill をインストールします。特定 agent 向け skill/rule ファイルを手動で書き出す必要がある場合だけ、**Generate Skill Files Manually** を使います。
 - **Multi-root scope**：multi-root workspace ではプロジェクトごとにグループを分離します。
 - **Send to...**：選択したファイルやグループを設定済みの送信先へ送れます。
 - **ファイル順序変更**：ドラッグ＆ドロップまたはショートカットで順序を調整できます。
@@ -44,11 +44,13 @@
 
 VirtualTabs には MCP server が組み込まれており、**VirtualTabs: Show MCP Config** パネルから AI クライアント向けの設定をコピーできます。接続後、Cursor、Claude、Copilot、Kiro、Antigravity などの agent は、グループの一覧取得、作成、ファイル追加、ブックマーク管理、AI context の出力を実行できます。
 
-**Generate Agent Skill** を使うと、別の AI agent が VirtualTabs を正しく扱うための構造化された `virtualtabs` skill/rule を生成できます。VirtualTabs のグループが実ファイルシステム上のフォルダーではなく仮想グループであることも明示されます。公式 skill を直接インストールすることもできます：
+**VirtualTabs: Install Agent Skill** を実行し、**Auto Install (Recommended)** を選んで公式 `virtualtabs` skill をインストールします。同じインストールコマンドを直接実行することもできます：
 
 ```bash
-npx skills add winterdrive/VirtualTabs
+npx skills add winterdrive/vscode-virtual-tabs
 ```
+
+特定 agent 向け skill/rule ファイルを手動で書き出す必要がある場合だけ、**Generate Skill Files Manually** を選びます。生成される内容には、VirtualTabs のグループが実ファイルシステム上のフォルダーではなく仮想グループであることも明示されます。
 
 詳しくは [MCP Setup Guide](mcp-setup.md) を参照してください。
 

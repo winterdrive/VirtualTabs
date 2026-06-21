@@ -35,7 +35,7 @@
 - **AI Context 导出**：把一个组内的文件内容整理成适合 LLM 阅读的 Markdown。
 - **便携配置**：组数据保存到 `.vscode/virtualTab.json`，可提交给团队共享。
 - **MCP 集成**：通过 Model Context Protocol 让 AI agent 程序化管理组。
-- **Agent Skill 生成器**：从扩展内生成可复用的 `virtualtabs` skill/rule。
+- **Agent Skill 安装器**：执行 **VirtualTabs: Install Agent Skill** 安装正式 `virtualtabs` skill。只有需要自行写入指定 agent 的 skill/rule 文件时，才使用 **Generate Skill Files Manually**。
 - **Multi-root 范围**：在 multi-root workspace 中按项目分开保存组。
 - **Send to...**：把选中的文件或整个组发送到预设目标。
 - **文件重排序**：支持拖放或快捷键调整自定义组内顺序。
@@ -44,11 +44,13 @@
 
 VirtualTabs 内置 MCP server，并提供 **VirtualTabs: Show MCP Config** 面板来生成可直接粘贴的客户端配置。连接后，Cursor、Claude、Copilot、Kiro、Antigravity 等 agent 可以读取组、创建组、加入文件、管理书签并导出 AI context。
 
-使用 **Generate Agent Skill** 可以生成结构化的 `virtualtabs` skill/rule，让另一个 AI agent 知道 VirtualTabs 组是虚拟的、应优先使用 MCP 工具、并避免误改真实文件系统。或直接安装正式 skill：
+执行 **VirtualTabs: Install Agent Skill**，选择 **Auto Install (Recommended)** 安装正式 `virtualtabs` skill。你也可以直接执行同一条安装命令：
 
 ```bash
-npx skills add winterdrive/VirtualTabs
+npx skills add winterdrive/vscode-virtual-tabs
 ```
+
+只有需要自行写入指定 agent 的 skill/rule 文件时，才选择 **Generate Skill Files Manually**。生成的内容会说明 VirtualTabs 组是虚拟的、应优先使用 MCP 工具，并避免误改真实文件系统。
 
 详细设置请参阅 [MCP Setup Guide](mcp-setup.md)。
 
