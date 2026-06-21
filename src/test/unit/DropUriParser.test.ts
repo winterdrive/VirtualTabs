@@ -1,4 +1,4 @@
-import { extractDataTransferFileUris, parseUriList, uniqueUriStrings } from '../../core/DropUriParser';
+import { extractDataTransferFileUris, formatDraggedFilesPlainText, parseUriList, uniqueUriStrings } from '../../core/DropUriParser';
 
 describe('DropUriParser', () => {
     test('parses text/uri-list with comments, blank lines, and CRLF', () => {
@@ -40,5 +40,20 @@ describe('DropUriParser', () => {
             'file:///workspace/a.ts',
             'file:///workspace/b.ts'
         ]);
+    });
+
+    test('formats dragged files as chat-friendly file references', () => {
+        expect(formatDraggedFilesPlainText([
+            'src/extension.ts',
+            'src/dragAndDrop.ts'
+        ])).toBe([
+            'Use these files as context:',
+            '#file:src/extension.ts',
+            '#file:src/dragAndDrop.ts'
+        ].join('\n'));
+    });
+
+    test('returns empty text when no dragged files are present', () => {
+        expect(formatDraggedFilesPlainText([])).toBe('');
     });
 });

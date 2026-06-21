@@ -26,3 +26,14 @@ export function uniqueUriStrings(uris: readonly string[]): string[] {
     }
     return Array.from(unique);
 }
+
+export function formatDraggedFilesPlainText(paths: readonly string[]): string {
+    if (paths.length === 0) {
+        return '';
+    }
+
+    return [
+        'Use these files as context:',
+        ...paths.map(path => `#file:${path}`)
+    ].join('\n');
+}

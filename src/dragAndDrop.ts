@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { TempFoldersProvider } from './provider';
 import { TempFolderItem, TempFileItem, ScopeHeaderItem } from './treeItems';
 import { I18n } from './i18n';
-import { extractDataTransferFileUris, parseUriList, uniqueUriStrings } from './core/DropUriParser';
+import { extractDataTransferFileUris, formatDraggedFilesPlainText, parseUriList, uniqueUriStrings } from './core/DropUriParser';
 
 // Drag-and-drop controller, allows files to be dragged into groups AND groups to be nested
 export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropController<vscode.TreeItem> {
@@ -21,6 +21,7 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
         'application/vnd.code.tree.virtualTabsView.files'
     ];
     public readonly dragMimeTypes = [
+        'text/plain',
         'text/uri-list',
         'application/vnd.code.tree.virtualTabsView',
         'application/vnd.code.tree.virtualTabsView.files'
@@ -60,6 +61,7 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
             const uriList = Array.from(uriSet).join('\r\n');
             // Set drag data
             dataTransfer.set('text/uri-list', new vscode.DataTransferItem(uriList));
+            dataTransfer.set('text/plain', new vscode.DataTransferItem(this.createDraggedFilesPlainText(Array.from(uriSet))));
         }
     }
 
@@ -201,6 +203,19 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
             return vscode.Uri.file(uriStr);
         }
         return vscode.Uri.parse(uriStr);
+    }
+
+    private createDraggedFilesPlainText(uriStrings: readonly string[]): string {
+        const paths = uriStrings.map(uriString => {
+            try {
+                const uri = vscode.Uri.parse(uriString);
+                return vscode.workspace.asRelativePath(uri, false);
+            } catch {
+                return uriString;
+            }
+        });
+
+        return formatDraggedFilesPlainText(paths);
     }
 
     private determineTargetGroup(target: vscode.TreeItem | undefined): TempFolderItem | undefined {
