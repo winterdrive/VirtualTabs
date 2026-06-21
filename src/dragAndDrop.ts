@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { TempFoldersProvider } from './provider';
-import { TempFolderItem, TempFileItem, ScopeHeaderItem } from './treeItems';
+import { TempFolderItem, TempFileItem, ScopeHeaderItem, EditorGroupItem } from './treeItems';
 import { I18n } from './i18n';
 import { extractDataTransferFileUris, formatDraggedFilesPlainText, parseUriList, uniqueUriStrings } from './core/DropUriParser';
 
@@ -31,6 +31,7 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
         // Handle multi-file drag from the tree view
         const fileItems = source.filter((item): item is TempFileItem => item instanceof TempFileItem);
         const groupItems = source.filter((item): item is TempFolderItem => item instanceof TempFolderItem);
+        const editorGroupItems = source.filter((item): item is EditorGroupItem => item instanceof EditorGroupItem);
 
         const uriSet = new Set<string>();
 
@@ -46,7 +47,9 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
         if (groupItems.length > 0) {
             for (const item of groupItems) {
                 const group = this.provider.groups[item.groupIdx];
-                if (!group || group.builtIn || !group.id) continue;
+                // Skip only groups without a valid id (builtIn groups are now allowed
+                // so that "Currently Open Files" can produce a drag payload).
+                if (!group || !group.id) continue;
                 const groupFiles = this.collectGroupFilesRecursive(group.id);
                 for (const uri of groupFiles) {
                     uriSet.add(uri);
@@ -55,6 +58,17 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
 
             // Store group items for internal drag-drop
             dataTransfer.set('application/vnd.code.tree.virtualTabsView', new vscode.DataTransferItem(groupItems));
+        }
+
+        // Handle EditorGroupItem (split-editor sub-nodes under the built-in group).
+        // These are not TempFolderItem instances, so they need separate handling.
+        if (editorGroupItems.length > 0) {
+            for (const item of editorGroupItems) {
+                const files = this.provider.getEditorGroupFiles(item.viewColumn);
+                for (const uri of files) {
+                    uriSet.add(uri);
+                }
+            }
         }
 
         if (uriSet.size > 0) {
