@@ -74,7 +74,9 @@ export class GroupManager {
       this.cachedGroups = groups;
       this.lastModified = stats.mtimeMs;
 
-      return { groups, version: stats.mtimeMs };
+      // Return a clone so callers cannot corrupt the cache through shared mutation.
+      // Mirrors the structuredClone on the cache-hit path above.
+      return { groups: structuredClone(groups), version: stats.mtimeMs };
     } catch (error) {
       if (error instanceof SyntaxError) {
         this.handleCorruptedConfig();
