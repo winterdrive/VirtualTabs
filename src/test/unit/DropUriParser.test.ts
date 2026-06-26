@@ -1,0 +1,59 @@
+import { extractDataTransferFileUris, formatDraggedFilesPlainText, parseUriList, uniqueUriStrings } from '../../core/DropUriParser';
+
+describe('DropUriParser', () => {
+    test('parses text/uri-list with comments, blank lines, and CRLF', () => {
+        const result = parseUriList([
+            '# copied from explorer',
+            'file:///workspace/project/src/index.ts',
+            '',
+            ' file:///workspace/project/package.json ',
+            ''
+        ].join('\r\n'));
+
+        expect(result).toEqual([
+            'file:///workspace/project/src/index.ts',
+            'file:///workspace/project/package.json'
+        ]);
+    });
+
+    test('returns no URIs for non-string uri-list values', () => {
+        expect(parseUriList(undefined)).toEqual([]);
+        expect(parseUriList(['file:///tmp/a.ts'])).toEqual([]);
+    });
+
+    test('extracts URI strings from DataTransferFile-like entries', () => {
+        const result = extractDataTransferFileUris([
+            { uri: { toString: () => 'file:///workspace/project' } },
+            { uri: undefined },
+            { uri: { toString: () => '' } }
+        ]);
+
+        expect(result).toEqual(['file:///workspace/project']);
+    });
+
+    test('deduplicates URI strings while preserving first-seen order', () => {
+        expect(uniqueUriStrings([
+            'file:///workspace/a.ts',
+            'file:///workspace/b.ts',
+            'file:///workspace/a.ts'
+        ])).toEqual([
+            'file:///workspace/a.ts',
+            'file:///workspace/b.ts'
+        ]);
+    });
+
+    test('formats dragged files as chat-friendly file references', () => {
+        expect(formatDraggedFilesPlainText([
+            'src/extension.ts',
+            'src/dragAndDrop.ts'
+        ])).toBe([
+            'Use these files as context:',
+            '#file:src/extension.ts',
+            '#file:src/dragAndDrop.ts'
+        ].join('\n'));
+    });
+
+    test('returns empty text when no dragged files are present', () => {
+        expect(formatDraggedFilesPlainText([])).toBe('');
+    });
+});

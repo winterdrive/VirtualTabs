@@ -2,6 +2,17 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.5] - Drag-and-Drop DataTransfer Fixes - 2026-06-21
+
+### 🐛 Bug Fix
+
+- **Folder drops from VS Code Explorer** ([#60](https://github.com/winterdrive/vscode-virtual-tabs/issues/60)): External folder drops now handle VS Code's special `files` DataTransfer MIME entries in addition to `text/uri-list`, so folders dragged from Explorer or the OS can be expanded and added to a VirtualTabs group.
+- **Group drags to AI chat sidebars** ([#60](https://github.com/winterdrive/vscode-virtual-tabs/issues/60)): Dragging a VirtualTabs group now also provides `text/plain` file references, giving chat inputs such as GitHub Copilot a readable fallback when they do not consume `text/uri-list` from extension tree items.
+
+### 🧪 Tests
+
+- Added unit coverage for URI-list parsing, external DataTransfer file URI extraction, duplicate URI handling, and chat-friendly drag text formatting.
+
 ## [0.7.4] - Skill Installer UX - 2026-06-16
 
 ### 🧠 Skill Installer UX (closes #25)

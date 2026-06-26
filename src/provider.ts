@@ -702,6 +702,16 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
     }
 
     /**
+     * Get the file URI strings for a specific editor group by viewColumn.
+     * Used by the drag controller to collect files when dragging EditorGroupItem nodes
+     * without directly accessing the private builtInEditorGroups array.
+     */
+    getEditorGroupFiles(viewColumn: number): string[] {
+        const eg = this.builtInEditorGroups.find(g => g.viewColumn === viewColumn);
+        return eg ? [...eg.files] : [];
+    }
+
+    /**
      * Returns true if the new editor group snapshot differs from the current one
      * in either count, column assignment, or file distribution.
      * Matches groups by viewColumn (not array index) to handle reordering correctly.
