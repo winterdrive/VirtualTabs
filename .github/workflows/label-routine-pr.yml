@@ -1,0 +1,25 @@
+name: Label Routine PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  label-routine:
+    if: startsWith(github.event.pull_request.title, '[Routine - VT]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add routine label
+        run: gh pr edit "$PR_URL" --add-label routine
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
