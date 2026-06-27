@@ -44,3 +44,4 @@ test-results/
 test-ui-output.txt
 docs/assets/fix_rounded_corners.py
 docs/_archive/**
+routine_fail.log
