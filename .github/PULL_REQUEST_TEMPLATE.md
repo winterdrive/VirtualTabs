@@ -17,22 +17,9 @@ Before submitting this PR, please ensure you have read the [CONTRIBUTING.md](../
 Please check the items you have verified locally:
 
 - [ ] Code compiles properly without errors (`npm run vscode:prepublish`)
-- [ ] Unit/property tests pass (`npm run test:coverage`)
 - [ ] Fully tested and working in the Extension Development Host
 - [ ] Original functionality (e.g., grouping, drag-and-drop, context menus) is not broken by this PR
 - [ ] If new text is added, relevant `i18n` language files have been updated
-
-### 🤖 Routine PR Notes
-
-For daily routine Draft PRs:
-
-- [ ] This PR does not bump `package.json` or `package-lock.json`
-- [ ] This PR does not update `CHANGELOG.md`
-- [ ] This PR does not rename, add, or delete command registrations or contributed configuration keys
-- [ ] This PR does not modify tab-group serialization or storage format
-- [ ] Package version bump and changelog updates are deferred to the weekend release/integration PR
-
-Label the PR `release-ready` only when version and changelog updates are intentionally included.
 
 ### 📸 Screenshots or Screen Recordings (Optional)
 >
