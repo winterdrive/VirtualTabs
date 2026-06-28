@@ -2,6 +2,7 @@ import { GroupManager } from './GroupManager.js';
 import { FileManager } from './FileManager.js';
 import { VTBookmark, BookmarkInfo, TempGroup } from '../types.js';
 import { PathUtils } from './PathUtils.js';
+import { matchesStoredFileEntry } from './FileEntryMatcher.js';
 
 /**
  * BookmarkManager
@@ -179,8 +180,12 @@ export class BookmarkManager {
     }
 
     const fileUri = this.fileManager.toFileUri(filePath);
-
-    if (!group.files || !group.files.includes(fileUri)) {
+    const targetFsPath = this.fileManager.toAbsolutePath(filePath);
+    const workspaceRoot = this.groupManager.getWorkspaceRoot();
+    const fileInGroup = group.files?.some(entry =>
+      matchesStoredFileEntry(entry, fileUri, targetFsPath, workspaceRoot)
+    );
+    if (!fileInGroup) {
       throw new Error(`File is not in group "${group.name}"`);
     }
 
