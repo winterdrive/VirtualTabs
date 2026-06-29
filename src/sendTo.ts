@@ -312,6 +312,10 @@ export class SendToManager {
             vscode.window.showInformationMessage(I18n.getMessage('sendTo.info.noFiles'));
             return;
         }
+        if (destFolders.length === 0) {
+            vscode.window.showInformationMessage(I18n.getMessage('sendTo.info.noDestinations'));
+            return;
+        }
 
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
@@ -365,6 +369,10 @@ export class SendToManager {
     ): Promise<void> {
         if (items.length === 0) {
             vscode.window.showInformationMessage(I18n.getMessage('sendTo.info.noFiles'));
+            return;
+        }
+        if (destFolders.length === 0) {
+            vscode.window.showInformationMessage(I18n.getMessage('sendTo.info.noDestinations'));
             return;
         }
 

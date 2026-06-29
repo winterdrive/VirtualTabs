@@ -156,6 +156,7 @@
     "sendTo.button.overwrite": "覆寫",
     "sendTo.button.skip": "跳過",
     "sendTo.info.noFiles": "沒有檔案可傳送",
+    "sendTo.info.noDestinations": "未選擇目標群組",
     "sendTo.info.cancelled": "已取消。已傳送 {0} 個檔案。",
     "sendTo.info.complete": "已將 {0} / {1} 個檔案傳送至 '{2}'",
     "sendTo.progress.title": "正在傳送檔案至 '{0}'",
