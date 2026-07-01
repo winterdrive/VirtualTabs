@@ -156,6 +156,7 @@
     "sendTo.button.overwrite": "Overwrite",
     "sendTo.button.skip": "Skip",
     "sendTo.info.noFiles": "No files to send",
+    "sendTo.info.noDestinations": "No destination groups selected",
     "sendTo.info.cancelled": "Cancelled. {0} files sent.",
     "sendTo.info.complete": "Sent {0} of {1} files to '{2}'",
     "sendTo.progress.title": "Sending files to '{0}'",
