@@ -543,7 +543,8 @@ export function registerCommands(
         provider.groups.push({
             id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
             name: newName,
-            files: group.files ? [...group.files] : []
+            files: group.files ? [...group.files] : [],
+            sourceScopeId: group.sourceScopeId
         });
         provider.refresh();
     }));
