@@ -2,6 +2,20 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.6] - Multi-root Scope & Cache Correctness Fixes - 2026-07-01
+
+### 🐛 Bug Fix
+
+- **Group duplication in multi-root workspaces** ([#67](https://github.com/winterdrive/vscode-virtual-tabs/pull/67)): Duplicating a group now preserves `sourceScopeId`, so the copy saves to the same workspace root as the original instead of falling back to the first root.
+- **Missing watchers for scopes added after startup** ([#68](https://github.com/winterdrive/vscode-virtual-tabs/pull/68)): Workspace folders added after activation now get their own `FileSystemWatcher`, so externally edited `virtualTab.json` files in newly added roots auto-refresh the tree view.
+- **Group cache corruption on cache-miss** ([#69](https://github.com/winterdrive/vscode-virtual-tabs/pull/69)): `GroupManager.loadGroups()` now clones the result on the cache-miss path (matching the existing cache-hit behavior), preventing callers that mutate the returned array from silently corrupting the in-memory cache before it is persisted.
+- **Bookmarks for relative-path files** ([#73](https://github.com/winterdrive/vscode-virtual-tabs/pull/73)): `createBookmark` now uses the same normalized path matching as file removal, so bookmarking a file stored as a workspace-relative path no longer incorrectly throws "File is not in group".
+- **`Send To` with no destination folders** ([#74](https://github.com/winterdrive/vscode-virtual-tabs/pull/74)): Guards against an empty destination list, which previously caused a divide-by-zero progress step; adds a localized "no destinations" message in English, Simplified Chinese, and Traditional Chinese.
+
+### 🧪 Tests
+
+- Added unit tests covering all five `FileSorter` sort criteria (`none`, `name`, `path`, `extension`, `modified`), including edge cases like non-mutation and graceful `mtime` fallback ([#75](https://github.com/winterdrive/vscode-virtual-tabs/pull/75)).
+
 ## [0.7.5] - Drag-and-Drop DataTransfer Fixes - 2026-06-21
 
 ### 🐛 Bug Fix
