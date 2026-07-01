@@ -236,12 +236,19 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // 為每個 ConfigScope 建立 FileSystemWatcher（多 scope 支援）
     setupWatchers(provider.configScopes, provider, context);
+    const watchedScopeIds = new Set<string>(provider.configScopes.map(s => s.id));
 
     // 監聽工作區資料夾動態變更（新增/移除 folder）
     context.subscriptions.push(
         vscode.workspace.onDidChangeWorkspaceFolders(() => {
             // 重新執行 discovery 並更新 provider 的 configScopes
             provider.reinitializeScopes();
+            // 為新增的 scope 建立 FileSystemWatcher（避免重複建立已有的）
+            const newScopes = provider.configScopes.filter(s => !watchedScopeIds.has(s.id));
+            if (newScopes.length > 0) {
+                setupWatchers(newScopes, provider, context);
+                newScopes.forEach(s => watchedScopeIds.add(s.id));
+            }
         })
     );
 }
