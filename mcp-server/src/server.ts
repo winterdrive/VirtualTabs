@@ -597,7 +597,7 @@ export class VirtualTabsMCPServer {
                 if (!g.name) { errors.push(`Group[${i}] missing "name".`); }
                 if (g.files !== undefined && !Array.isArray(g.files)) {
                   errors.push(`Group "${g.name ?? i}" has invalid "files" (expected array or undefined).`);
-                } else {
+                } else if (Array.isArray(g.files)) {
                   for (const f of g.files) {
                     if (path.isAbsolute(f)) {
                       errors.push(`Group "${g.name}": absolute path detected: "${f}". Must be workspace-relative.`);
