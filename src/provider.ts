@@ -331,6 +331,20 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         }, 500);
     }
 
+    /**
+     * Synchronously flush a pending debounced save, if any.
+     * Call this on extension deactivation — otherwise an edit made just
+     * before VS Code closes can be lost, since the 500ms debounce timer
+     * never gets a chance to fire.
+     */
+    flushPendingSave(): void {
+        if (this.saveDebounceTimer) {
+            clearTimeout(this.saveDebounceTimer);
+            this.saveDebounceTimer = undefined;
+            this.saveGroupsImmediate();
+        }
+    }
+
     private saveGroupsImmediate() {
         if (this.groupManagers.size === 0) {
             console.warn('Cannot save VirtualTabs data: no GroupManagers available');

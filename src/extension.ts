@@ -117,6 +117,10 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(treeView);
     treeView.description = provider.computeScopeDescription();
 
+    // Flush any pending debounced save on deactivation so a change made
+    // just before VS Code closes isn't lost.
+    context.subscriptions.push({ dispose: () => provider.flushPendingSave() });
+
     // Pass the tree view to the provider for selection management
     provider.setTreeView(treeView);
 
