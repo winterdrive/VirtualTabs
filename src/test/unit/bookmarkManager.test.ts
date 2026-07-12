@@ -59,6 +59,32 @@ describe('BookmarkManager URI matching', () => {
         expect(removed).toBe(true);
         expect(group.bookmarks).toEqual({});
     });
+
+    test('findBookmarkKey locates the stored key across groups for drag-and-drop bookmark moves', () => {
+        // Mirrors dragAndDrop.ts#handleFileDrop, where the dragged TreeItem's URI
+        // string can differ in encoding from the key originally saved to disk.
+        const sourceGroup: TempGroup = {
+            id: 'source',
+            name: 'Source',
+            files: [],
+            bookmarks: {
+                '/workspace/project/src/bookmarked.ts': [
+                    { id: 'bm-1', line: 3, label: 'Bookmark', created: 1 }
+                ]
+            }
+        };
+        const targetGroup: TempGroup = { id: 'target', name: 'Target', files: [] };
+        const draggedFileUri = 'file:///workspace/project/src/bookmarked.ts';
+
+        const bookmarkKey = BookmarkManager.findBookmarkKey(sourceGroup, draggedFileUri);
+        expect(bookmarkKey).toBe('/workspace/project/src/bookmarked.ts');
+
+        targetGroup.bookmarks = { [bookmarkKey!]: sourceGroup.bookmarks![bookmarkKey!] };
+        delete sourceGroup.bookmarks![bookmarkKey!];
+
+        expect(targetGroup.bookmarks[bookmarkKey!]).toHaveLength(1);
+        expect(sourceGroup.bookmarks).toEqual({});
+    });
 });
 
 describe('BookmarkManager.createBookmark file membership', () => {

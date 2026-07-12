@@ -97,7 +97,11 @@ export class BookmarkManager {
     return [...group.bookmarks[bookmarkKey]].sort((a, b) => a.line - b.line);
   }
 
-  private static findBookmarkKey(group: TempGroup, fileUri: string): string | undefined {
+  /**
+   * Find the actual key used in group.bookmarks for a given file URI, tolerating
+   * URI encoding / casing differences (e.g. drag-and-drop payloads vs. stored keys).
+   */
+  static findBookmarkKey(group: TempGroup, fileUri: string): string | undefined {
     if (!group.bookmarks) return undefined;
     if (group.bookmarks[fileUri]) return fileUri;
 
