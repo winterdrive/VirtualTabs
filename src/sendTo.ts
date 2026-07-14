@@ -29,8 +29,11 @@ export class SendToManager {
         if (fs.existsSync(newConfigPath)) {
             try {
                 const config = JSON.parse(fs.readFileSync(newConfigPath, 'utf8'));
-                if (Array.isArray(config.sendTargets) && config.sendTargets.length > 0) {
-                    return config.sendTargets;
+                const targets = Array.isArray(config.sendTargets)
+                    ? config.sendTargets.filter(this.isValidSendTarget)
+                    : [];
+                if (targets.length > 0) {
+                    return targets;
                 }
             } catch (error) {
                 console.error('Failed to load sendTargets.json:', error);
@@ -42,8 +45,9 @@ export class SendToManager {
         if (fs.existsSync(legacyConfigPath)) {
             try {
                 const config = JSON.parse(fs.readFileSync(legacyConfigPath, 'utf8'));
-                const targets = config.sendTargets || config.transmitTargets;
-                if (Array.isArray(targets) && targets.length > 0) {
+                const rawTargets = config.sendTargets || config.transmitTargets;
+                const targets = Array.isArray(rawTargets) ? rawTargets.filter(this.isValidSendTarget) : [];
+                if (targets.length > 0) {
                     return targets;
                 }
             } catch (error) {
@@ -57,8 +61,9 @@ export class SendToManager {
             try {
                 const config = JSON.parse(fs.readFileSync(vtPath, 'utf8'));
                 if (!Array.isArray(config)) {
-                    const targets = config.sendTargets || config.transmitTargets;
-                    if (Array.isArray(targets) && targets.length > 0) {
+                    const rawTargets = config.sendTargets || config.transmitTargets;
+                    const targets = Array.isArray(rawTargets) ? rawTargets.filter(this.isValidSendTarget) : [];
+                    if (targets.length > 0) {
                         return targets;
                     }
                 }
@@ -68,6 +73,28 @@ export class SendToManager {
         }
 
         return [];
+    }
+
+    /**
+     * Guards against hand-edited config files where a target is missing its
+     * `name`/`path`, since a malformed entry (e.g. `path: undefined`) would
+     * otherwise reach `path.join()` in sendFile and throw a TypeError.
+     */
+    private static isValidSendTarget(target: unknown): target is SendTarget {
+        if (!target || typeof target !== 'object') {
+            return false;
+        }
+        const candidate = target as Partial<SendTarget>;
+        if (typeof candidate.name !== 'string' || candidate.name.trim().length === 0) {
+            return false;
+        }
+        if (typeof candidate.path === 'string') {
+            return candidate.path.trim().length > 0;
+        }
+        if (Array.isArray(candidate.path)) {
+            return candidate.path.length > 0 && candidate.path.every(p => typeof p === 'string' && p.trim().length > 0);
+        }
+        return false;
     }
 
     private static getWorkspaceRootPath(): string | undefined {
