@@ -124,15 +124,23 @@ async function main() {
     // 4. Create the VirtualTabs MCP Server
     const server = new VirtualTabsMCPServer(validatedWorkspaceRoot);
 
-    // 5. Persist workspace root when the Roots protocol sets it.
-    // Polling after 3 s gives the Roots handshake time to complete.
-    setTimeout(() => {
+    // 5. Persist workspace root once the Roots protocol handshake completes.
+    // Handshake timing varies by client, so poll periodically for up to 30 s
+    // instead of checking only once after a fixed delay, which could miss
+    // slower clients and silently skip caching for that session.
+    let pollAttempts = 0;
+    const MAX_POLL_ATTEMPTS = 30;
+    const pollHandle = setInterval(() => {
+      pollAttempts += 1;
       const root = server.getWorkspaceRoot();
       if (root) {
         saveState({ lastWorkspaceRoot: root });
         console.error(`[INFO] Workspace path cached: ${root}`);
+        clearInterval(pollHandle);
+      } else if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+        clearInterval(pollHandle);
       }
-    }, 3000);
+    }, 1000);
 
     // 6. Create the stdio transport and connect
     const transport = new StdioServerTransport();
