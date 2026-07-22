@@ -2,7 +2,7 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
-## [0.7.7] - Defensive Fixes & MCP Stability - 2026-07-22
+## [0.8.0] - Defensive Fixes & MCP Stability - 2026-07-22
 
 ### 🐛 Bug Fixes
 
