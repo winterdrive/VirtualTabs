@@ -68,7 +68,17 @@ export class GroupManager {
 
       // Read and parse the config file
       const content = fs.readFileSync(this.configPath, 'utf8');
-      const groups = JSON.parse(content) as TempGroup[];
+      const parsed: unknown = JSON.parse(content);
+
+      // Config must be an array; anything else (object, string, number, null)
+      // is treated the same as unparsable JSON to avoid corrupting callers
+      // that assume an array (e.g. .find/.filter).
+      if (!Array.isArray(parsed)) {
+        this.handleCorruptedConfig();
+        return { groups: [], version: this.lastModified };
+      }
+
+      const groups = parsed as TempGroup[];
 
       // Update cache
       this.cachedGroups = groups;
