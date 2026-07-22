@@ -134,32 +134,37 @@ export async function activate(context: vscode.ExtensionContext) {
         context.workspaceState.update(expandedKey, ids);
     };
 
-    treeView.onDidExpandElement(e => updateExpandedState(e.element, true));
-    treeView.onDidCollapseElement(e => updateExpandedState(e.element, false));
-
+    context.subscriptions.push(
+        treeView.onDidExpandElement(e => updateExpandedState(e.element, true)),
+        treeView.onDidCollapseElement(e => updateExpandedState(e.element, false))
+    );
 
     // Refresh the view when it becomes visible
-    treeView.onDidChangeVisibility(e => {
-        if (e.visible) {
-            provider.refresh();
-        }
-    });
+    context.subscriptions.push(
+        treeView.onDidChangeVisibility(e => {
+            if (e.visible) {
+                provider.refresh();
+            }
+        })
+    );
 
     // Update context key based on selection; also track last selected custom file for keybindings
     let lastSelectedCustomFile: TempFileItem | undefined;
-    treeView.onDidChangeSelection(e => {
-        const hasFile = e.selection.some(item => item instanceof TempFileItem);
-        const customFileItem = e.selection.find((item): item is TempFileItem =>
-            item instanceof TempFileItem &&
-            !!item.contextValue &&
-            item.contextValue.includes('virtualTabsFileCustom')
-        );
-        if (customFileItem) {
-            lastSelectedCustomFile = customFileItem;
-        }
-        vscode.commands.executeCommand('setContext', 'virtualTabs:hasFileSelected', hasFile);
-        vscode.commands.executeCommand('setContext', 'virtualTabs:hasCustomFileSelected', !!customFileItem);
-    });
+    context.subscriptions.push(
+        treeView.onDidChangeSelection(e => {
+            const hasFile = e.selection.some(item => item instanceof TempFileItem);
+            const customFileItem = e.selection.find((item): item is TempFileItem =>
+                item instanceof TempFileItem &&
+                !!item.contextValue &&
+                item.contextValue.includes('virtualTabsFileCustom')
+            );
+            if (customFileItem) {
+                lastSelectedCustomFile = customFileItem;
+            }
+            vscode.commands.executeCommand('setContext', 'virtualTabs:hasFileSelected', hasFile);
+            vscode.commands.executeCommand('setContext', 'virtualTabs:hasCustomFileSelected', !!customFileItem);
+        })
+    );
 
 
     // Listen for active editor change to auto-reveal file in the Virtual Tabs panel.
@@ -222,6 +227,15 @@ export async function activate(context: vscode.ExtensionContext) {
             }, 100);
         })
     );
+
+    // Ensure the debounce timer doesn't fire against a disposed tree view on deactivation
+    context.subscriptions.push({
+        dispose: () => {
+            if (revealTimeout) {
+                clearTimeout(revealTimeout);
+            }
+        }
+    });
 
     // Listen for editor file open/close events to auto-refresh the tree view
     // Only use syncBuiltInGroup here to avoid recreating the entire tree when switching tabs
