@@ -75,7 +75,7 @@ jobs:
 
       - name: Package extension
         if: steps.check_version.outputs.changed == 'true'
-        run: npx @vscode/vsce package --out virtual-tabs.vsix
+        run: npx @vscode/vsce package --out virtual-tabs.vsix ${{ steps.release_type.outputs.flags }}
 
       - name: Publish to Marketplace
         if: steps.check_version.outputs.changed == 'true'
