@@ -2,6 +2,23 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.7] - Defensive Fixes & MCP Stability - 2026-07-22
+
+### 🐛 Bug Fixes
+
+- **fix(extension):** dispose treeView listeners and pending reveal timer (#77) — prevents listener leaks on extension deactivation
+- **fix(provider):** guard against stale `groupIdx` when rendering file bookmarks (#78) — avoids out-of-bounds access after group list changes
+- **fix(commands):** clamp bookmark position to document bounds in `jumpToBookmark` (#80) — prevents reveal errors on files shorter than the stored line
+- **fix(mcp):** guard `files` iteration in `validate_json_structure` against `undefined` (#82) — stops MCP server crash when `files` key is absent
+- **fix(i18n):** avoid `$`-pattern corruption in `getMessage` placeholder substitution (#86) — UNC paths and error strings no longer produce garbled notification text
+- **fix(provider):** flush pending debounced save on deactivation (#83) — edits made within the 500 ms debounce window are now persisted before VS Code exits
+- **fix(FileManager):** use normalized membership check for add/remove files (#79) — path comparison now consistent with bookmark key format
+- **fix(dragAndDrop):** use normalized bookmark key lookup when moving files between groups (#85) — bookmarks correctly follow dragged files
+- **fix(sendTo):** drop malformed send-target entries when loading config (#87) — prevents silent failures when config contains invalid entries
+- **fix(GroupManager):** treat non-array JSON config as corrupted (#88) — resets storage instead of iterating over non-iterable value
+- **fix(AutoGrouper):** move bookmarks to sub-groups on extension/date auto-grouping (#81) — bookmark entries now follow their files into sub-groups after auto-group calls
+- **fix(mcp-server):** poll for workspace root instead of checking once at 3 s (#89) — slower MCP clients no longer miss the Roots handshake
+
 ## [0.7.6] - Multi-root Scope & Cache Correctness Fixes - 2026-07-01
 
 ### 🐛 Bug Fix
