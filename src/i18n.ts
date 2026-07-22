@@ -64,12 +64,15 @@ export class I18n {
      */
     public static getMessage(key: string, ...args: string[]): string {
         let message = this.messages[key] || key;
-        
-        // Format string (replace {0}, {1}, ... placeholders)
+
+        // Format string (replace {0}, {1}, ... placeholders).
+        // Use a replacer function (not a string) so literal '$' characters in
+        // args (e.g. UNC paths like \\server\C$\path, or error messages)
+        // aren't interpreted as special replacement patterns ($&, $1, ...).
         for (let i = 0; i < args.length; i++) {
-            message = message.replace(new RegExp(`\\{${i}\\}`, 'g'), args[i]);
+            message = message.replace(new RegExp(`\\{${i}\\}`, 'g'), () => args[i]);
         }
-        
+
         return message;
     }
 
