@@ -8,7 +8,6 @@
  */
 
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { ConfigScope, TempGroup } from '../types.js';
 
 export class ConfigScopeDiscovery {
@@ -57,14 +56,14 @@ export class ConfigScopeDiscovery {
 
     /**
      * 從 WorkspaceFolder 建立 folder scope。
-     * label 為資料夾名稱（path.basename）。
+     * label 使用 VS Code 已計算好的 folder.name（尊重多根工作區自訂名稱，
+     * 並在資料夾為磁碟根目錄等 path.basename 會回傳空字串的邊緣情況下保有正確名稱）。
      */
     private static createFolderScope(folder: vscode.WorkspaceFolder): ConfigScope {
-        const folderName = path.basename(folder.uri.fsPath);
         return {
             id: folder.uri.toString(),
             type: 'folder',
-            label: folderName,
+            label: folder.name,
             uri: folder.uri,
             groups: [] as TempGroup[]
         };
