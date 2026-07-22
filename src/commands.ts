@@ -1188,10 +1188,13 @@ export function registerCommands(
                 const document = await vscode.workspace.openTextDocument(item.fileUri);
                 const editor = await vscode.window.showTextDocument(document);
 
-                const position = new vscode.Position(
+                // Clamp to the document's current bounds: the file may have been
+                // edited (lines removed) since the bookmark was created, which would
+                // otherwise leave selection/reveal operating on an invalid position.
+                const position = document.validatePosition(new vscode.Position(
                     item.bookmark.line,
                     item.bookmark.character || 0
-                );
+                ));
 
                 const range = new vscode.Range(position, position);
 
