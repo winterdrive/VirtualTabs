@@ -8,6 +8,7 @@
 
 import { PathUtils } from './PathUtils.js';
 import { GroupManager } from './GroupManager.js';
+import { matchesStoredFileEntry } from './FileEntryMatcher.js';
 import { TempGroup } from '../types.js';
 
 /**
@@ -83,8 +84,10 @@ export class FileManager {
       }
 
       const fileUri = this.toFileUri(filePath);
+      const targetFsPath = this.toAbsolutePath(filePath);
+      const workspaceRoot = this.groupManager.getWorkspaceRoot();
 
-      if (group.files.includes(fileUri)) {
+      if (group.files.some(entry => matchesStoredFileEntry(entry, fileUri, targetFsPath, workspaceRoot))) {
         result.skipped.push(filePath);
         continue;
       }
@@ -120,9 +123,12 @@ export class FileManager {
       return result;
     }
 
+    const workspaceRoot = this.groupManager.getWorkspaceRoot();
+
     for (const filePath of filePaths) {
       const fileUri = this.toFileUri(filePath);
-      const index = group.files.indexOf(fileUri);
+      const targetFsPath = this.toAbsolutePath(filePath);
+      const index = group.files.findIndex(entry => matchesStoredFileEntry(entry, fileUri, targetFsPath, workspaceRoot));
 
       if (index === -1) {
         result.notFound.push(filePath);
