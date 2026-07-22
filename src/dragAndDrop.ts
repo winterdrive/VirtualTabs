@@ -3,6 +3,7 @@ import { TempFoldersProvider } from './provider';
 import { TempFolderItem, TempFileItem, ScopeHeaderItem, EditorGroupItem } from './treeItems';
 import { I18n } from './i18n';
 import { extractDataTransferFileUris, formatDraggedFilesPlainText, parseUriList, uniqueUriStrings } from './core/DropUriParser';
+import { BookmarkManager } from './core/BookmarkManager';
 
 // Drag-and-drop controller, allows files to be dragged into groups AND groups to be nested
 export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropController<vscode.TreeItem> {
@@ -271,14 +272,19 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
             }
 
             // 1. Move Bookmarks
-            if (sourceGroup.bookmarks && sourceGroup.bookmarks[fileUri]) {
+            // Use a normalized key lookup (not exact string match) because the dragged
+            // item's URI string can differ from the stored bookmark key in encoding/casing.
+            const bookmarkKey = sourceGroup.bookmarks
+                ? BookmarkManager.findBookmarkKey(sourceGroup, fileUri)
+                : undefined;
+            if (sourceGroup.bookmarks && bookmarkKey) {
                 if (!targetGroup.bookmarks) {
                     targetGroup.bookmarks = {};
                 }
                 // Move bookmarks to target group
-                targetGroup.bookmarks[fileUri] = sourceGroup.bookmarks[fileUri];
+                targetGroup.bookmarks[bookmarkKey] = sourceGroup.bookmarks[bookmarkKey];
                 // Remove from source group
-                delete sourceGroup.bookmarks[fileUri];
+                delete sourceGroup.bookmarks[bookmarkKey];
 
                 // Clean up empty bookmarks object if needed
                 if (Object.keys(sourceGroup.bookmarks).length === 0) {
