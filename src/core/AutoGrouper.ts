@@ -92,6 +92,31 @@ export class AutoGrouper {
     return Math.floor(Math.abs(d2.getTime() - d1.getTime()) / oneDay);
   }
 
+  /**
+   * Move each file's bookmarks from the source group to the newly created
+   * sub-group, mirroring the same-file-move logic in dragAndDrop.ts.
+   * Without this, bookmarks are orphaned on the (now empty) source group
+   * and become unreachable from the UI.
+   */
+  private static moveBookmarks(sourceGroup: TempGroup, targetGroup: TempGroup, fileUris: string[]): void {
+    if (!sourceGroup.bookmarks) return;
+
+    for (const fileUri of fileUris) {
+      const bookmarks = sourceGroup.bookmarks[fileUri];
+      if (!bookmarks) continue;
+
+      if (!targetGroup.bookmarks) {
+        targetGroup.bookmarks = {};
+      }
+      targetGroup.bookmarks[fileUri] = bookmarks;
+      delete sourceGroup.bookmarks[fileUri];
+    }
+
+    if (Object.keys(sourceGroup.bookmarks).length === 0) {
+      delete sourceGroup.bookmarks;
+    }
+  }
+
   // ─── Instance methods (MCP layer — load/mutate/save) ───
 
   /**
@@ -152,6 +177,8 @@ export class AutoGrouper {
         sourceGroupId: groupId
       };
 
+      AutoGrouper.moveBookmarks(sourceGroup, newGroup, uriList);
+
       groups.push(newGroup);
       createdGroups.push({
         id: newGroup.id,
@@ -209,6 +236,8 @@ export class AutoGrouper {
         autoGroupType: 'modifiedDate',
         sourceGroupId: groupId
       };
+
+      AutoGrouper.moveBookmarks(sourceGroup, newGroup, uriList);
 
       groups.push(newGroup);
       createdGroups.push({
