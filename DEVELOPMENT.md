@@ -774,6 +774,31 @@ new TempFolderItem("TypeScript Files", 1, false)
 
 ## 🚀 Publishing & Deployment
 
+### Versioning Convention (Pre-release vs Stable)
+
+VirtualTabs follows the VS Code Marketplace pre-release convention based on the **minor version number**:
+
+| Minor version | Parity | Published as |
+|:---|:---|:---|
+| 0.8.x, 0.10.x, 1.0.x, … | **Even** | Stable release (default channel) |
+| 0.7.x, 0.9.x, 1.1.x, … | **Odd** | Pre-release (opt-in channel) |
+
+**How CI handles this automatically:**
+
+The `publish.yml` workflow reads the minor version from `package.json` at merge time:
+- Odd minor → publishes with `vsce publish --pre-release`
+- Even minor → publishes normally (stable)
+
+You never need to pass `--pre-release` manually.
+
+**Release flow:**
+1. Batch routine PRs → squash-merge into main/master
+2. Create release branch: `git checkout -b release/vX.Y.Z-YYMMDD`
+3. Bump version in `package.json` (odd = pre-release, even = stable)
+4. Update `CHANGELOG.md`
+5. Open release PR → squash-merge
+6. CI auto-publishes to VS Code Marketplace + Open VSX
+
 ### Local Testing
 
 1. Ensure TypeScript compiles without errors
