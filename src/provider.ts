@@ -1852,6 +1852,9 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         // If it's a file node, show bookmarks (v0.2.0)
         if (element instanceof TempFileItem) {
             const group = this.groups[element.groupIdx];
+            // Safety check: groupIdx might be stale if the groups array shifted
+            // (e.g. a group was removed/reordered) before this node re-rendered.
+            if (!group) return [];
             const bookmarks = BookmarkManager.getBookmarksForFile(
                 group,
                 element.uri.toString()
