@@ -2,6 +2,19 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.7.8] - Auto Group Bookmark & Scope-Visibility Fixes - 2026-07-23
+
+### 🐛 Bug Fixes
+
+- **fix(AutoGrouper):** move bookmarks to sub-groups on extension/date auto-grouping in the real tree-view command path (`provider.ts`), not just the MCP-tool layer (#96) — bookmarks were still dropped when using Auto Group by Extension/Date from the UI
+- **fix(provider):** auto sub-groups created from the built-in "Currently Open Files" group stay visible when a scope filter is active (#96) — previously excluded from scope-filtered views because they lacked the `builtIn` flag
+- **fix(extension):** dispose `FileSystemWatcher` when a scope's workspace folder is removed (#95) — prevents resource leaks in multi-root workspaces
+- **fix(treeItems):** use `folder.name` for `ScopeHeaderItem` label instead of `path.basename` (#92) — respects custom multi-root workspace folder names and avoids empty labels for filesystem-root folders
+
+### 🔧 Maintenance
+
+- **chore(deps):** bump the `npm_and_yarn` dependency group across 2 directories (#91)
+
 ## [0.7.7] - Defensive Fixes & MCP Stability - 2026-07-22
 
 ### 🐛 Bug Fixes
