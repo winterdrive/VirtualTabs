@@ -219,4 +219,31 @@ describe('TempFoldersProvider auto-group commands (real provider.ts code path)',
         expect(labels).toContain('Currently Open Files');
         expect(children.length).toBeGreaterThan(1);
     });
+
+    test('resetToDefault(scopeId) does not leave a duplicate built-in group', () => {
+        // Reproduces the FileSystemWatcher onDidDelete path in extension.ts,
+        // which calls provider.resetToDefault(scopeId) when a scope's
+        // virtualTab.json is deleted on disk.
+        const builtInGroup: TempGroup = {
+            id: 'builtin_group_id',
+            name: 'Currently Open Files',
+            files: [],
+            builtIn: true
+        };
+
+        const scopedGroup: TempGroup = {
+            id: 'group-1',
+            name: 'Scoped',
+            files: [],
+            sourceScopeId: 'scope:project'
+        };
+
+        const provider = createProviderHarness([builtInGroup, scopedGroup], []);
+
+        provider.resetToDefault('scope:project');
+
+        const builtInGroups = provider.groups.filter(g => g.builtIn);
+        expect(builtInGroups).toHaveLength(1);
+        expect(provider.groups.find(g => g.id === 'group-1')).toBeUndefined();
+    });
 });

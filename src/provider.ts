@@ -453,8 +453,8 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
      */
     public resetToDefault(scopeId?: string) {
         if (scopeId) {
-            // 只移除屬於該 scope 的群組
-            this.groups = this.groups.filter(g => g.builtIn || g.sourceScopeId !== scopeId);
+            // 只移除屬於該 scope 的群組；內建群組一併移除，交由 initBuiltInGroup() 重建單一份
+            this.groups = this.groups.filter(g => !g.builtIn && g.sourceScopeId !== scopeId);
         } else {
             this.groups = [];
         }
