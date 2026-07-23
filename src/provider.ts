@@ -1409,14 +1409,18 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         });
 
         // Insert auto groups at the original group position (after it)
-        const newGroups = Object.entries(extMap).map(([ext, files]) => ({
-            id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
-            name: `${I18n.getAutoGroupName(ext)} @ ${group.name}`, // Naming: .ext @ Source
-            files,
-            auto: true,
-            sourceGroupId: group.id,
-            sourceScopeId: group.sourceScopeId
-        }));
+        const newGroups: TempGroup[] = Object.entries(extMap).map(([ext, files]) => {
+            const newGroup: TempGroup = {
+                id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
+                name: `${I18n.getAutoGroupName(ext)} @ ${group.name}`, // Naming: .ext @ Source
+                files,
+                auto: true,
+                sourceGroupId: group.id,
+                sourceScopeId: group.sourceScopeId
+            };
+            AutoGrouper.moveBookmarks(group, newGroup, files);
+            return newGroup;
+        });
 
         // Find fresh index of group because filtering might have shifted it
         const newGroupIdx = this.groups.findIndex(g => g.id === group.id);
@@ -1477,7 +1481,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         for (const dateGroup of dateOrder) {
             const files = dateGroups.get(dateGroup);
             if (files && files.length > 0) {
-                newGroups.push({
+                const newGroup: TempGroup = {
                     id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
                     name: `${I18n.getMessage('group.autoGroupPrefix')} ${AutoGrouper.getDateGroupLabel(dateGroup, I18n)} @ ${group.name}`, // Naming: [Auto] Label @ Source
                     files,
@@ -1485,7 +1489,9 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                     autoGroupType: 'modifiedDate',
                     sourceGroupId: group.id,
                     sourceScopeId: group.sourceScopeId
-                });
+                };
+                AutoGrouper.moveBookmarks(group, newGroup, files);
+                newGroups.push(newGroup);
             }
         }
 
@@ -1660,6 +1666,14 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 return item;
             };
 
+            // Auto sub-groups created from the built-in group ("Currently Open Files")
+            // never get `builtIn: true` themselves, only `sourceGroupId` pointing back
+            // to it. Scope-filtered views must still surface them alongside the
+            // built-in group, otherwise Auto Group by Extension/Date on it appears
+            // to silently do nothing when a scope filter is active.
+            const isBuiltInFamily = (group: TempGroup): boolean =>
+                !!group.builtIn || this.groups.find(g => g.id === group.sourceGroupId)?.builtIn === true;
+
             const isFiltered = this.activeScopeIds.size > 0;
 
             if (isFiltered) {
@@ -1669,7 +1683,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 const builtInItems = showBuiltIn
                     ? this.groups
                         .map((g, idx) => ({ group: g, idx }))
-                        .filter(({ group }) => group.builtIn)
+                        .filter(({ group }) => isBuiltInFamily(group))
                         .map(({ group, idx }) => makeFolderItem(group, idx))
                     : [];
 
@@ -1719,7 +1733,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 );
                 const builtInItems = this.groups
                     .map((g, idx) => ({ group: g, idx }))
-                    .filter(({ group }) => group.builtIn)
+                    .filter(({ group }) => isBuiltInFamily(group))
                     .map(({ group, idx }) => makeFolderItem(group, idx));
                 return [...builtInItems, ...scopeItems];
             }

@@ -98,7 +98,7 @@ export class AutoGrouper {
    * Without this, bookmarks are orphaned on the (now empty) source group
    * and become unreachable from the UI.
    */
-  private static moveBookmarks(sourceGroup: TempGroup, targetGroup: TempGroup, fileUris: string[]): void {
+  static moveBookmarks(sourceGroup: TempGroup, targetGroup: TempGroup, fileUris: string[]): void {
     if (!sourceGroup.bookmarks) return;
 
     for (const fileUri of fileUris) {
