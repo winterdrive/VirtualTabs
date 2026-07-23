@@ -5,6 +5,7 @@
  * - 單一資料夾工作區
  * - 多根工作區（含 workspaceFile）
  * - 無工作區資料夾
+ * - folder scope label 使用 folder.name（而非重新以 path.basename 推導）
  */
 
 import * as path from 'path';
@@ -57,11 +58,10 @@ function discoverScopes(
 
     if (workspaceFolders && workspaceFolders.length > 0) {
         for (const folder of workspaceFolders) {
-            const folderName = path.basename(folder.uri.fsPath);
             scopes.push({
                 id: folder.uri.toString(),
                 type: 'folder',
-                label: folderName,
+                label: folder.name,
                 uri: folder.uri,
                 groups: []
             });
@@ -104,6 +104,22 @@ describe('ConfigScopeDiscovery 單元測試', () => {
             const scopes = discoverScopes(undefined, folders);
 
             expect(scopes[0].id).toBe(folderUri.toString());
+        });
+
+        test('資料夾為磁碟根目錄時，label 仍應使用 folder.name（path.basename 在此情況會回傳空字串）', () => {
+            // 例如在 Windows 開啟 "C:\" 或在 POSIX 開啟 "/" 作為工作區資料夾，
+            // path.basename(fsPath) 會是 ''，但 VS Code 已在 folder.name 提供正確名稱。
+            const folders = [{ uri: createMockUri('/'), name: 'root' }];
+            const scopes = discoverScopes(undefined, folders);
+
+            expect(scopes[0].label).toBe('root');
+        });
+
+        test('多根工作區自訂資料夾名稱時，label 應使用 folder.name 而非 basename', () => {
+            const folders = [{ uri: createMockUri('/home/user/Repo-A'), name: 'Custom Display Name' }];
+            const scopes = discoverScopes(undefined, folders);
+
+            expect(scopes[0].label).toBe('Custom Display Name');
         });
     });
 

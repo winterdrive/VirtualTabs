@@ -96,9 +96,12 @@ export class ScopeHeaderItem extends vscode.TreeItem {
         hasMultipleScopes: boolean = true,
         expanded: boolean = true
     ) {
+        // Use scope.label (set by ConfigScopeDiscovery from VS Code's own
+        // WorkspaceFolder.name) instead of re-deriving via path.basename,
+        // which returns '' when a folder is opened at a filesystem root.
         const label = scope.type === 'workspace'
             ? 'Workspace Config'
-            : `Project: ${path.basename(scope.uri.fsPath)}`;
+            : `Project: ${scope.label}`;
 
         super(label, expanded
             ? vscode.TreeItemCollapsibleState.Expanded
