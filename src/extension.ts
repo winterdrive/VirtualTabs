@@ -9,14 +9,14 @@ import { ConfigScope } from './types';
 
 /**
  * 為每個 ConfigScope 建立 FileSystemWatcher，監看 .vscode/virtualTab.json。
- * 回傳所有建立的 watcher，以便後續 dispose。
+ * 回傳 scopeId → watcher 的對應表，以便後續依 scope 個別 dispose。
  */
 function setupWatchers(
     scopes: ConfigScope[],
     provider: TempFoldersProvider,
     context: vscode.ExtensionContext
-): vscode.FileSystemWatcher[] {
-    const watchers: vscode.FileSystemWatcher[] = [];
+): Map<string, vscode.FileSystemWatcher> {
+    const watchers = new Map<string, vscode.FileSystemWatcher>();
 
     for (const scope of scopes) {
         const pattern = new vscode.RelativePattern(
@@ -36,7 +36,7 @@ function setupWatchers(
         });
 
         context.subscriptions.push(watcher);
-        watchers.push(watcher);
+        watchers.set(scopeId, watcher);
     }
 
     return watchers;
@@ -253,19 +253,28 @@ export async function activate(context: vscode.ExtensionContext) {
     registerCommands(context, provider, () => lastSelectedCustomFile, stableMcpPath, treeView);
 
     // 為每個 ConfigScope 建立 FileSystemWatcher（多 scope 支援）
-    setupWatchers(provider.configScopes, provider, context);
-    const watchedScopeIds = new Set<string>(provider.configScopes.map(s => s.id));
+    const scopeWatchers = setupWatchers(provider.configScopes, provider, context);
 
     // 監聽工作區資料夾動態變更（新增/移除 folder）
     context.subscriptions.push(
         vscode.workspace.onDidChangeWorkspaceFolders(() => {
             // 重新執行 discovery 並更新 provider 的 configScopes
             provider.reinitializeScopes();
+            const currentScopeIds = new Set(provider.configScopes.map(s => s.id));
+
+            // 移除 folder 後其 scope 已不存在，dispose 對應的 watcher 避免資源洩漏
+            for (const [scopeId, watcher] of scopeWatchers) {
+                if (!currentScopeIds.has(scopeId)) {
+                    watcher.dispose();
+                    scopeWatchers.delete(scopeId);
+                }
+            }
+
             // 為新增的 scope 建立 FileSystemWatcher（避免重複建立已有的）
-            const newScopes = provider.configScopes.filter(s => !watchedScopeIds.has(s.id));
+            const newScopes = provider.configScopes.filter(s => !scopeWatchers.has(s.id));
             if (newScopes.length > 0) {
-                setupWatchers(newScopes, provider, context);
-                newScopes.forEach(s => watchedScopeIds.add(s.id));
+                const newWatchers = setupWatchers(newScopes, provider, context);
+                newWatchers.forEach((watcher, scopeId) => scopeWatchers.set(scopeId, watcher));
             }
         })
     );
