@@ -8,6 +8,7 @@ name: Publish Extension
 # You never need to pass --pre-release manually.
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -31,6 +32,11 @@ jobs:
       - name: Check if version changed
         id: check_version
         run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch. Forcing publish of $(node -p "require('./package.json').version")."
+            echo "changed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           prev_version=$(git show HEAD~1:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version" 2>/dev/null || echo "none")
           curr_version=$(node -p "require('./package.json').version")
           if [ "$prev_version" = "$curr_version" ]; then
@@ -75,7 +81,7 @@ jobs:
 
       - name: Package extension
         if: steps.check_version.outputs.changed == 'true'
-        run: npx @vscode/vsce package --out virtual-tabs.vsix
+        run: npx @vscode/vsce package --out virtual-tabs.vsix ${{ steps.release_type.outputs.flags }}
 
       - name: Publish to Marketplace
         if: steps.check_version.outputs.changed == 'true'
