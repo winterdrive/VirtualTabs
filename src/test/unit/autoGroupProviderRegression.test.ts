@@ -219,4 +219,53 @@ describe('TempFoldersProvider auto-group commands (real provider.ts code path)',
         expect(labels).toContain('Currently Open Files');
         expect(children.length).toBeGreaterThan(1);
     });
+
+    // Regression: auto sub-groups sourced from the built-in group have no
+    // sourceScopeId (same as the built-in group itself), so the save-routing
+    // "no sourceScopeId -> fall back to first scope" compatibility branch was
+    // silently persisting them into whichever real scope's storage file
+    // happened to be first. On reload they came back with a real
+    // sourceScopeId, so they rendered a second time under that scope's
+    // ScopeHeaderItem in addition to the top-level built-in section —
+    // reported live as duplicated "[自動] .ts @ 目前已開啟檔案" folders.
+    test('auto sub-groups created from the built-in group are never persisted to a real scope', () => {
+        const tsFile = pathToFileURL(path.join(workspaceDir, 'a.ts')).toString();
+
+        const builtInGroup: TempGroup = {
+            id: 'builtin_group_id',
+            name: 'Currently Open Files',
+            files: [tsFile],
+            builtIn: true
+        };
+
+        const scope: ConfigScope = {
+            id: 'scope:project',
+            type: 'folder',
+            label: 'project',
+            uri: { fsPath: workspaceDir } as never,
+            groups: []
+        };
+
+        const provider = Object.create(TempFoldersProvider.prototype) as TempFoldersProvider;
+        provider.groups = [builtInGroup];
+        provider.configScopes = [scope];
+        (provider as unknown as { activeScopeIds: Set<string> }).activeScopeIds = new Set();
+        (provider as unknown as { expandedGroupIds: Set<string> }).expandedGroupIds = new Set();
+        (provider as unknown as { _onDidChangeTreeData: { fire: jest.Mock } })._onDidChangeTreeData = { fire: jest.fn() };
+        (provider as unknown as { builtInEditorGroups: unknown[] }).builtInEditorGroups = [];
+
+        const saveGroups = jest.fn();
+        const loadGroups = jest.fn().mockReturnValue({ groups: [], version: 0 });
+        (provider as unknown as { groupManagers: Map<string, { saveGroups: typeof saveGroups; loadGroups: typeof loadGroups }> }).groupManagers =
+            new Map([['scope:project', { saveGroups, loadGroups }]]);
+        (provider as unknown as { loadedVersions: Map<string, number> }).loadedVersions = new Map([['scope:project', 0]]);
+
+        selectGroup(provider, 0, builtInGroup);
+        provider.addAutoGroupsByExt();
+        provider.flushPendingSave();
+
+        expect(saveGroups).toHaveBeenCalledTimes(1);
+        const persistedGroups = saveGroups.mock.calls[0][0] as TempGroup[];
+        expect(persistedGroups).toEqual([]);
+    });
 });
