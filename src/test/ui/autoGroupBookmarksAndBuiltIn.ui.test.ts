@@ -318,8 +318,7 @@ describe('Virtual Tabs – Auto Group bookmark preservation & built-in scope vis
                 bookmarks: {
                     [mdUri]: [{ id: 'e2e-bookmark-1', line: 0, label: 'e2e bookmark', created: Date.now() }]
                 }
-            },
-            ...repoBOriginal
+            }
         ]);
         writeConfig(repoBConfigPath, repoBOriginal);
 
