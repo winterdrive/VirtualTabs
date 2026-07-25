@@ -35,10 +35,22 @@ const bookmarkGroupId = 'autogroup-bookmark-src-group';
 const bookmarkGroupName = 'AutoGroup Bookmark Source';
 const tsFileRelative = 'src/autogroup-ts-file.ts';
 const tsFileAbsolute = path.join(repoAPath, tsFileRelative);
-const mdFileAbsolute = path.join(repoAPath, 'README.md');
+const mdFileRelative = 'README.md';
+const mdFileAbsolute = path.join(repoAPath, mdFileRelative);
 
 function writeConfig(configPath: string, groups: object[]): void {
     fs.writeFileSync(configPath, `${JSON.stringify(groups, null, 2)}\n`);
+}
+
+/**
+ * provider.ts rewrites absolute file:// URIs to workspace-relative paths
+ * (and rewrites bookmark keys the same way) whenever it persists groups —
+ * see toRelativePath()/toRelativeBookmarks(). Config-file assertions must
+ * compare against the relative form, not the absolute URI used to seed
+ * the fixture.
+ */
+function normalizeRelativePath(p: string): string {
+    return p.replace(/\\/g, '/').toLowerCase();
 }
 
 function readConfig(configPath: string): Array<{
@@ -254,19 +266,28 @@ async function applyScopeFilter(labelsToSelect: string[]): Promise<void> {
 
     await driver.sleep(400);
 
-    const rows = await driver.findElements(By.css('.quick-input-list .monaco-list-row'));
-    for (const row of rows) {
-        const text = (await row.getText()).trim();
-        const shouldCheck = labelsToSelect.some(l => text.includes(l));
-        let isChecked = false;
-        try {
-            const checkbox = await row.findElement(By.css('input[type="checkbox"]'));
-            isChecked = await checkbox.isSelected();
-        } catch { /* no checkbox */ }
-        if (shouldCheck !== isChecked) {
-            await row.click();
-            await driver.sleep(50);
+    // Toggle checkboxes to match labelsToSelect, then re-read and retry any
+    // row whose checked state didn't actually flip (VS Code's QuickPick can
+    // occasionally miss a click if the list is still settling).
+    for (let attempt = 0; attempt < 3; attempt++) {
+        const rows = await driver.findElements(By.css('.quick-input-list .monaco-list-row'));
+        let allMatched = true;
+        for (const row of rows) {
+            const text = (await row.getText()).trim();
+            const shouldCheck = labelsToSelect.some(l => text.includes(l));
+            let isChecked = false;
+            try {
+                const checkbox = await row.findElement(By.css('input[type="checkbox"]'));
+                isChecked = await checkbox.isSelected();
+            } catch { /* no checkbox */ }
+            if (shouldCheck !== isChecked) {
+                allMatched = false;
+                await row.click();
+                await driver.sleep(150);
+            }
         }
+        if (allMatched) { break; }
+        await driver.sleep(200);
     }
 
     await driver.actions().sendKeys(Key.ENTER).perform();
@@ -327,13 +348,18 @@ describe('Virtual Tabs – Auto Group bookmark preservation & built-in scope vis
 
         await runContextMenuCommand(bookmarkGroupName, 'Auto Group by Extension');
 
+        const hasRelativeFile = (files: string[] | undefined, relative: string): boolean =>
+            (files ?? []).some(f => normalizeRelativePath(f) === normalizeRelativePath(relative));
+        const hasRelativeBookmark = (bookmarks: Record<string, unknown[]> | undefined, relative: string): boolean =>
+            !!bookmarks && Object.keys(bookmarks).some(k => normalizeRelativePath(k) === normalizeRelativePath(relative));
+
         await VSBrowser.instance.driver.wait(() => {
             const groups = readConfig(repoAConfigPath);
             const source = groups.find(g => g.id === bookmarkGroupId);
             const subGroups = groups.filter(g => g.sourceGroupId === bookmarkGroupId);
             if (!source || subGroups.length === 0) { return false; }
-            const mdSubGroup = subGroups.find(g => (g.files ?? []).includes(mdUri));
-            return !!mdSubGroup?.bookmarks && Object.keys(mdSubGroup.bookmarks).includes(mdUri);
+            const mdSubGroup = subGroups.find(g => hasRelativeFile(g.files, mdFileRelative));
+            return hasRelativeBookmark(mdSubGroup?.bookmarks, mdFileRelative);
         }, 20_000, 'Expected the .md sub-group to inherit the bookmark from the source group');
 
         const groupsAfter = readConfig(repoAConfigPath);
@@ -342,9 +368,11 @@ describe('Virtual Tabs – Auto Group bookmark preservation & built-in scope vis
             (b: unknown) => b === undefined || Object.keys(b as object).length === 0
         );
 
-        const mdSubGroup = groupsAfter.find(g => g.sourceGroupId === bookmarkGroupId && (g.files ?? []).includes(mdUri));
+        const mdSubGroup = groupsAfter.find(g => g.sourceGroupId === bookmarkGroupId && hasRelativeFile(g.files, mdFileRelative));
         expect(mdSubGroup, '.md sub-group not found').to.not.be.undefined;
-        expect(mdSubGroup?.bookmarks?.[mdUri], 'Bookmark missing on .md sub-group').to.have.length(1);
+        const mdBookmarkKey = Object.keys(mdSubGroup?.bookmarks ?? {}).find(k => normalizeRelativePath(k) === normalizeRelativePath(mdFileRelative));
+        expect(mdBookmarkKey, 'Bookmark key missing on .md sub-group').to.not.be.undefined;
+        expect(mdSubGroup?.bookmarks?.[mdBookmarkKey as string], 'Bookmark missing on .md sub-group').to.have.length(1);
     });
 
     it('Auto Group on the built-in "Currently Open Files" group stays visible when only the built-in scope is selected', async function () {
