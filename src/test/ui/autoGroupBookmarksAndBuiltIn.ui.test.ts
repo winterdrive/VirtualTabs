@@ -337,17 +337,13 @@ describe('Virtual Tabs – Auto Group bookmark preservation & built-in scope vis
         if (fs.existsSync(tsFileAbsolute)) { fs.unlinkSync(tsFileAbsolute); }
     });
 
-    // Skipped: this suite's auto-sub-group cleanup is unresolved (see the
-    // built-in scope-visibility case below) and was confirmed to corrupt
-    // the shared VS Code session for the rest of a full-suite run — every
-    // repeated fix attempt (afterEach reset, debounce-settle sleep,
-    // explicit Refresh) failed to stop it. Both cases in this file are
-    // disabled until root-caused offline, without burning more full-suite
-    // runs on live guesses. The underlying product fix itself is already
-    // verified two other ways: autoGroupProviderRegression.test.ts (unit,
-    // passing, shipped in 0.7.8) and manual screenshots from earlier runs
-    // of this exact test showing the correct sub-groups rendering.
-    it.skip('Auto Group by Extension moves bookmarks to the new sub-groups instead of dropping them', async function () {
+    // Re-enabled on its own (the built-in scope-visibility case below stays
+    // skipped) to isolate whether THIS case independently corrupts the rest
+    // of a full-suite run, or whether that was solely caused by the other
+    // case. This test's own assertions have passed reliably in every run
+    // since the relative-path fix — it was only skipped earlier out of
+    // caution, not because it was confirmed broken on its own.
+    it('Auto Group by Extension moves bookmarks to the new sub-groups instead of dropping them', async function () {
         fs.mkdirSync(path.dirname(tsFileAbsolute), { recursive: true });
         fs.writeFileSync(tsFileAbsolute, 'export const autoGroupTsFile = true;\n');
 
