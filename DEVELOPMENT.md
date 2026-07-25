@@ -222,6 +222,10 @@ VS Code's `canPickMany` QuickPick widget listens for real browser events. A clic
 
 After a `reinitializeScopes()` call the tree re-renders, invalidating existing Selenium element references (`StaleElementReferenceError`). `clickToolbarButton` already handles this with an internal retry loop — do not remove it.
 
+**4. Always validate against the full suite, not a single isolated file.**
+
+All `.ui.test.ts` files share one persistent VS Code / extension-host instance for the whole `test:ui` run — it is not restarted between files. Running just one file in isolation (e.g. `extest setup-and-run "out/test/ui/myFile.ui.test.js" ...`) executes in a different state context than the same file within the full suite: other files' `before()` hooks, leftover editor/scope-filter state, and extension-host warm-up never happen. A test that passes or fails in isolation is not reliable evidence of how it behaves in the full run, and vice versa. Use isolation only for fast local iteration on syntax/logic; always confirm with `npm run test:ui` before trusting the result.
+
 ### Test Source Layout
 
 ```text
