@@ -310,25 +310,31 @@ describe('Virtual Tabs – Auto Group bookmark preservation & built-in scope vis
 
     afterEach(async function () {
         await resetScopeFilter();
+
+        // Auto sub-groups created from a built-in-group source (no
+        // sourceScopeId) are routed by provider.ts's save fallback into the
+        // *first* discovered scope's config file — not cleared by simply
+        // resetting our two fixture files. Worse, saveGroupsImmediate() is
+        // reached through a 500ms-debounced saveGroups() call, so a save
+        // queued by the test that just finished can still be in flight when
+        // we go to reset. Settle past the debounce window first so our
+        // clean-file writes below are guaranteed to be the last write, not
+        // clobbered by a late-arriving stale save — then Refresh so the
+        // running extension's in-memory state (and the tree view's per-id
+        // rendered-item registry) actually reloads the clean state instead
+        // of carrying stale auto-sub-groups (with their generated
+        // `Date.now()+random` ids) into the next test/file, which otherwise
+        // collides as "Element with id ... is already registered" and
+        // cascades into unrelated failures for the rest of a full-suite run.
+        await VSBrowser.instance.driver.sleep(700);
+        writeConfig(repoAConfigPath, repoAOriginal);
+        writeConfig(repoBConfigPath, repoBOriginal);
+        await reloadVirtualTabsView();
     });
 
     after(async function () {
         await new EditorView().closeAllEditors();
         if (fs.existsSync(tsFileAbsolute)) { fs.unlinkSync(tsFileAbsolute); }
-        writeConfig(repoAConfigPath, repoAOriginal);
-        writeConfig(repoBConfigPath, repoBOriginal);
-
-        // Resetting the config files on disk is not enough — the running
-        // extension's in-memory groups (including the auto-sub-groups this
-        // suite creates, with their generated `Date.now()+random` ids) and
-        // the tree view's per-id rendered-item registry are not
-        // automatically cleared just because the file changed underneath
-        // them. Without an explicit Refresh here, later files' tree
-        // renders can collide with a stale id from this suite ("Element
-        // with id ... is already registered"), cascading failures across
-        // the rest of the full-suite run even though those tests are
-        // otherwise unrelated.
-        await reloadVirtualTabsView();
     });
 
     it('Auto Group by Extension moves bookmarks to the new sub-groups instead of dropping them', async function () {
