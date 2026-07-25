@@ -266,32 +266,22 @@ async function applyScopeFilter(labelsToSelect: string[]): Promise<void> {
 
     await driver.sleep(400);
 
-    // Mouse clicks on individual checkbox rows were unreliable in this
-    // environment (state silently failed to flip). Use keyboard navigation
-    // instead: Home to reset focus to the first row, then walk down with
-    // ArrowDown, pressing Space to toggle the currently-focused row's
-    // checkbox — this is VS Code's own canPickMany keyboard interaction and
-    // doesn't depend on hitting a specific DOM element with the mouse.
-    await driver.actions().sendKeys(Key.HOME).perform().catch(() => undefined);
-    await driver.sleep(150);
-
+    // Matches scopeFilter.ui.test.ts's proven-working approach exactly (that
+    // file's own #10-#14 cases pass reliably with plain mouse clicks in this
+    // environment) — the earlier keyboard-navigation rewrite here was
+    // chasing the wrong cause.
     const rows = await driver.findElements(By.css('.quick-input-list .monaco-list-row'));
-    for (let i = 0; i < rows.length; i++) {
-        const text = (await rows[i].getText()).trim();
+    for (const row of rows) {
+        const text = (await row.getText()).trim();
         const shouldCheck = labelsToSelect.some(l => text.includes(l));
         let isChecked = false;
         try {
-            const checkbox = await rows[i].findElement(By.css('input[type="checkbox"]'));
+            const checkbox = await row.findElement(By.css('input[type="checkbox"]'));
             isChecked = await checkbox.isSelected();
         } catch { /* no checkbox */ }
-
         if (shouldCheck !== isChecked) {
-            await driver.actions().sendKeys(Key.SPACE).perform();
-            await driver.sleep(150);
-        }
-        if (i < rows.length - 1) {
-            await driver.actions().sendKeys(Key.ARROW_DOWN).perform();
-            await driver.sleep(100);
+            await row.click();
+            await driver.sleep(50);
         }
     }
 
@@ -380,27 +370,18 @@ describe('Virtual Tabs – Auto Group bookmark preservation & built-in scope vis
         expect(mdSubGroup?.bookmarks?.[mdBookmarkKey as string], 'Bookmark missing on .md sub-group').to.have.length(1);
     });
 
-    // Known limitation, not a product bug: applyScopeFilter's canPickMany
-    // QuickPick toggle (mouse click with retry, then keyboard Home/ArrowDown/
-    // Space navigation — three different approaches tried) never actually
-    // narrows the tree to "built-in only" in this environment; the filter
-    // stays at "show all" regardless. scopeFilter.ui.test.ts's own header
-    // comment already flags vscode-extension-tester's canPickMany support as
-    // limited, so this isn't specific to this test. The underlying product
-    // fix is already confirmed correct two other ways: the unit test in
-    // autoGroupProviderRegression.test.ts calls provider.ts's real methods
-    // directly, and manual screenshots from this exact test file show the
-    // "[Auto] .md/.ts @ Currently Open Files" sub-groups rendering in the DOM
-    // (not silently excluded, which was the actual regression) even though
-    // the filter itself never narrowed. Re-enable once a reliable way to
-    // drive this QuickPick is found.
-    it.skip('Auto Group on the built-in "Currently Open Files" group stays visible when only the built-in scope is selected', async function () {
+    it('Auto Group on the built-in "Currently Open Files" group stays visible when only the built-in scope is selected', async function () {
         writeConfig(repoAConfigPath, repoAOriginal);
         writeConfig(repoBConfigPath, repoBOriginal);
 
         await VSBrowser.instance.openResources(mdFileAbsolute, path.join(repoBPath, 'src', 'main.ts'));
 
         await reloadVirtualTabsView();
+        // Establish a known "show all" baseline before applying the real
+        // filter — scopeFilter.ui.test.ts's before() hook does the same
+        // before its own applyScopeFilter calls. Without this, the first
+        // filter application in a fresh test may not reliably register.
+        await resetScopeFilter();
         await applyScopeFilter(['Currently Open Files', '目前開啟的檔案']);
 
         await waitForLabel(/currently open|open files|已開啟|目前開啟/i);
