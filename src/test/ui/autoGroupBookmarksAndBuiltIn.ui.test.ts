@@ -266,28 +266,33 @@ async function applyScopeFilter(labelsToSelect: string[]): Promise<void> {
 
     await driver.sleep(400);
 
-    // Toggle checkboxes to match labelsToSelect, then re-read and retry any
-    // row whose checked state didn't actually flip (VS Code's QuickPick can
-    // occasionally miss a click if the list is still settling).
-    for (let attempt = 0; attempt < 3; attempt++) {
-        const rows = await driver.findElements(By.css('.quick-input-list .monaco-list-row'));
-        let allMatched = true;
-        for (const row of rows) {
-            const text = (await row.getText()).trim();
-            const shouldCheck = labelsToSelect.some(l => text.includes(l));
-            let isChecked = false;
-            try {
-                const checkbox = await row.findElement(By.css('input[type="checkbox"]'));
-                isChecked = await checkbox.isSelected();
-            } catch { /* no checkbox */ }
-            if (shouldCheck !== isChecked) {
-                allMatched = false;
-                await row.click();
-                await driver.sleep(150);
-            }
+    // Mouse clicks on individual checkbox rows were unreliable in this
+    // environment (state silently failed to flip). Use keyboard navigation
+    // instead: Home to reset focus to the first row, then walk down with
+    // ArrowDown, pressing Space to toggle the currently-focused row's
+    // checkbox — this is VS Code's own canPickMany keyboard interaction and
+    // doesn't depend on hitting a specific DOM element with the mouse.
+    await driver.actions().sendKeys(Key.HOME).perform().catch(() => undefined);
+    await driver.sleep(150);
+
+    const rows = await driver.findElements(By.css('.quick-input-list .monaco-list-row'));
+    for (let i = 0; i < rows.length; i++) {
+        const text = (await rows[i].getText()).trim();
+        const shouldCheck = labelsToSelect.some(l => text.includes(l));
+        let isChecked = false;
+        try {
+            const checkbox = await rows[i].findElement(By.css('input[type="checkbox"]'));
+            isChecked = await checkbox.isSelected();
+        } catch { /* no checkbox */ }
+
+        if (shouldCheck !== isChecked) {
+            await driver.actions().sendKeys(Key.SPACE).perform();
+            await driver.sleep(150);
         }
-        if (allMatched) { break; }
-        await driver.sleep(200);
+        if (i < rows.length - 1) {
+            await driver.actions().sendKeys(Key.ARROW_DOWN).perform();
+            await driver.sleep(100);
+        }
     }
 
     await driver.actions().sendKeys(Key.ENTER).perform();
