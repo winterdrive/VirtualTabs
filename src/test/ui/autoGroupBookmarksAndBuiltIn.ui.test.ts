@@ -317,6 +317,18 @@ describe('Virtual Tabs – Auto Group bookmark preservation & built-in scope vis
         if (fs.existsSync(tsFileAbsolute)) { fs.unlinkSync(tsFileAbsolute); }
         writeConfig(repoAConfigPath, repoAOriginal);
         writeConfig(repoBConfigPath, repoBOriginal);
+
+        // Resetting the config files on disk is not enough — the running
+        // extension's in-memory groups (including the auto-sub-groups this
+        // suite creates, with their generated `Date.now()+random` ids) and
+        // the tree view's per-id rendered-item registry are not
+        // automatically cleared just because the file changed underneath
+        // them. Without an explicit Refresh here, later files' tree
+        // renders can collide with a stale id from this suite ("Element
+        // with id ... is already registered"), cascading failures across
+        // the rest of the full-suite run even though those tests are
+        // otherwise unrelated.
+        await reloadVirtualTabsView();
     });
 
     it('Auto Group by Extension moves bookmarks to the new sub-groups instead of dropping them', async function () {
