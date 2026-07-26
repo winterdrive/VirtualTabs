@@ -1,5 +1,14 @@
 name: UI Tests (Manual)
 
+# ⚠️ DO NOT trigger this workflow (via `gh workflow run`, the Actions UI, or
+# any other means) without the repo owner's explicit, per-instance
+# confirmation — including from an AI coding agent/tool acting on their
+# behalf. It consumes CI minutes on a full Electron/Selenium suite and has
+# not been validated for reliability in this CI environment (timeouts seen
+# on a first run are not necessarily a code regression — they may just mean
+# the existing wait timeouts are tuned for local dev machines, not shared
+# runners). Always ask first; do not assume prior approval carries over.
+
 on:
   workflow_dispatch:
 permissions:

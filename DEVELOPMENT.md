@@ -553,6 +553,8 @@ AI assistants may default to running shell commands (`npm run test:ui`, `git`, e
 > Suggested instruction when starting a session:
 > *"Output all terminal commands for me to run in VS Code's integrated terminal. Do not execute them yourself."*
 
+**This also applies to the `UI Tests (Manual)` GitHub Actions workflow** (`.github/workflows/ui-tests.yml`) — an AI assistant must never trigger it (`gh workflow run`, clicking "Run workflow" in the Actions UI, etc.) without your explicit, per-instance confirmation, even if it previously ran local shell commands without asking. It burns CI minutes on a full Electron/Selenium suite that has not been validated for reliability on shared runners, and a prior approval for one action does not carry over to this one.
+
 ---
 
 ## ⚙️ Context Key: `virtualTabs:hasMultipleScopes`
