@@ -2,6 +2,13 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.9.0] - Built-in Auto-Group Duplicate Persistence Fixes (pre-release) - 2026-07-26
+
+### 🐛 Bug Fixes
+
+- **fix(provider):** don't persist auto sub-groups sourced from the built-in "Currently Open Files" group — they previously fell back to being saved into whichever real scope's storage file happened to be first, then re-rendered a second time under that scope's header on reload (#99)
+- **fix(provider):** avoid duplicate built-in group on scoped `resetToDefault` — deleting a scope's `virtualTab.json` on disk could leave two built-in group entries in the tree (#98)
+
 ## [0.8.0] - Stable Release: Auto Group Fixes Promoted to Stable - 2026-07-26
 
 ### ✅ Stable Promotion
