@@ -2,6 +2,20 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.8.0] - Stable Release: Auto Group Fixes Promoted to Stable - 2026-07-26
+
+### ✅ Stable Promotion
+
+- Promotes the Auto Group bookmark-preservation and built-in scope-visibility fixes (#96, shipped in the 0.7.8 pre-release) to the stable release tier after manual E2E verification.
+
+### 🧪 Testing
+
+- **test(ui):** add E2E coverage for Auto Group bookmark preservation and built-in duplicate persistence (#100)
+
+### 📝 Documentation
+
+- **docs(ci):** require explicit confirmation before triggering `ui-tests.yml` (#101)
+
 ## [0.7.8] - Auto Group Bookmark & Scope-Visibility Fixes - 2026-07-23
 
 ### 🐛 Bug Fixes
