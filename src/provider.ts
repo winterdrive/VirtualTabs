@@ -158,6 +158,17 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         return this.expandedGroupIds.has(id);
     }
 
+    /**
+     * True for the built-in group itself, or for an auto sub-group whose
+     * sourceGroupId traces back to it. Auto sub-groups never get
+     * `builtIn: true` themselves (only `sourceGroupId`), so both the
+     * scope-filtered tree rendering and the save-routing logic need this
+     * to treat them consistently as "not a real persisted, scoped group".
+     */
+    isBuiltInFamily(group: TempGroup): boolean {
+        return !!group.builtIn || this.groups.find(g => g.id === group.sourceGroupId)?.builtIn === true;
+    }
+
     updateScopeExpanded(id: string, expanded: boolean): string[] {
         if (expanded) {
             this.expandedScopeIds.add(id);
@@ -359,7 +370,11 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             );
 
             for (const group of this.groups) {
-                if (group.builtIn) continue; // 內建群組不持久化
+                // 內建群組（及其自動子群組）不持久化：子群組沒有 sourceScopeId，
+                // 若不在此排除，會落入下方「無 sourceScopeId」的向下相容分支，
+                // 被誤存到第一個 scope 的檔案裡，導致下次載入後在該 scope 底下
+                // 重複顯示一次（除了原本就會顯示在頂層的內建群組區塊之外）。
+                if (this.isBuiltInFamily(group)) continue;
 
                 const scopeId = group.sourceScopeId;
                 if (!scopeId) {
@@ -1666,14 +1681,6 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 return item;
             };
 
-            // Auto sub-groups created from the built-in group ("Currently Open Files")
-            // never get `builtIn: true` themselves, only `sourceGroupId` pointing back
-            // to it. Scope-filtered views must still surface them alongside the
-            // built-in group, otherwise Auto Group by Extension/Date on it appears
-            // to silently do nothing when a scope filter is active.
-            const isBuiltInFamily = (group: TempGroup): boolean =>
-                !!group.builtIn || this.groups.find(g => g.id === group.sourceGroupId)?.builtIn === true;
-
             const isFiltered = this.activeScopeIds.size > 0;
 
             if (isFiltered) {
@@ -1683,7 +1690,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 const builtInItems = showBuiltIn
                     ? this.groups
                         .map((g, idx) => ({ group: g, idx }))
-                        .filter(({ group }) => isBuiltInFamily(group))
+                        .filter(({ group }) => this.isBuiltInFamily(group))
                         .map(({ group, idx }) => makeFolderItem(group, idx))
                     : [];
 
@@ -1733,7 +1740,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 );
                 const builtInItems = this.groups
                     .map((g, idx) => ({ group: g, idx }))
-                    .filter(({ group }) => isBuiltInFamily(group))
+                    .filter(({ group }) => this.isBuiltInFamily(group))
                     .map(({ group, idx }) => makeFolderItem(group, idx));
                 return [...builtInItems, ...scopeItems];
             }
