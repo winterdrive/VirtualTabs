@@ -92,6 +92,30 @@ describe('AutoGrouper — bookmark migration on auto-grouping', () => {
         expect(dateGroup.bookmarks?.[fileUri]).toHaveLength(1);
     });
 
+    test('groupByExtension moves bookmarks even when the stored key differs in encoding from the file URI', () => {
+        // Mirrors dragAndDrop.ts: the bookmark key on disk can be a raw fs path
+        // while group.files stores the file:// URI form of the same file.
+        const tsPath = path.join(tmpDir, 'a.ts');
+        const tsUri = fileManager.toFileUri(tsPath);
+
+        writeConfig(tmpDir, [{
+            id: 'g1',
+            name: 'Mixed',
+            files: [tsUri],
+            bookmarks: { [tsPath]: [makeBookmark()] }
+        }]);
+
+        const result = autoGrouper.groupByExtension('g1');
+        expect(result.created).toBe(1);
+
+        const { groups } = groupManager.loadGroups();
+        const source = groups.find(g => g.id === 'g1')!;
+        const tsGroup = groups.find(g => g.autoGroupType === 'extension' && g.files?.includes(tsUri))!;
+
+        expect(source.bookmarks).toBeUndefined();
+        expect(tsGroup.bookmarks?.[tsPath]).toHaveLength(1);
+    });
+
     test('groupByExtension leaves source untouched when it has no bookmarks', () => {
         const tsUri = fileManager.toFileUri(path.join(tmpDir, 'a.ts'));
 
