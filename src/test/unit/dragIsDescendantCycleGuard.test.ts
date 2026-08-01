@@ -7,7 +7,7 @@
  * 3. 循環的 parentGroupId 鏈不會造成無窮遞迴（visited 集合防護）
  */
 
-interface FakeGroup {
+interface FakeParentGroup {
     id: string;
     parentGroupId?: string;
 }
@@ -15,7 +15,7 @@ interface FakeGroup {
 /**
  * 模擬 isDescendant 的核心邏輯（修正後版本，含 visited 防護）。
  */
-function isDescendant(groups: FakeGroup[], groupId: string, potentialAncestorId: string, visited = new Set<string>()): boolean {
+function isDescendant(groups: FakeParentGroup[], groupId: string, potentialAncestorId: string, visited = new Set<string>()): boolean {
     if (visited.has(groupId)) return false;
     visited.add(groupId);
 
@@ -29,7 +29,7 @@ function isDescendant(groups: FakeGroup[], groupId: string, potentialAncestorId:
 
 describe('isDescendant 循環防護', () => {
     test('直接子群組應判斷為後代', () => {
-        const groups: FakeGroup[] = [
+        const groups: FakeParentGroup[] = [
             { id: 'parent', parentGroupId: undefined },
             { id: 'child', parentGroupId: 'parent' }
         ];
@@ -37,7 +37,7 @@ describe('isDescendant 循環防護', () => {
     });
 
     test('多層巢狀後代應判斷為 true', () => {
-        const groups: FakeGroup[] = [
+        const groups: FakeParentGroup[] = [
             { id: 'grandparent' },
             { id: 'parent', parentGroupId: 'grandparent' },
             { id: 'child', parentGroupId: 'parent' }
@@ -46,7 +46,7 @@ describe('isDescendant 循環防護', () => {
     });
 
     test('無關群組應判斷為 false', () => {
-        const groups: FakeGroup[] = [
+        const groups: FakeParentGroup[] = [
             { id: 'a' },
             { id: 'b' }
         ];
@@ -54,7 +54,7 @@ describe('isDescendant 循環防護', () => {
     });
 
     test('循環的 parentGroupId 鏈不應無窮遞迴，且回傳 false', () => {
-        const groups: FakeGroup[] = [
+        const groups: FakeParentGroup[] = [
             { id: 'g1', parentGroupId: 'g2' },
             { id: 'g2', parentGroupId: 'g1' }
         ];
@@ -63,7 +63,7 @@ describe('isDescendant 循環防護', () => {
     });
 
     test('自我循環（parentGroupId 指向自己）不應無窮遞迴', () => {
-        const groups: FakeGroup[] = [{ id: 'g1', parentGroupId: 'g1' }];
+        const groups: FakeParentGroup[] = [{ id: 'g1', parentGroupId: 'g1' }];
         expect(() => isDescendant(groups, 'g1', 'unrelated')).not.toThrow();
     });
 });
