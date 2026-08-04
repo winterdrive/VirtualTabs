@@ -177,16 +177,21 @@ export class GroupManager {
    * Handle a corrupted config file
    */
   private handleCorruptedConfig(): void {
-    try {
-      if (fs.existsSync(this.configPath)) {
+    // Backing up the corrupted file is best-effort: if it fails (read-only
+    // dir, disk full, AV lock, etc.) we must still fall back to a default
+    // config below, otherwise saveGroups() keeps comparing against the
+    // corrupted file's real mtime forever and every save throws
+    // OptimisticLockError.
+    if (fs.existsSync(this.configPath)) {
+      try {
         const backupPath = `${this.configPath}.backup.${Date.now()}`;
         fs.copyFileSync(this.configPath, backupPath);
         console.error(`Config file corrupted, backup created: ${backupPath}`);
+      } catch (error) {
+        console.error(`Failed to back up corrupted config (continuing without backup): ${error}`);
       }
-      this.createDefaultConfig();
-    } catch (error) {
-      console.error(`Error handling corrupted config: ${error}`);
     }
+    this.createDefaultConfig();
   }
 
   /**

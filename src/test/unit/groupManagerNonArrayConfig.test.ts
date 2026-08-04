@@ -65,4 +65,31 @@ describe('GroupManager — non-array config content', () => {
 
         expect(groups).toEqual([]);
     });
+
+    test('recovers to a usable default config even if backing up the corrupted file fails', () => {
+        writeRawConfig(tmpDir, JSON.stringify({ id: 'g1', name: 'Not an array' }));
+
+        // `import * as fs` is wrapped by TS's esModuleInterop helper with a
+        // non-configurable getter, so spyOn must target the real module
+        // object (the one the getter forwards to) to affect GroupManager's
+        // own `fs` reference.
+        const realFs: typeof fs = require('fs');
+        const copyFileSpy = jest.spyOn(realFs, 'copyFileSync').mockImplementation(() => {
+            throw new Error('EACCES: permission denied');
+        });
+
+        try {
+            const manager = new GroupManager(tmpDir);
+            const { groups, version } = manager.loadGroups();
+
+            expect(groups).toEqual([]);
+
+            // A subsequent save with the version returned above must succeed —
+            // previously a backup failure left lastModified stale, so this
+            // would throw OptimisticLockError forever.
+            expect(() => manager.saveGroups([], version)).not.toThrow();
+        } finally {
+            copyFileSpy.mockRestore();
+        }
+    });
 });
