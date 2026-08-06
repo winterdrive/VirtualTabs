@@ -54,4 +54,20 @@ describe('matchesStoredFileEntry', () => {
 
         expect(matchesStoredFileEntry('src/provider.ts', targetUri, targetFsPath, scopeRoot)).toBe(false);
     });
+
+    test('returns false instead of throwing for a malformed file:// stored URI', () => {
+        const scopeRoot = path.resolve('/workspace/project');
+        const targetFsPath = path.resolve(scopeRoot, 'src/extension.ts');
+        const targetUri = pathToFileURL(targetFsPath).toString();
+
+        // A lone '%' not followed by two hex digits makes decodeURIComponent (and
+        // fileURLToPath) throw "URI malformed". This can happen with hand-edited
+        // or corrupted config entries.
+        expect(() =>
+            matchesStoredFileEntry('file:///workspace/project/src/100%.ts', targetUri, targetFsPath, scopeRoot)
+        ).not.toThrow();
+        expect(
+            matchesStoredFileEntry('file:///workspace/project/src/100%.ts', targetUri, targetFsPath, scopeRoot)
+        ).toBe(false);
+    });
 });
