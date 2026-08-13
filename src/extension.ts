@@ -260,6 +260,9 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.workspace.onDidChangeWorkspaceFolders(() => {
             // 重新執行 discovery 並更新 provider 的 configScopes
             provider.reinitializeScopes();
+            // reinitializeScopes() 會移除已不存在 scope 的 activeScopeIds，
+            // 若不重新計算 description，面板標頭會停留在移除前的舊範圍文字。
+            treeView.description = provider.computeScopeDescription();
             const currentScopeIds = new Set(provider.configScopes.map(s => s.id));
 
             // 移除 folder 後其 scope 已不存在，dispose 對應的 watcher 避免資源洩漏
