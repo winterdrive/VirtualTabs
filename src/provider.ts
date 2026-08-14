@@ -77,6 +77,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
 
         // 探索所有 ConfigScope，為每個 scope 建立對應的 GroupManager
         this.configScopes = this.applyScopeOrder(ConfigScopeDiscovery.discover());
+        this.assertUniqueScopeIds(this.configScopes);
         for (const scope of this.configScopes) {
             const gm = new GroupManager(this.getConfigStorageRoot(scope));
             this.migrateLegacyWorkspaceConfig(scope, gm);
@@ -102,6 +103,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
      */
     public reinitializeScopes(): void {
         this.configScopes = this.applyScopeOrder(ConfigScopeDiscovery.discover());
+        this.assertUniqueScopeIds(this.configScopes);
         for (const id of [...this.activeScopeIds]) {
             if (id !== BUILTIN_SCOPE_ID && !this.configScopes.some(scope => scope.id === id)) {
                 this.activeScopeIds.delete(id);
@@ -128,6 +130,30 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         this.groups = [...builtInGroups];
         this.loadGroups();
         this.refresh(false);
+    }
+
+    /**
+     * 防禦性檢查：ConfigScope.id 必須唯一，否則後續以 scope.id 為 key 的
+     * groupManagers.set() 會靜默覆蓋前一個 scope 的 GroupManager，導致
+     * loadGroups()/saveGroupsImmediate() 對同一組 scope id 重複讀寫同一份
+     * 設定檔（症狀：群組資料每次啟動倍增）。
+     *
+     * ConfigScopeDiscovery 已針對已知的 self-root .code-workspace 情境
+     * （workspace 父目錄與某個 folder 相同）從根源排除碰撞，這裡是最後一道
+     * 防線：若仍發現重複 id（例如未來新增的 discovery 規則有疏漏），
+     * 直接丟棄後出現的碰撞 scope 並記錄警告，而非讓 Map 靜默覆蓋。
+     */
+    private assertUniqueScopeIds(scopes: ConfigScope[]): void {
+        const seen = new Set<string>();
+        for (let i = scopes.length - 1; i >= 0; i--) {
+            const id = scopes[i].id;
+            if (seen.has(id)) {
+                console.warn(`VirtualTabs: duplicate ConfigScope id detected, dropping colliding scope "${id}" (type: ${scopes[i].type}, label: ${scopes[i].label})`);
+                scopes.splice(i, 1);
+                continue;
+            }
+            seen.add(id);
+        }
     }
 
     // Save TreeView reference for multi-select management
