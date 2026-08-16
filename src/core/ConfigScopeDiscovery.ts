@@ -17,21 +17,28 @@ export class ConfigScopeDiscovery {
      * - 多根工作區（workspaceFile 存在）：回傳一個 workspace scope + 多個 folder scope
      * - 單一資料夾工作區：回傳一個 folder scope
      * - 無工作區資料夾：回傳空陣列
+     * - self-root .code-workspace（workspaceFile 父目錄等於某個 folder）：
+     *   workspace scope 與該 folder scope 的 id 會是同一個 uri.toString()，
+     *   兩者若同時保留會造成 scope id 碰撞（見 provider.ts 的 groupManagers Map key），
+     *   因此略過該 workspace scope，只保留 folder scope 作為唯一資料來源。
      */
     static discover(): ConfigScope[] {
         const scopes: ConfigScope[] = [];
-
-        // 多根工作區：workspaceFile 存在時，建立 workspace scope
-        if (vscode.workspace.workspaceFile) {
-            const workspaceScope = ConfigScopeDiscovery.createWorkspaceScope(vscode.workspace.workspaceFile);
-            scopes.push(workspaceScope);
-        }
 
         // 為每個 workspaceFolder 建立 folder scope
         const folders = vscode.workspace.workspaceFolders;
         if (folders && folders.length > 0) {
             for (const folder of folders) {
                 scopes.push(ConfigScopeDiscovery.createFolderScope(folder));
+            }
+        }
+
+        // 多根工作區：workspaceFile 存在時，建立 workspace scope
+        if (vscode.workspace.workspaceFile) {
+            const workspaceScope = ConfigScopeDiscovery.createWorkspaceScope(vscode.workspace.workspaceFile);
+            const isSelfRootAlias = scopes.some(scope => scope.id === workspaceScope.id);
+            if (!isSelfRootAlias) {
+                scopes.unshift(workspaceScope);
             }
         }
 

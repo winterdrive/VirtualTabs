@@ -45,17 +45,6 @@ function discoverScopes(
 ): MockConfigScope[] {
     const scopes: MockConfigScope[] = [];
 
-    if (workspaceFile) {
-        const parentUri = joinPath(workspaceFile, '..');
-        scopes.push({
-            id: parentUri.toString(),
-            type: 'workspace',
-            label: 'Workspace',
-            uri: parentUri,
-            groups: []
-        });
-    }
-
     if (workspaceFolders && workspaceFolders.length > 0) {
         for (const folder of workspaceFolders) {
             scopes.push({
@@ -65,6 +54,26 @@ function discoverScopes(
                 uri: folder.uri,
                 groups: []
             });
+        }
+    }
+
+    if (workspaceFile) {
+        const parentUri = joinPath(workspaceFile, '..');
+        const workspaceScope: MockConfigScope = {
+            id: parentUri.toString(),
+            type: 'workspace',
+            label: 'Workspace',
+            uri: parentUri,
+            groups: []
+        };
+        // self-root .code-workspace：workspace 父目錄與某個 folder 相同時，
+        // 兩者的 id 會是同一個 uri.toString()。若同時保留，provider.ts 以
+        // scope.id 為 key 建立 groupManagers 時，後建立的 GroupManager 會
+        // 靜默覆蓋前一個，導致 loadGroups() 對同一份設定檔重複讀取、每次
+        // 啟動筆數倍增。因此略過該 workspace scope，只保留 folder scope。
+        const isSelfRootAlias = scopes.some(scope => scope.id === workspaceScope.id);
+        if (!isSelfRootAlias) {
+            scopes.unshift(workspaceScope);
         }
     }
 
@@ -175,6 +184,55 @@ describe('ConfigScopeDiscovery 單元測試', () => {
         test('空 workspaceFolders 陣列應回傳空陣列', () => {
             const scopes = discoverScopes(undefined, []);
             expect(scopes).toHaveLength(0);
+        });
+    });
+
+    describe('self-root .code-workspace（workspace 父目錄等於某個 folder）', () => {
+        test('只應回傳一個 folder scope，不應同時保留碰撞的 workspace scope', () => {
+            // "folders": [{ "path": "." }] 的典型情境：
+            // .code-workspace 檔案與唯一的 workspace folder 位於同一目錄
+            const workspaceFile = createMockUri('/home/user/Dawn3GL/Dawn3GL.code-workspace');
+            const folders = [{ uri: createMockUri('/home/user/Dawn3GL'), name: 'Dawn3GL' }];
+            const scopes = discoverScopes(workspaceFile, folders);
+
+            expect(scopes).toHaveLength(1);
+            expect(scopes[0].type).toBe('folder');
+            expect(scopes[0].uri.toString()).toBe(createMockUri('/home/user/Dawn3GL').toString());
+        });
+
+        test('所有 scope id 應唯一（避免 provider.ts 的 groupManagers Map key 碰撞）', () => {
+            const workspaceFile = createMockUri('/home/user/Dawn3GL/Dawn3GL.code-workspace');
+            const folders = [{ uri: createMockUri('/home/user/Dawn3GL'), name: 'Dawn3GL' }];
+            const scopes = discoverScopes(workspaceFile, folders);
+
+            const ids = scopes.map(s => s.id);
+            expect(new Set(ids).size).toBe(ids.length);
+        });
+
+        test('多根工作區中若其中一個 folder 與 workspace 同目錄，仍應保留其餘 folder scope，只略過碰撞的 workspace scope', () => {
+            const workspaceFile = createMockUri('/home/user/Dawn3GL/Dawn3GL.code-workspace');
+            const folders = [
+                { uri: createMockUri('/home/user/Dawn3GL'), name: 'Dawn3GL' },
+                { uri: createMockUri('/home/user/OtherRepo'), name: 'OtherRepo' }
+            ];
+            const scopes = discoverScopes(workspaceFile, folders);
+
+            expect(scopes).toHaveLength(2);
+            expect(scopes.every(s => s.type === 'folder')).toBe(true);
+            const ids = scopes.map(s => s.id);
+            expect(new Set(ids).size).toBe(ids.length);
+        });
+
+        test('workspace 父目錄與所有 folder 都不同時，仍應保留 workspace scope（一般多根工作區行為不受影響）', () => {
+            const workspaceFile = createMockUri('/home/user/workspace/my.code-workspace');
+            const folders = [
+                { uri: createMockUri('/home/user/workspace/Repo-A'), name: 'Repo-A' },
+                { uri: createMockUri('/home/user/workspace/Repo-B'), name: 'Repo-B' }
+            ];
+            const scopes = discoverScopes(workspaceFile, folders);
+
+            expect(scopes).toHaveLength(3);
+            expect(scopes.filter(s => s.type === 'workspace')).toHaveLength(1);
         });
     });
 });
