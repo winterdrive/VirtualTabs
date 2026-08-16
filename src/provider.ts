@@ -1435,7 +1435,8 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         for (const uriStr of group.files) {
             try {
                 const uri = vscode.Uri.parse(uriStr);
-                const ext = uri.fsPath.split('.').pop()?.toLowerCase() || 'other';
+                const rawExt = path.extname(uri.fsPath).toLowerCase();
+                const ext = rawExt ? rawExt.slice(1) : 'no-extension';
                 if (!extMap[ext]) extMap[ext] = [];
                 extMap[ext].push(uriStr);
             } catch { }
