@@ -2,6 +2,21 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.11.0] - Routine Bug-Hunt Batch (pre-release) - 2026-08-16
+
+- **fix(mcp):** guard `validate_json_structure` against non-object array elements — a `null`/primitive entry in an otherwise well-formed array crashed with a misleading "JSON parse error" instead of a clear validation message (#104)
+- **fix(commands):** use the localized copy postfix when stripping the copy suffix in `duplicateGroup` — under zh-tw/zh-cn (`複本`/`副本`), the old hardcoded `"Copy"` regex never matched, so repeated duplication stacked postfixes without bound (#105)
+- **fix(provider):** surface save failures to the user instead of silently swallowing them — a failed write to `virtualTab.json` (disk full/locked/permissions) previously dropped edits with only a console log (#106)
+- **fix(core):** use normalized bookmark key lookup in `AutoGrouper.moveBookmarks` — mirrors the existing normalization in `dragAndDrop.ts`, fixing bookmarks silently left behind (and duplicated) on auto-group when a stored key didn't exactly string-match the file's URI (#107)
+- **fix(dragAndDrop):** guard `isDescendant` against cyclic `parentGroupId` chains — a corrupted or hand-edited config with a group cycle caused unbounded recursion to a stack overflow (#108)
+- **fix(mcp):** isolate per-agent skill generation failures — one agent's failure no longer aborts skill generation for the rest of the selected agents (#109)
+- **fix(core):** don't let a failed corrupted-config backup block recovery — if backing up a corrupted `virtualTab.json` itself failed, the default-config recovery step never ran, permanently stuck with a stale in-memory version and every subsequent save failing with an optimistic-lock error (#111)
+- **fix(core):** don't throw on a malformed `file://` URI when matching stored file entries — a hand-corrupted config entry (e.g. an unescaped `%`) no longer aborts the whole add/remove-file loop (#112)
+- **fix(core):** guard `ProjectExplorer.exploreProject` against invalid `maxResults` — non-positive or non-integer values from an MCP client no longer silently truncate results incorrectly (#114)
+- **fix(extension):** refresh the tree view's scope description after a workspace-folder change removes an active scope, instead of leaving it stale (#115)
+- **chore(sendTo):** remove the dead `getFilesInDirectory` method, unused anywhere in the codebase (#113)
+- **chore(deps):** bump the `npm_and_yarn` dependency group across 2 directories — patch/minor security backports only (#110)
+
 ## [0.10.0] - Stable Release: Self-Root Workspace Fix & Auto-Group Promotion - 2026-08-16
 
 - **fix(core):** resolve self-root `.code-workspace` `ConfigScope` id collision (#116, contributed by @jianfulin) — when a `.code-workspace` file declares only its own directory as the sole folder (`"folders": [{"path": "."}]`), the workspace scope and folder scope shared the same id, so every activation re-read and re-saved the same `virtualTab.json` twice, doubling group entries on each reopen. `ConfigScopeDiscovery` now skips the redundant workspace scope when it collides with a folder scope, and `provider.ts` adds a defense-in-depth guard against any future duplicate scope id.
