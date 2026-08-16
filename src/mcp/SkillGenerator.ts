@@ -126,20 +126,26 @@ export class SkillGenerator {
             const skillPaths: string[] = [];
 
             for (const choice of choices) {
-                if (choice.value === 'cursor') {
-                    skillPaths.push(await this.generateCursorRule(context, projectRoot, mcpServerScriptPath));
-                } else if (choice.value === 'antigravity') {
-                    skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.agents'));
-                } else if (choice.value === 'claude') {
-                    skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.claude'));
-                } else if (choice.value === 'copilot') {
-                    skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.github'));
-                } else if (choice.value === 'kiro') {
-                    skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.kiro'));
-                } else if (choice.value === 'cline') {
-                    skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.cline'));
-                } else if (choice.value === 'gemini') {
-                    skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.gemini'));
+                try {
+                    if (choice.value === 'cursor') {
+                        skillPaths.push(await this.generateCursorRule(context, projectRoot, mcpServerScriptPath));
+                    } else if (choice.value === 'antigravity') {
+                        skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.agents'));
+                    } else if (choice.value === 'claude') {
+                        skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.claude'));
+                    } else if (choice.value === 'copilot') {
+                        skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.github'));
+                    } else if (choice.value === 'kiro') {
+                        skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.kiro'));
+                    } else if (choice.value === 'cline') {
+                        skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.cline'));
+                    } else if (choice.value === 'gemini') {
+                        skillPaths.push(await this.generateVSCodeSkill(context, projectRoot, mcpServerScriptPath, '.gemini'));
+                    }
+                } catch (error) {
+                    vscode.window.showErrorMessage(
+                        `Failed to generate skill for ${choice.label}: ${error instanceof Error ? error.message : String(error)}`
+                    );
                 }
             }
 
