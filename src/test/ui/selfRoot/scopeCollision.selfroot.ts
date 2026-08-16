@@ -142,9 +142,7 @@ async function clickToolbarButton(sidebar: SideBarView, titlePattern: RegExp): P
 }
 
 describe('Self-root .code-workspace — no group doubling across reopen cycles (#116 E2E)', function () {
-    // Generous enough to cover VT_E2E_KEEP_OPEN/VT_E2E_KEEP_OPEN_MS pausing at
-    // the end for manual inspection, on top of the normal ~10s run time.
-    this.timeout(15 * 60_000);
+    this.timeout(120_000);
 
     before(async function () {
         await VSBrowser.instance.waitForWorkbench();
@@ -185,14 +183,5 @@ describe('Self-root .code-workspace — no group doubling across reopen cycles (
         const labels = await getVisibleTreeLabels();
         const occurrences = labels.filter(l => l.includes('Self-Root Existing')).length;
         expect(occurrences, `tree rows matching "Self-Root Existing": ${labels.join(' | ')}`).to.equal(1);
-
-        // Set VT_E2E_KEEP_OPEN=1 to pause here after all assertions pass, so
-        // the VS Code window stays up for manual visual inspection instead
-        // of being closed immediately by the test runner.
-        const pauseMs = Number(process.env.VT_E2E_KEEP_OPEN_MS) || (process.env.VT_E2E_KEEP_OPEN ? 5 * 60_000 : 0);
-        if (pauseMs > 0) {
-            console.log(`VT_E2E_KEEP_OPEN set — leaving the VS Code window open for ${Math.round(pauseMs / 1000)}s for manual inspection...`);
-            await VSBrowser.instance.driver.sleep(pauseMs);
-        }
     });
 });
