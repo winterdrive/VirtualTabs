@@ -591,6 +591,10 @@ export class VirtualTabsMCPServer {
               const seenIds = new Set<string>();
               for (let i = 0; i < parsed.length; i++) {
                 const g = parsed[i];
+                if (!g || typeof g !== 'object') {
+                  errors.push(`Group[${i}] must be an object.`);
+                  continue;
+                }
                 if (!g.id) { errors.push(`Group[${i}] missing "id".`); }
                 else if (seenIds.has(g.id)) { errors.push(`Duplicate id "${g.id}" at index ${i}.`); }
                 else { seenIds.add(g.id); }
