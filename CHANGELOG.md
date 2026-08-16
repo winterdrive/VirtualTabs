@@ -2,6 +2,11 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.10.0] - Stable Release: Self-Root Workspace Fix & Auto-Group Promotion - 2026-08-16
+
+- **fix(core):** resolve self-root `.code-workspace` `ConfigScope` id collision (#116, contributed by @jianfulin) — when a `.code-workspace` file declares only its own directory as the sole folder (`"folders": [{"path": "."}]`), the workspace scope and folder scope shared the same id, so every activation re-read and re-saved the same `virtualTab.json` twice, doubling group entries on each reopen. `ConfigScopeDiscovery` now skips the redundant workspace scope when it collides with a folder scope, and `provider.ts` adds a defense-in-depth guard against any future duplicate scope id.
+- **Stable Promotion:** promotes the 0.9.0 pre-release fixes to the stable release tier — don't persist auto sub-groups sourced from the built-in "Currently Open Files" group (#99), and avoid a duplicate built-in group entry on scoped `resetToDefault` (#98).
+
 ## [0.9.0] - Built-in Auto-Group Duplicate Persistence Fixes (pre-release) - 2026-07-26
 
 ### 🐛 Bug Fixes
