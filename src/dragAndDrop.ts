@@ -374,13 +374,16 @@ export class TempFoldersDragAndDropController implements vscode.TreeDragAndDropC
     /**
      * Check if a group is a descendant of another group (prevent circular nesting)
      */
-    private isDescendant(groupId: string, potentialAncestorId: string): boolean {
+    private isDescendant(groupId: string, potentialAncestorId: string, visited = new Set<string>()): boolean {
+        if (visited.has(groupId)) return false;
+        visited.add(groupId);
+
         const group = this.provider.groups.find(g => g.id === groupId);
         if (!group || !group.parentGroupId) return false;
 
         if (group.parentGroupId === potentialAncestorId) return true;
 
-        return this.isDescendant(group.parentGroupId, potentialAncestorId);
+        return this.isDescendant(group.parentGroupId, potentialAncestorId, visited);
     }
 
     private collectGroupFilesRecursive(groupId: string): string[] {
