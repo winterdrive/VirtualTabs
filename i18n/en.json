@@ -63,6 +63,7 @@
     "message.configReloaded": "VirtualTabs: Config reloaded successfully.",
     "message.configDeleted": "VirtualTabs: Config file deleted. Groups reset to default.",
     "error.loadConfigFailed": "Failed to load virtualTab.json",
+    "error.saveConfigFailed": "Failed to save virtualTab.json",
     "error.invalidConfigFormat": "Invalid format in virtualTab.json. Please check the file structure.",
     "mcp.configCopied": "MCP configuration copied to clipboard!",
     "mcp.generatedCursorRule": "VirtualTabs: Generated Cursor rule. Run 'VirtualTabs: Show MCP Config' to view the full setup guide.",
