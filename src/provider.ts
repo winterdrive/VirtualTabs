@@ -252,9 +252,12 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
     }
 
     getScopeLabel(scope: ConfigScope): string {
+        // Use scope.label (set by ConfigScopeDiscovery from VS Code's own
+        // WorkspaceFolder.name) instead of re-deriving via path.basename,
+        // which returns '' when a folder is opened at a filesystem root.
         return scope.type === 'workspace'
             ? 'Workspace Config'
-            : `Project: ${path.basename(scope.uri.fsPath)}`;
+            : `Project: ${scope.label}`;
     }
 
     moveScope(scopeId: string, direction: 'up' | 'down'): void {
