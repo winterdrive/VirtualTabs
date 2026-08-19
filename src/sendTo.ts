@@ -453,23 +453,4 @@ export class SendToManager {
             }
         });
     }
-
-    /**
-     * Get all files from a directory recursively.
-     */
-    static getFilesInDirectory(dirPath: string): vscode.Uri[] {
-        const files: vscode.Uri[] = [];
-        if (!fs.existsSync(dirPath) || !fs.statSync(dirPath).isDirectory()) {
-            return files;
-        }
-        for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
-            const fullPath = path.join(dirPath, entry.name);
-            if (entry.isFile()) {
-                files.push(vscode.Uri.file(fullPath));
-            } else if (entry.isDirectory()) {
-                files.push(...this.getFilesInDirectory(fullPath));
-            }
-        }
-        return files;
-    }
 }

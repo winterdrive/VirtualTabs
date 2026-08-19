@@ -12,7 +12,14 @@ function toComparableFsPath(storedEntry: string, scopeRoot?: string): string | u
     }
 
     if (storedEntry.startsWith('file://')) {
-        return normalizeFsPath(fileURLToPath(storedEntry));
+        try {
+            return normalizeFsPath(fileURLToPath(storedEntry));
+        } catch {
+            // A hand-edited or corrupted config can contain a malformed file:// URI
+            // (e.g. an unescaped '%'). Treat it as non-matching instead of throwing,
+            // so one bad entry doesn't abort the whole add/remove/bookmark operation.
+            return undefined;
+        }
     }
 
     if (path.isAbsolute(storedEntry)) {

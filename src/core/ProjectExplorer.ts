@@ -22,7 +22,12 @@ export class ProjectExplorer {
    * Uses fast-glob syntax; excludes node_modules and other commonly ignored directories.
    */
   async exploreProject(options: ExploreOptions): Promise<{ files: string[], truncated: boolean }> {
-    const { pattern = '**/*', extension, directory, maxResults = 100 } = options;
+    const { pattern = '**/*', extension, directory, maxResults: requestedMaxResults = 100 } = options;
+    // Guard against non-positive/non-integer values (e.g. 0 or negative), which would
+    // otherwise make Array.slice(0, maxResults) silently drop items from the end.
+    const maxResults = Number.isInteger(requestedMaxResults) && requestedMaxResults > 0
+      ? requestedMaxResults
+      : 100;
 
     let baseDir = this.workspaceRoot;
     if (directory) {

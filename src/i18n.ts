@@ -121,6 +121,18 @@ export class I18n {
     }
 
     /**
+     * Strip a previously-applied copy postfix (and optional trailing index) from a name,
+     * using the currently loaded locale's postfix rather than a hardcoded English literal.
+     * @param name Name that may end with "<postfix>" or "<postfix> <n>"
+     * @returns Name with the postfix removed, if present
+     */
+    public static stripCopyPostfix(name: string): string {
+        const postfix = this.getMessage('group.copyPostfix');
+        const escaped = postfix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return name.replace(new RegExp(`\\s*${escaped}( \\d+)?$`), '');
+    }
+
+    /**
      * Check if initialized
      * @returns Whether initialized
      */

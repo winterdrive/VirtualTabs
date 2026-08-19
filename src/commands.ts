@@ -531,7 +531,7 @@ export function registerCommands(
         if (!group || group.builtIn) return;
 
         // Generate new name
-        let base = group.name.replace(/\s*Copy( \d+)?$/, '');
+        let base = I18n.stripCopyPostfix(group.name);
         let idx = 1;
         let newName = I18n.getCopyGroupName(base);
         while (provider.groups.some(g => g.name === newName)) {

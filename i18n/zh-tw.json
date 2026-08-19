@@ -63,6 +63,7 @@
     "message.configReloaded": "VirtualTabs: 配置已重新載入。",
     "message.configDeleted": "VirtualTabs: 配置檔案已刪除，群組已重設為預設狀態。",
     "error.loadConfigFailed": "載入 virtualTab.json 失敗",
+    "error.saveConfigFailed": "儲存 virtualTab.json 失敗",
     "error.invalidConfigFormat": "virtualTab.json 格式錯誤，請檢查檔案結構。",
     "mcp.configCopied": "MCP 配置已複製到剪貼簿！",
     "mcp.generatedCursorRule": "VirtualTabs: 已產生 Cursor 規則。請執行 'VirtualTabs: Show MCP Config' 查看完整配置指南。",

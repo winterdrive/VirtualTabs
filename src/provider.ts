@@ -466,6 +466,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         } catch (error) {
             this.isInternalSaving = false;
             console.error('Failed to save VirtualTabs data file:', error);
+            vscode.window.showErrorMessage(`${I18n.getMessage('error.saveConfigFailed') || 'Failed to save virtualTab.json'}: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 

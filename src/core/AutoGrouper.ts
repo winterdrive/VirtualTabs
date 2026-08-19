@@ -3,6 +3,7 @@ import * as path from 'path';
 import { GroupManager } from './GroupManager.js';
 import { FileManager } from './FileManager.js';
 import { PathUtils } from './PathUtils.js';
+import { BookmarkManager } from './BookmarkManager.js';
 import { SortCriteria, DateGroup, TempGroup } from '../types.js';
 
 export class AutoGrouper {
@@ -97,19 +98,23 @@ export class AutoGrouper {
    * sub-group, mirroring the same-file-move logic in dragAndDrop.ts.
    * Without this, bookmarks are orphaned on the (now empty) source group
    * and become unreachable from the UI.
+   *
+   * Looks up the stored bookmark key via BookmarkManager.findBookmarkKey
+   * rather than an exact match on fileUri, since the stored key can differ
+   * in encoding/casing from the group's `files` entries (see dragAndDrop.ts).
    */
   static moveBookmarks(sourceGroup: TempGroup, targetGroup: TempGroup, fileUris: string[]): void {
     if (!sourceGroup.bookmarks) return;
 
     for (const fileUri of fileUris) {
-      const bookmarks = sourceGroup.bookmarks[fileUri];
-      if (!bookmarks) continue;
+      const bookmarkKey = BookmarkManager.findBookmarkKey(sourceGroup, fileUri);
+      if (!bookmarkKey || !sourceGroup.bookmarks[bookmarkKey]) continue;
 
       if (!targetGroup.bookmarks) {
         targetGroup.bookmarks = {};
       }
-      targetGroup.bookmarks[fileUri] = bookmarks;
-      delete sourceGroup.bookmarks[fileUri];
+      targetGroup.bookmarks[bookmarkKey] = sourceGroup.bookmarks[bookmarkKey];
+      delete sourceGroup.bookmarks[bookmarkKey];
     }
 
     if (Object.keys(sourceGroup.bookmarks).length === 0) {
