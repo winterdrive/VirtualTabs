@@ -241,10 +241,17 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    // Listen for editor file open/close events to auto-refresh the tree view
-    // Only use syncBuiltInGroup here to avoid recreating the entire tree when switching tabs
+    // Listen for editor file open/close events to auto-refresh the tree view.
+    // Only use syncBuiltInGroup here to avoid recreating the entire tree when switching tabs.
+    //
+    // Uses tabGroups.onDidChangeTabs rather than onDidChangeVisibleTextEditors:
+    // the latter only reflects editors currently visible in a split pane, so it
+    // can miss tabs opened in the background or as a preview tab (single-click
+    // in Explorer) that don't change the set of *visible* editors — leaving the
+    // built-in "Currently Open Files" group stale until a manual refresh.
+    // tabGroups.onDidChangeTabs fires for open/close/move/pin on every tab.
     context.subscriptions.push(
-        vscode.window.onDidChangeVisibleTextEditors(() => {
+        vscode.window.tabGroups.onDidChangeTabs(() => {
             provider.syncBuiltInGroup();
         })
     );

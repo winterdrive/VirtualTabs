@@ -838,9 +838,12 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
 
                 this.builtInItemsCache = null;
                 this.saveGroups();
-                // Target only the built-in subtree — avoids re-rendering all expanded custom groups
-                const builtInItem = this.getBuiltInFolderItem();
-                this._onDidChangeTreeData.fire(builtInItem);
+                // A scoped fire(builtInItem) was tried here but proved unreliable: when the
+                // built-in group is already expanded, VS Code does not consistently re-query
+                // getChildren() for it on a targeted fire, leaving the visible file list stale
+                // until some other event forces a full tree redraw. fire(undefined) is the same
+                // mechanism refresh()/the manual refresh button already rely on and is reliable.
+                this._onDidChangeTreeData.fire(undefined);
                 changed = true;
             }
         }
@@ -1597,16 +1600,6 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             }
         }
         return undefined;
-    }
-
-    /**
-     * Return the TempFolderItem for the built-in group to use in a pre-reveal expand call.
-     */
-    getBuiltInFolderItem(): TempFolderItem | undefined {
-        const builtInIdx = this.groups.findIndex(g => g.builtIn);
-        if (builtInIdx === -1) return undefined;
-        const group = this.groups[builtInIdx];
-        return new TempFolderItem(group.name, builtInIdx, group.id, true);
     }
 
     /**
