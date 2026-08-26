@@ -174,6 +174,57 @@ describe('TempFoldersProvider built-in group persistence', () => {
         expect(internals.expandedScopeIds.has('scope-a')).toBe(true);
     });
 
+    test('duplicating the built-in group targets Workspace Config and is visible immediately', () => {
+        const sourceFiles = ['file:///workspace/a.ts', 'file:///workspace/b.ts'];
+        const { provider, internals } = createProviderHarness([{
+            id: 'builtin_group_id',
+            name: 'Currently Open Files',
+            files: sourceFiles,
+            builtIn: true
+        }]);
+        provider.configScopes = [
+            { id: 'scope:workspace', type: 'workspace', label: 'Workspace Config', uri: { fsPath: '/workspace' } } as never,
+            { id: 'scope:project', type: 'folder', label: 'Project', uri: { fsPath: '/workspace/project' } } as never
+        ];
+        internals.groupManagers = new Map([
+            ['scope:workspace', {}],
+            ['scope:project', {}]
+        ]);
+        const refresh = jest.spyOn(provider, 'refresh').mockImplementation(() => undefined);
+
+        const groupIndex = provider.duplicateBuiltInGroup(0);
+
+        expect(groupIndex).toBe(1);
+        expect(provider.groups[1]).toMatchObject({
+            files: sourceFiles,
+            sourceScopeId: 'scope:workspace'
+        });
+        expect(provider.groups[1].files).not.toBe(sourceFiles);
+        expect(internals.expandedScopeIds.has('scope:workspace')).toBe(true);
+        expect(refresh).toHaveBeenCalledWith(false);
+        expect(internals.saveGroups).toHaveBeenCalledWith('scope:workspace');
+        expect(refresh.mock.invocationCallOrder[0]).toBeLessThan(internals.saveGroups.mock.invocationCallOrder[0]);
+    });
+
+    test('duplicating the built-in group uses the folder scope in a single-folder window', () => {
+        const { provider, internals } = createProviderHarness([{
+            id: 'builtin_group_id',
+            name: 'Currently Open Files',
+            files: [],
+            builtIn: true
+        }]);
+        provider.configScopes = [
+            { id: 'scope:folder', type: 'folder', label: 'Project', uri: { fsPath: '/project' } } as never
+        ];
+        internals.groupManagers.set('scope:folder', {});
+        jest.spyOn(provider, 'refresh').mockImplementation(() => undefined);
+
+        provider.duplicateBuiltInGroup(0);
+
+        expect(provider.groups[1].sourceScopeId).toBe('scope:folder');
+        expect(internals.saveGroups).toHaveBeenCalledWith('scope:folder');
+    });
+
     test('debounce unions scoped saves and clears the timer after it runs', () => {
         jest.useFakeTimers();
         try {

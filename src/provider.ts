@@ -989,6 +989,39 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         return this.groups.length - 1;
     }
 
+    duplicateBuiltInGroup(groupIdx: number): number | undefined {
+        const source = this.groups[groupIdx];
+        if (!source?.builtIn) return undefined;
+
+        // The built-in group is workspace-wide. In a multi-root workspace its
+        // persisted copy belongs to Workspace Config; in a single-folder
+        // window the only folder scope is the persistence target.
+        const targetScope = this.configScopes.find(scope => scope.type === 'workspace')
+            ?? this.configScopes[0];
+        if (!targetScope || !this.groupManagers.has(targetScope.id)) return undefined;
+
+        const base = I18n.getBuiltInGroupName();
+        let copyIndex = 1;
+        let name = I18n.getCopyGroupName(base);
+        while (this.groups.some(group => group.name === name)) {
+            copyIndex++;
+            name = I18n.getCopyGroupName(base, copyIndex);
+        }
+
+        this.groups.push({
+            id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
+            name,
+            files: source.files ? [...source.files] : [],
+            sourceScopeId: targetScope.id
+        });
+        this.expandedScopeIds.add(targetScope.id);
+
+        // Paint the scoped copy immediately, then persist only its target scope.
+        this.refresh(false);
+        this.saveGroups(targetScope.id);
+        return this.groups.length - 1;
+    }
+
     addSubGroup(parentGroupId: string) {
         // Validation: Parent must exist (unless it's null, but view logic handles that)
         const parent = this.groups.find(g => g.id === parentGroupId);
