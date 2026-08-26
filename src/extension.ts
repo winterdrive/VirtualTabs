@@ -147,7 +147,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         treeView.onDidChangeVisibility(e => {
             if (e.visible) {
-                provider.refresh();
+                provider.refreshView();
             }
         })
     );
