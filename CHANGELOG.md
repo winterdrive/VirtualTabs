@@ -2,6 +2,25 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.12.0] - Stable Release: Reliable Tab Sync & Faster Cold Start - 2026-08-26
+
+- **Stable Promotion:** promotes the tested `0.11.1` and `0.11.2` pre-release fixes to the stable tier.
+- **fix(provider):** reliably synchronize background, preview, close, move, pin, and split-editor tab changes in the built-in `Currently Open Files` group without requiring a view switch or manual refresh (#125, contributed by @jianfulin).
+- **fix(provider):** keep tab-only synchronization in memory instead of rewriting `virtualTab.json`, reducing unnecessary filesystem work and save-error exposure (#130).
+- **fix(provider):** avoid no-op config writes when the VirtualTabs view first appears, render newly created scoped groups before debounced persistence, save only the modified scope, and avoid a duplicate deactivation write (#136).
+- **Manual verification:** Windows multi-root testing covered cold start, preview replacement, Open to Side, custom-group create/rename/duplicate/delete, persistence across Reload Window, and confirmed no observed `EBADF` during the release smoke test.
+- **Known issue:** in a multi-root workspace, `Duplicate Group (Currently Open Files)` may not appear until Refresh/Reload, after which the snapshot is visible under `Workspace Config` (#138). Avoid repeated clicks until this follow-up is fixed.
+
+## [0.11.2] - Cold-Start Config I/O Fix (pre-release) - 2026-08-26
+
+- **fix(provider):** refresh the VirtualTabs view without rewriting unchanged `virtualTab.json` files, let newly created groups render before debounced persistence, and limit scoped group creation to saving only the modified workspace scope (#136)
+- **fix(provider):** clear completed save timers and merge pending scoped saves so extension deactivation does not repeat an already-finished write (#136)
+
+## [0.11.1] - Currently Open Files Auto-Sync Fix (pre-release) - 2026-08-26
+
+- **fix(provider):** reliably synchronize background and preview tabs in the built-in `Currently Open Files` group without requiring a view switch or manual refresh (#125, contributed by @jianfulin)
+- **fix(provider):** avoid rewriting `virtualTab.json` when only the in-memory built-in tab snapshot changes, eliminating unnecessary config writes from tab-only events (#130)
+
 ## [0.11.0] - Routine Bug-Hunt Batch (pre-release) - 2026-08-16
 
 - **fix(mcp):** guard `validate_json_structure` against non-object array elements — a `null`/primitive entry in an otherwise well-formed array crashed with a misleading "JSON parse error" instead of a clear validation message (#104)
