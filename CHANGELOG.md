@@ -2,6 +2,11 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.11.1] - Currently Open Files Auto-Sync Fix (pre-release) - 2026-08-26
+
+- **fix(provider):** reliably synchronize background and preview tabs in the built-in `Currently Open Files` group without requiring a view switch or manual refresh (#125, contributed by @jianfulin)
+- **fix(provider):** avoid rewriting `virtualTab.json` when only the in-memory built-in tab snapshot changes, eliminating unnecessary config writes from tab-only events (#130)
+
 ## [0.11.0] - Routine Bug-Hunt Batch (pre-release) - 2026-08-16
 
 - **fix(mcp):** guard `validate_json_structure` against non-object array elements — a `null`/primitive entry in an otherwise well-formed array crashed with a misleading "JSON parse error" instead of a clear validation message (#104)
