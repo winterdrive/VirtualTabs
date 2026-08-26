@@ -5,8 +5,8 @@
  * `vscode` module), this launches the packaged extension inside a real VS
  * Code instance opened directly against a self-root .code-workspace
  * (`"folders": [{ "path": "." }]`), and drives the exact user-facing actions
- * that triggered the reported bug: toggling the Virtual Tabs view (fires
- * `refresh(true)`, which persists) and clicking Refresh (calls
+ * that triggered the reported bug: toggling the Virtual Tabs view (fires a
+ * UI-only refresh) and clicking Refresh (calls
  * `reinitializeScopes()`, which re-discovers scopes). Confirms the persisted
  * `.vscode/virtualTab.json` group count never grows across repeated cycles,
  * and that the tree never renders a duplicated scope section.
@@ -160,12 +160,18 @@ describe('Self-root .code-workspace — no group doubling across reopen cycles (
         await waitForTreeLabel('Self-Root Existing');
 
         for (let cycle = 1; cycle <= 3; cycle++) {
+            const mtimeBeforeVisibilityToggle = fs.statSync(configPath).mtimeMs;
+
             // Half of the real reopen sequence: hide the view, then show it
             // again — this fires the treeView.onDidChangeVisibility(true)
-            // listener, which calls provider.refresh(true) and persists
-            // whatever is currently in memory.
+            // listener, which refreshes the UI without rewriting config.
             await closeVirtualTabsView();
             sidebar = await openVirtualTabsView();
+            await VSBrowser.instance.driver.sleep(800);
+            expect(
+                fs.statSync(configPath).mtimeMs,
+                `config mtime after visibility toggle ${cycle}`
+            ).to.equal(mtimeBeforeVisibilityToggle);
 
             // The other half: the Refresh button calls
             // provider.reinitializeScopes(), re-running ConfigScopeDiscovery

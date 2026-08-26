@@ -51,6 +51,8 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
 
     // Debounce timer for saving groups to reduce disk I/O
     private saveDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+    private pendingSaveScopeIds: Set<string> = new Set();
+    private pendingSaveAllScopes: boolean = false;
 
     // Flag to ignore file system events triggered by the extension itself
     private isInternalSaving: boolean = false;
@@ -358,13 +360,37 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         return this.treeView ? [...this.treeView.selection] : [];
     }
 
-    private saveGroups() {
-        // Debounce: Clear any pending save and schedule a new one
+    private takePendingSaveScopeIds(): ReadonlySet<string> | undefined {
+        this.pendingSaveScopeIds ??= new Set();
+        this.pendingSaveAllScopes ??= false;
+        const scopeIds = this.pendingSaveAllScopes
+            ? undefined
+            : new Set(this.pendingSaveScopeIds);
+        this.pendingSaveScopeIds.clear();
+        this.pendingSaveAllScopes = false;
+        return scopeIds;
+    }
+
+    private saveGroups(scopeId?: string) {
+        this.pendingSaveScopeIds ??= new Set();
+        this.pendingSaveAllScopes ??= false;
+
+        // A save without a scope means every configured scope may have changed.
+        // Scoped saves are accumulated so rapid edits in different scopes are not lost.
+        if (scopeId && !this.pendingSaveAllScopes) {
+            this.pendingSaveScopeIds.add(scopeId);
+        } else if (!scopeId) {
+            this.pendingSaveAllScopes = true;
+            this.pendingSaveScopeIds.clear();
+        }
+
+        // Debounce: Clear any pending save and schedule a new one.
         if (this.saveDebounceTimer) {
             clearTimeout(this.saveDebounceTimer);
         }
         this.saveDebounceTimer = setTimeout(() => {
-            this.saveGroupsImmediate();
+            this.saveDebounceTimer = undefined;
+            this.saveGroupsImmediate(this.takePendingSaveScopeIds());
         }, 500);
     }
 
@@ -378,11 +404,11 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         if (this.saveDebounceTimer) {
             clearTimeout(this.saveDebounceTimer);
             this.saveDebounceTimer = undefined;
-            this.saveGroupsImmediate();
+            this.saveGroupsImmediate(this.takePendingSaveScopeIds());
         }
     }
 
-    private saveGroupsImmediate() {
+    private saveGroupsImmediate(scopeIds?: ReadonlySet<string>) {
         if (this.groupManagers.size === 0) {
             console.warn('Cannot save VirtualTabs data: no GroupManagers available');
             return;
@@ -392,7 +418,9 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
             // 依 sourceScopeId 路由至對應的 GroupManager
             // 先將群組依 scopeId 分組
             const groupsByScopeId = new Map<string, TempGroup[]>(
-                this.configScopes.map(scope => [scope.id, []])
+                this.configScopes
+                    .filter(scope => !scopeIds || scopeIds.has(scope.id))
+                    .map(scope => [scope.id, []])
             );
 
             for (const group of this.groups) {
@@ -406,7 +434,7 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 if (!scopeId) {
                     // 無 sourceScopeId：使用第一個可用的 scope（向下相容）
                     const firstScopeId = this.configScopes[0]?.id;
-                    if (firstScopeId) {
+                    if (firstScopeId && (!scopeIds || scopeIds.has(firstScopeId))) {
                         if (!groupsByScopeId.has(firstScopeId)) {
                             groupsByScopeId.set(firstScopeId, []);
                         }
@@ -414,6 +442,8 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                     }
                     continue;
                 }
+
+                if (scopeIds && !scopeIds.has(scopeId)) continue;
 
                 if (!this.groupManagers.has(scopeId)) {
                     console.warn(`VirtualTabs: sourceScopeId "${scopeId}" does not match any known ConfigScope, skipping save for group "${group.name}"`);
@@ -880,6 +910,11 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         this._onDidChangeTreeData.fire(undefined);
     }
 
+    /** Refresh the visible tree without rewriting persisted custom groups. */
+    refreshView(): void {
+        this.refresh(false);
+    }
+
     addGroup() {
         const nonBuiltinActive = [...this.activeScopeIds].filter(id => id !== BUILTIN_SCOPE_ID);
         if (nonBuiltinActive.length === 1) {
@@ -943,8 +978,9 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
         this.expandedScopeIds.add(scopeId);
 
         if (save) {
+            // Let VS Code paint the new group before the debounced persistence work runs.
             this.refresh(false);
-            this.saveGroupsImmediate();
+            this.saveGroups(scopeId);
         }
 
         return this.groups.length - 1;
