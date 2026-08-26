@@ -174,7 +174,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // Listen for active editor change to auto-reveal file in the Virtual Tabs panel.
     // NOTE: We intentionally do NOT call syncBuiltInGroup() here to avoid triggering
     // a tree data change event (which clears the registry) mid-reveal, causing a race condition.
-    // Tab open/close events are handled by onDidChangeVisibleTextEditors below.
+    // Tab open/close events are handled by tabGroups.onDidChangeTabs below.
     let lastSelectionUri: string | undefined;
     let lastSelectionTime: number = 0;
 

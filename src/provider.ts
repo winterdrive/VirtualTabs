@@ -837,7 +837,9 @@ export class TempFoldersProvider implements vscode.TreeDataProvider<vscode.TreeI
                 }
 
                 this.builtInItemsCache = null;
-                this.saveGroups();
+                // Built-in tab state is derived from VS Code and intentionally excluded
+                // from virtualTab.json. Persisting here only rewrites config files on
+                // every tab event without saving any built-in data.
                 // A scoped fire(builtInItem) was tried here but proved unreliable: when the
                 // built-in group is already expanded, VS Code does not consistently re-query
                 // getChildren() for it on a targeted fire, leaving the visible file list stale
