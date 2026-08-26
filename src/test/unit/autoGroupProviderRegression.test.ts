@@ -159,6 +159,26 @@ describe('TempFoldersProvider auto-group commands (real provider.ts code path)',
         expect(mdGroup?.bookmarks?.[mdFile]).toEqual([{ id: 'bm-2', line: 1, label: 'md bookmark', created: 2 }]);
     });
 
+    test('addAutoGroupsByExt buckets extension-less files together instead of one group per filename', () => {
+        const makefile = pathToFileURL(path.join(workspaceDir, 'Makefile')).toString();
+        const dockerfile = pathToFileURL(path.join(workspaceDir, 'Dockerfile')).toString();
+
+        const group: TempGroup = {
+            id: 'group-1',
+            name: 'Source',
+            files: [makefile, dockerfile]
+        };
+
+        const provider = createProviderHarness([group], []);
+        selectGroup(provider, 0, group);
+
+        provider.addAutoGroupsByExt();
+
+        const autoGroups = provider.groups.filter(g => g.id !== group.id);
+        expect(autoGroups).toHaveLength(1);
+        expect(autoGroups[0].files).toEqual(expect.arrayContaining([makefile, dockerfile]));
+    });
+
     test('autoGroupByModifiedDate moves bookmarks to the new date sub-groups', () => {
         const filePath = path.join(workspaceDir, 'today.ts');
         fs.writeFileSync(filePath, 'export {};');
