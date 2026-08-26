@@ -48,7 +48,7 @@ export class BookmarkTools {
       if (errMsg.includes('does not exist')) {
         return Logger.createError(ErrorType.NOT_FOUND, errMsg);
       }
-      if (errMsg.includes('not in group') || errMsg.includes('must not be negative') || errMsg.includes('must not be empty')) {
+      if (errMsg.includes('not in group') || errMsg.includes('must be a non-negative integer') || errMsg.includes('must not be empty')) {
         return Logger.createError(ErrorType.VALIDATION_ERROR, errMsg);
       }
       return Logger.createError(ErrorType.INTERNAL_ERROR, `Failed to create bookmark: ${errMsg}`);

@@ -128,4 +128,19 @@ describe('BookmarkManager.createBookmark file membership', () => {
             bm.createBookmark('group-1', path.join(tmpDir, 'src', 'bar.ts'), 0, 'label')
         ).toThrow('File is not in group');
     });
+
+    test.each([NaN, Infinity, -Infinity, 1.5])(
+        'createBookmark rejects a non-integer line number (%p)',
+        (line) => {
+            const { bm } = setupWorkspace([{
+                id: 'group-1',
+                name: 'Test Group',
+                files: ['src/foo.ts']
+            }]);
+
+            expect(() =>
+                bm.createBookmark('group-1', path.join(tmpDir, 'src', 'foo.ts'), line, 'label')
+            ).toThrow('Line number must be a non-negative integer');
+        }
+    );
 });

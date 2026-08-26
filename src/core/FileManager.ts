@@ -135,7 +135,23 @@ export class FileManager {
       } else {
         group.files.splice(index, 1);
         result.removed.push(filePath);
+
+        // Keep bookmarks in sync with group membership: an orphaned bookmark
+        // for a file no longer in the group would otherwise persist in the
+        // config file indefinitely (the VS Code UI removal path already does
+        // this via GroupFileRemoval; this MCP-driven path needs its own copy).
+        if (group.bookmarks) {
+          for (const bookmarkKey of Object.keys(group.bookmarks)) {
+            if (matchesStoredFileEntry(bookmarkKey, fileUri, targetFsPath, workspaceRoot)) {
+              delete group.bookmarks[bookmarkKey];
+            }
+          }
+        }
       }
+    }
+
+    if (group.bookmarks && Object.keys(group.bookmarks).length === 0) {
+      delete group.bookmarks;
     }
 
     if (result.removed.length > 0) {
