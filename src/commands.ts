@@ -1235,6 +1235,9 @@ export function registerCommands(
             }
 
             const group = provider.groups[item.groupIdx];
+            if (!group) {
+                return;
+            }
             const updatedBookmark = BookmarkManager.updateLabel(item.bookmark, newLabel);
 
             BookmarkManager.updateBookmarkInGroup(
@@ -1269,6 +1272,9 @@ export function registerCommands(
             }
 
             const group = provider.groups[item.groupIdx];
+            if (!group) {
+                return;
+            }
             const updatedBookmark = BookmarkManager.updateDescription(
                 item.bookmark,
                 newDescription || undefined
@@ -1296,6 +1302,9 @@ export function registerCommands(
             }
 
             const group = provider.groups[item.groupIdx];
+            if (!group) {
+                return;
+            }
             const removed = BookmarkManager.removeBookmarkFromGroup(
                 group,
                 item.fileUri.toString(),
