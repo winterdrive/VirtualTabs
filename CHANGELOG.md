@@ -2,6 +2,11 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.11.2] - Cold-Start Config I/O Fix (pre-release) - 2026-08-26
+
+- **fix(provider):** refresh the VirtualTabs view without rewriting unchanged `virtualTab.json` files, let newly created groups render before debounced persistence, and limit scoped group creation to saving only the modified workspace scope (#136)
+- **fix(provider):** clear completed save timers and merge pending scoped saves so extension deactivation does not repeat an already-finished write (#136)
+
 ## [0.11.1] - Currently Open Files Auto-Sync Fix (pre-release) - 2026-08-26
 
 - **fix(provider):** reliably synchronize background and preview tabs in the built-in `Currently Open Files` group without requiring a view switch or manual refresh (#125, contributed by @jianfulin)
