@@ -429,7 +429,7 @@ describe('Menu Availability Matrix – Executable File (Built-in Group) (virtual
         await VSBrowser.instance.openResources(execFileAbsPath);
         await reloadVirtualTabsView();
 
-        // Give the extension time to process onDidChangeVisibleTextEditors,
+        // Give the extension time to process tabGroups.onDidChangeTabs,
         // then expand the built-in group so the file is visible in tree rows.
         const driver = VSBrowser.instance.driver;
         await driver.sleep(800);

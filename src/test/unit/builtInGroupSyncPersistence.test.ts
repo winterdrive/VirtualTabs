@@ -122,6 +122,49 @@ describe('TempFoldersProvider built-in group persistence', () => {
         expect(internals.saveGroups).not.toHaveBeenCalled();
     });
 
+    test('syncBuiltInGroup refreshes when editor-group topology changes with the same files', () => {
+        const fileA = 'file:///workspace/a.ts';
+        const fileB = 'file:///workspace/b.ts';
+        const builtIn: TempGroup = {
+            id: 'builtin_group_id',
+            name: 'Currently Open Files',
+            files: [fileA, fileB],
+            builtIn: true
+        };
+        const { provider, internals } = createProviderHarness([builtIn]);
+        internals.builtInEditorGroups = [
+            { viewColumn: 1, label: 'Editor Group 1', files: [fileA, fileB] }
+        ];
+        internals.computeEditorGroups.mockReturnValue([
+            { viewColumn: 1, label: 'Editor Group 1', files: [fileA] },
+            { viewColumn: 2, label: 'Editor Group 2', files: [fileB] }
+        ]);
+
+        expect(provider.syncBuiltInGroup()).toBe(true);
+        expect(builtIn.files).toEqual([fileA, fileB]);
+        expect(internals.builtInEditorGroups).toHaveLength(2);
+        expect(internals._onDidChangeTreeData.fire).toHaveBeenCalledWith(undefined);
+        expect(internals.saveGroups).not.toHaveBeenCalled();
+    });
+
+    test('syncBuiltInGroup ignores duplicate events when the snapshot is unchanged', () => {
+        const fileA = 'file:///workspace/a.ts';
+        const builtIn: TempGroup = {
+            id: 'builtin_group_id',
+            name: 'Currently Open Files',
+            files: [fileA],
+            builtIn: true
+        };
+        const { provider, internals } = createProviderHarness([builtIn]);
+        const snapshot = [{ viewColumn: 1, label: 'Editor Group 1', files: [fileA] }];
+        internals.builtInEditorGroups = snapshot;
+        internals.computeEditorGroups.mockReturnValue(snapshot);
+
+        expect(provider.syncBuiltInGroup()).toBe(false);
+        expect(internals._onDidChangeTreeData.fire).not.toHaveBeenCalled();
+        expect(internals.saveGroups).not.toHaveBeenCalled();
+    });
+
     test('custom group edits still use the normal persistence path', () => {
         const builtIn: TempGroup = {
             id: 'builtin_group_id',
