@@ -217,6 +217,9 @@ export class SkillGenerator {
 
     private static buildSkillBody(context: vscode.ExtensionContext, scriptRunPath: string): string {
         const templatePath = path.join(context.extensionPath, 'dist', 'skills', 'virtualtabs', 'SKILL.md');
+        if (!fs.existsSync(templatePath)) {
+            throw new Error(`SKILL.md template not found at ${templatePath}. Run 'npm run build:skills' first.`);
+        }
         const raw = fs.readFileSync(templatePath, 'utf-8');
         const body = raw.replace(/^---\n[\s\S]*?\n---\n\n?/, '');
         return body.replace(/\$\{scriptRunPath\}/g, scriptRunPath);
