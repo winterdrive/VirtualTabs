@@ -68,4 +68,42 @@ describe('FileManager relative-path membership', () => {
         expect(result.removed).toEqual([]);
         expect(result.notFound).toEqual([path.join(tmpDir, 'src', 'missing.ts')]);
     });
+
+    test('removeFilesFromGroup deletes bookmarks stored under the removed file so they do not linger orphaned', () => {
+        const { fm, gm } = setupWorkspace([{
+            id: 'group-1',
+            name: 'Test Group',
+            files: ['src/foo.ts', 'src/bar.ts'],
+            bookmarks: {
+                'src/foo.ts': [{ id: 'bm-1', line: 3, label: 'note', created: 1 }],
+                'src/bar.ts': [{ id: 'bm-2', line: 5, label: 'keep', created: 1 }]
+            }
+        }]);
+
+        const result = fm.removeFilesFromGroup('group-1', [path.join(tmpDir, 'src', 'foo.ts')]);
+
+        expect(result.removed).toEqual([path.join(tmpDir, 'src', 'foo.ts')]);
+
+        const { groups } = gm.loadGroups();
+        expect(groups[0].files).toEqual(['src/bar.ts']);
+        expect(groups[0].bookmarks).toEqual({
+            'src/bar.ts': [{ id: 'bm-2', line: 5, label: 'keep', created: 1 }]
+        });
+    });
+
+    test('removeFilesFromGroup clears the bookmarks field entirely once the last bookmark is removed', () => {
+        const { fm, gm } = setupWorkspace([{
+            id: 'group-1',
+            name: 'Test Group',
+            files: ['src/foo.ts'],
+            bookmarks: {
+                'src/foo.ts': [{ id: 'bm-1', line: 3, label: 'note', created: 1 }]
+            }
+        }]);
+
+        fm.removeFilesFromGroup('group-1', [path.join(tmpDir, 'src', 'foo.ts')]);
+
+        const { groups } = gm.loadGroups();
+        expect(groups[0].bookmarks).toBeUndefined();
+    });
 });

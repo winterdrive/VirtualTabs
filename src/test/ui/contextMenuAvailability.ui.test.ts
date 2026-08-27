@@ -745,7 +745,7 @@ describe('Menu Availability Matrix – File (Built-in Group) (virtualTabsFileBui
         // Open the file so it appears under "Currently Open Files"
         await VSBrowser.instance.openResources(testFileAbsPath);
 
-        // Give the extension time to process onDidChangeVisibleTextEditors,
+        // Give the extension time to process tabGroups.onDidChangeTabs,
         // then expand the built-in group so the file is visible in tree rows.
         const driver = VSBrowser.instance.driver;
         await driver.sleep(800);

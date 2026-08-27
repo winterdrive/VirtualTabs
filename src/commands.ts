@@ -811,24 +811,7 @@ export function registerCommands(
     // Duplicate built-in group
     context.subscriptions.push(vscode.commands.registerCommand('virtualTabs.duplicateBuiltInGroup', (item: TempFolderItem) => {
         if (typeof item?.groupIdx !== 'number') return;
-        const group = provider.groups[item.groupIdx];
-        if (!group || !group.builtIn) return;
-
-        // Generate new name
-        let base = I18n.getBuiltInGroupName();
-        let idx = 1;
-        let newName = I18n.getCopyGroupName(base);
-        while (provider.groups.some(g => g.name === newName)) {
-            idx++;
-            newName = I18n.getCopyGroupName(base, idx);
-        }
-
-        provider.groups.push({
-            id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
-            name: newName,
-            files: group.files ? [...group.files] : []
-        });
-        provider.refresh();
+        provider.duplicateBuiltInGroup(item.groupIdx);
     }));
 
     // Refresh built-in group
@@ -1235,6 +1218,9 @@ export function registerCommands(
             }
 
             const group = provider.groups[item.groupIdx];
+            if (!group) {
+                return;
+            }
             const updatedBookmark = BookmarkManager.updateLabel(item.bookmark, newLabel);
 
             BookmarkManager.updateBookmarkInGroup(
@@ -1269,6 +1255,9 @@ export function registerCommands(
             }
 
             const group = provider.groups[item.groupIdx];
+            if (!group) {
+                return;
+            }
             const updatedBookmark = BookmarkManager.updateDescription(
                 item.bookmark,
                 newDescription || undefined
@@ -1296,6 +1285,9 @@ export function registerCommands(
             }
 
             const group = provider.groups[item.groupIdx];
+            if (!group) {
+                return;
+            }
             const removed = BookmarkManager.removeBookmarkFromGroup(
                 group,
                 item.fileUri.toString(),

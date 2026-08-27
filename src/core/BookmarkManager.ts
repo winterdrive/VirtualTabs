@@ -176,8 +176,8 @@ export class BookmarkManager {
     }
 
     const group = groups[groupIndex];
-    if (line < 0) {
-      throw new Error('Line number must not be negative');
+    if (!Number.isInteger(line) || line < 0) {
+      throw new Error('Line number must be a non-negative integer');
     }
     if (!label || label.trim() === '') {
       throw new Error('Bookmark label must not be empty');
