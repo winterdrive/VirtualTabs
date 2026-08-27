@@ -15,7 +15,7 @@
 
 ## 🚀 What is VirtualTabs?
 
-**VirtualTabs is a VS Code extension that provides custom "Virtual File Directories" outside of your native file system.** Unlike standard directories, VirtualTabs helps you create **independent logical file groups** based on your current development theme, while also providing **AI-Ready Coding Context** for quick copying. It is perfectly suited for Monorepo projects or large-scale applications using MVVM or MVC architectures.
+**VirtualTabs is a VS Code extension that provides custom "Virtual File Directories" outside of your native file system.** Unlike standard directories, VirtualTabs helps you create **independent logical file groups** based on your current development theme — keeping your spatial awareness intact even in complex workspaces. It also provides **AI-Ready Coding Context** for quick copying. Perfectly suited for Monorepo projects or large-scale applications using MVVM or MVC architectures.
 
 ---
 
@@ -25,6 +25,7 @@
 | :--- | :--- | :--- |
 | **Persistence** | Cleared on session close | **Saved permanently** per workspace |
 | **Grouping** | Folder-based only | **Logic-based** (Cross-directory support) |
+| **Spatial Awareness** | Tabs pile up with no task context | **Task-oriented groups** with auto-reveal and sync |
 | **AI Context** | Hard to gather manually | **One-click context generation** for LLMs |
 
 ![VirtualTabs vs Physical File System](docs/assets/virtual_vs_physical_concept.png)
@@ -124,7 +125,7 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 
 ### 🤖 AI Context Export
 
-**The "Killer Feature" for LLM workflows.**
+**A power feature for LLM workflows.**
 
 1. Setup a group with all relevant files for your current task.
 2. Right-click the group → **Copy...** → **Copy Context for AI**.
@@ -140,7 +141,7 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
 
 VirtualTabs provides full AI agent integration via the **Model Context Protocol (MCP)**. Let your AI assistant (Cursor, Antigravity, Kiro, etc.) manage your workspace groups programmatically.
 
-- 🔌 **Standardized Tools**: Exposes 15+ tools for creating groups and explore the project.
+- 🔌 **Standardized Tools**: Exposes 19 tools for creating groups and exploring the project.
 - 🛡️ **Safety Mode**: Features a four-layer safety decision tree to prevent unintended disk changes.
   
   ![Safety Decision Tree](docs/assets/safety_decision_tree_en.png)
@@ -188,7 +189,7 @@ We welcome community contributions! Please check **[DEVELOPMENT.md](./DEVELOPMEN
 
 ---
 
-## 🔥 Recommended Companion
+## 🔥 Recommended Companions
 
 ### 🔥 Quick Prompt
 
@@ -202,6 +203,14 @@ We welcome community contributions! Please check **[DEVELOPMENT.md](./DEVELOPMEN
 Together, they reduce the cognitive overhead of AI-assisted development.
 
 Get Quick Prompt on [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=winterdrive.quick-prompt) | [**Open VSX Registry**](https://open-vsx.org/extension/winterdrive/quick-prompt)
+
+### 🔁 Edo Tensei
+
+**For when the AI session itself needs to move, not just your files.**
+
+VirtualTabs solves *where am I in the workspace*. [Edo Tensei](https://github.com/Pain-Labs/Edo-Tensei) solves what happens when your AI quota runs out or you switch IDEs mid-task — it extracts local session history and packages it into a handoff prompt so the next agent can pick up where the last one left off.
+
+Get Edo Tensei on [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=Pain-Labs.edo-tensei) | [**Open VSX Registry**](https://open-vsx.org/extension/Pain-Labs/edo-tensei)
 
 ---
 

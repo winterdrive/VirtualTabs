@@ -13,7 +13,9 @@
 
 ## VirtualTabs란?
 
-**VirtualTabs는 실제 파일 시스템 밖에 작업 중심의 "가상 파일 디렉터리"를 만드는 VS Code 확장입니다.** 파일을 이동하거나 복사하지 않고, 현재 작업 주제에 맞는 영구적인 논리 그룹을 만들 수 있으며, 이를 AI-ready context로 한 번에 복사할 수 있습니다. Monorepo, MVC, MVVM, 대규모 프로젝트에 적합합니다.
+**VirtualTabs는 실제 파일 시스템 밖에 작업 중심의 "가상 파일 디렉터리"를 만드는 VS Code 확장입니다.** 파일을 이동하거나 복사하지 않고, 현재 작업 주제에 맞는 영구적인 논리 그룹을 만들어 복잡한 워크스페이스에서도 공간적 방향 감각을 유지할 수 있습니다. AI-ready context로의 일괄 복사도 지원합니다. Monorepo, MVC, MVVM, 대규모 프로젝트에 적합합니다.
+
+---
 
 ![VirtualTabs vs Physical File System](assets/virtual_vs_physical_concept.png)
 
@@ -54,9 +56,11 @@ npx skills add winterdrive/vscode-virtual-tabs
 
 자세한 내용은 [MCP Setup Guide](mcp-setup.md)를 참고하세요.
 
-## 추천 companion
+## 추천 companions
 
 **Quick Prompt**는 VirtualTabs와 함께 쓰기 좋은 도구입니다. VirtualTabs는 파일을 작업 단위로 정리하고, Quick Prompt는 IDE 안에서 아이디어와 다음 작업을 기록합니다.
+
+**Edo Tensei**는 또 다른 문제를 해결합니다. VirtualTabs가 "워크스페이스 안에서 내가 지금 어디에 있는지"를 해결한다면, [Edo Tensei](https://github.com/Pain-Labs/Edo-Tensei)는 AI 사용량이 바닥나거나 작업 도중 IDE를 옮겨야 할 때의 문제를 해결합니다——로컬 session 기록을 추출해 인계용 프롬프트로 정리해 두어서, 다음 agent가 이전 agent가 멈춘 지점부터 이어서 작업할 수 있게 해줍니다. [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Pain-Labs.edo-tensei) 또는 [Open VSX Registry](https://open-vsx.org/extension/Pain-Labs/edo-tensei)에서 받을 수 있습니다.
 
 ## Support
 

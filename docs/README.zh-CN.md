@@ -13,7 +13,9 @@
 
 ## 什么是 VirtualTabs？
 
-**VirtualTabs 是一个 VS Code 扩展，在真实文件系统之外提供自定义“虚拟文件目录”。** 它不会移动或复制磁盘文件，而是让你围绕当前任务建立持久的逻辑文件组，并一键复制 AI-ready context。它特别适合 Monorepo、MVC、MVVM 和大型项目。
+**VirtualTabs 是一个 VS Code 扩展，在真实文件系统之外提供自定义"虚拟文件目录"。** 它不会移动或复制磁盘文件，而是让你围绕当前任务建立持久的逻辑文件组——即使在复杂工作区中也能保持空间方向感。同时也支持一键复制 AI-ready context。它特别适合 Monorepo、MVC、MVVM 和大型项目。
+
+---
 
 ![VirtualTabs vs Physical File System](assets/virtual_vs_physical_concept.png)
 
@@ -57,6 +59,8 @@ npx skills add winterdrive/vscode-virtual-tabs
 ## 推荐搭配
 
 **Quick Prompt** 是 VirtualTabs 的互补工具：VirtualTabs 负责把文件按任务组织好，Quick Prompt 负责在 IDE 内记录想法与后续任务，减少 AI 辅助开发时的上下文切换。
+
+**Edo Tensei** 解决的是另一个问题：VirtualTabs 帮你理清"自己在工作区的哪里"，而当 AI 额度用尽或需要中途切换 IDE 时，[Edo Tensei](https://github.com/Pain-Labs/Edo-Tensei) 会提取本机的 session 历史并打包成交接提示词，让下一个 agent 能接着上一个的进度继续。可在 [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Pain-Labs.edo-tensei) 或 [Open VSX Registry](https://open-vsx.org/extension/Pain-Labs/edo-tensei) 获取。
 
 ## 支持
 
