@@ -15,7 +15,7 @@
 
 ## 🚀 什麼是 VirtualTabs？
 
-**VirtualTabs 是一個 VS Code 擴充套件，在原生檔案目錄之外，提供自定義「虛擬檔案目錄」。** 不同於原生目錄，VirtualTabs 幫助您建立 **獨立的邏輯檔案群組**，可依照當前開發主題建立虛擬檔案目錄，同時也提供 **AI 就緒的編程上下文（AI-Ready Context）** 可快速複製。適合 Monorepo 專案或採用 MVVM、MVC 架構的大型專案。
+**VirtualTabs 是一個 VS Code 擴充套件，在原生檔案目錄之外，提供自定義「虛擬檔案目錄」。** 不同於原生目錄，VirtualTabs 幫助您建立 **獨立的邏輯檔案群組**，可依照當前開發主題建立虛擬檔案目錄——即使在複雜的工作區中也能維持您的空間方向感。同時也提供 **AI 就緒的編程上下文（AI-Ready Context）** 可快速複製。適合 Monorepo 專案或採用 MVVM、MVC 架構的大型專案。
 
 ---
 
@@ -25,6 +25,7 @@
 | :--- | :--- | :--- |
 | **持久性** | 關閉視窗即清除 | **永久保存** (依工作區記憶) |
 | **檔案分組** | 僅限資料夾結構 | **邏輯導向** (支援跨目錄) |
+| **空間感知** | 分頁堆積，缺乏任務脈絡 | **任務導向群組**，搭配自動追蹤與同步 |
 | **AI 上下文** | 需手動一一收集 | **一鍵生成** 給 LLM 的上下文 |
 
 ![VirtualTabs 虛擬與實體檔案系統概念圖](assets/virtual_vs_physical_concept.png)
@@ -124,7 +125,7 @@
 
 ### 🤖 AI 上下文匯出
 
-**LLM 工作流的殺手級功能。**
+**LLM 工作流的強力功能。**
 
 1. 定義一個與當面任務相關的檔案群組。
 2. 右鍵點擊群組 → **複製...** → **複製 AI 上下文 (Copy Context for AI)**。
@@ -140,7 +141,7 @@
 
 VirtualTabs 透過 **Model Context Protocol (MCP)** 提供完整的 AI Agent 整合。讓您的 AI 助手（Cursor, Antigravity, Kiro 等）能夠透過程式化管理您的工作區。
 
-- 🔌 **標準化工具**：提供 15+ 工具供 AI 建立群組及探索專案。
+- 🔌 **標準化工具**：提供 19 個工具供 AI 建立群組及探索專案。
 - 🛡️ **安全性**：具備四層安全決策樹，確保 AI 不會非預期地變動物理檔案。
 
   ![安全決策樹](assets/safety_decision_tree_zh.png)
@@ -202,6 +203,14 @@ VirtualTabs 透過 **Model Context Protocol (MCP)** 提供完整的 AI Agent 整
 兩者結合，大幅降低 AI 輔助開發的認知負荷。
 
 在 [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=winterdrive.quick-prompt) | [**Open VSX Registry**](https://open-vsx.org/extension/winterdrive/quick-prompt) 取得 Quick Prompt
+
+### 🔁 Edo Tensei
+
+**當需要搬動的不只是檔案，而是 AI session 本身。**
+
+VirtualTabs 解決的是「我在工作區的哪裡」。[Edo Tensei](https://github.com/Pain-Labs/Edo-Tensei) 解決的是 AI 額度用盡或任務中途要切換 IDE 時的問題——它會擷取本機的 session 歷史，打包成交接提示詞，讓下一個 agent 能從上一個中斷的地方接手。
+
+在 [**VS Code Marketplace**](https://marketplace.visualstudio.com/items?itemName=Pain-Labs.edo-tensei) | [**Open VSX Registry**](https://open-vsx.org/extension/Pain-Labs/edo-tensei) 取得 Edo Tensei
 
 ---
 
