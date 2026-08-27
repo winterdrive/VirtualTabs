@@ -2,7 +2,7 @@
 
 繁體中文 | [English](./TESTING.md)
 
-這是本儲存庫**自動化**測試套件（v0.11.0）目前維護中的權威參考文件。如果您發現有較舊的本地筆記描述特定過往議題的手動測試檢查清單，那些都不能反映目前實際的測試套件——請勿用來判斷目前的行為或覆蓋率。
+這是本儲存庫 **v0.13.0 pre-release 發版列車**自動化測試套件目前維護中的權威參考文件。目前根目錄基準為 **38 個套件／249 個測試**（34 個單元測試套件與 4 個屬性測試套件）。如果您發現有較舊的本地筆記描述特定過往議題的手動測試檢查清單，那些都不能反映目前實際的測試套件——請勿用來判斷目前的行為或覆蓋率。
 
 若您新增、重新命名或移除測試檔案，請在同一個 PR 中一併更新本文件。
 
@@ -41,24 +41,26 @@ editorGrouper/VirtualTabs 本身）共用同一份快取，而不必各自下載
 | `DropUriParser.test.ts` | 解析 `text/uri-list` 拖曳酬載（註解、空白行、CRLF、非字串值），從類似 `DataTransferFile` 的項目中擷取 URI，在保留原始順序的同時去除重複，並將拖曳的檔案格式化為適合聊天輸入的參照格式 |
 | `ScopeHeaderItem.test.ts` | `ScopeHeaderItem` 樹狀節點：工作區範圍與資料夾範圍的 label／contextValue、磁碟根目錄資料夾名稱的邊界情況、不可互動（`command === undefined`）時的行為 |
 | `addGroupScope.test.ts` | Add Group 的「自動判定 vs. 顯示範圍選擇器」邏輯（issues #17–#19）：當恰好只有一個啟用中的 repo 範圍時會自動選取它；零個、兩個以上，或僅有內建範圍啟用時，則回退為顯示選擇器；`BUILTIN_SCOPE_ID` 不計入「非內建啟用中」的計數 |
-| `autoGroupProviderRegression.test.ts` | 驅動**真實**的 `provider.ts` 中 `TempFoldersProvider` 程式碼路徑（而非手動鏡像的複本），測試依副檔名／修改日期自動分組（Auto Group）：書籤會隨檔案一起移動到新的子群組、來自內建群組的子群組在套用範圍篩選後仍然可見且絕不會被持久化進真實範圍，以及 `resetToDefault(scopeId)` 不會留下重複的內建群組 |
+| `autoGroupProviderRegression.test.ts` | 驅動**真實**的 `provider.ts` 中 `TempFoldersProvider` 程式碼路徑（而非手動鏡像的複本），測試依副檔名／修改日期自動分組（Auto Group）：書籤會隨檔案一起移動到新的子群組、無副檔名檔案會共用 `no-extension` 群組、來自內建群組的子群組在套用範圍篩選後仍然可見且絕不會被持久化進真實範圍，以及 `resetToDefault(scopeId)` 不會留下重複的內建群組 |
 | `autoGroupScopeId.test.ts` | `buildExtAutoGroups`／`buildDateAutoGroups` 會正確從其來源群組繼承 `sourceScopeId`／`sourceGroupId`，包括來源群組沒有 `sourceScopeId` 的情況，並確認非第一個範圍的群組不會被誤存進第一個範圍的設定檔中 |
 | `autoGrouperBookmarks.test.ts` | `AutoGrouper.groupByExtension`／`groupByDate` 會將書籤（不只是檔案）一併移動到新的子群組，包括儲存的書籤鍵值與檔案 URI 的 URI 編碼不同的情況，並在來源群組原本沒有書籤時保持其書籤不變 |
-| `bookmarkManager.test.ts` | `BookmarkManager` 在查詢用的 URI 序列化結果與儲存鍵值不同時的 URI 比對邏輯、透過正規化比對進行更新／移除、跨群組 `findBookmarkKey` 查詢（用於拖放移動），以及針對以工作區相對路徑儲存的 `createBookmark` 測試 |
+| `bookmarkManager.test.ts` | `BookmarkManager` 在查詢用的 URI 序列化結果與儲存鍵值不同時的 URI 比對邏輯、透過正規化比對進行更新／移除、跨群組 `findBookmarkKey` 查詢（用於拖放移動）、針對以工作區相對路徑儲存的 `createBookmark` 測試，以及拒絕非有限值或非整數的行號 |
 | `builtInGroupInit.test.ts` | 內建群組的注入條件：修正後的 `!groups.some(g => g.builtIn)` 判斷式，即使使用者群組已經存在也會注入內建群組（不同於舊版有問題的 `groups.length === 0` 判斷式，本檔案也將其列為有記錄的回歸基準一併測試），並確保內建群組永遠排在第一個且不會重複注入 |
+| `builtInGroupSyncPersistence.test.ts` | 內建分頁與 editor-group topology 快照會刷新 TreeView 而不重寫設定檔；重複事件會被忽略；scoped create 與 built-in Duplicate 會先呈現 UI，再只 debounce 儲存目標 scope；multi-root Duplicate 會進入 Workspace Config，single-folder 則進入其 folder scope |
 | `configReloadNotification.test.ts` | `buildReloadMessage`／`dispatchReloadNotification`：i18n 訊息的備援鏈（fallback chain）、成功時使用 `setStatusBarMessage`（3000ms）而非彈出視窗通知、在內部儲存或重新載入失敗時抑制通知 |
 | `copyGroupName.test.ts` | `I18n.stripCopyPostfix`：移除結尾的「copy」後綴（不論是否帶有索引數字）、不符合格式的名稱維持不變，並透過 `getCopyGroupName` 進行往返測試，確保重複複製不會疊加後綴 |
 | `dragAndDropHiddenFiles.test.ts` | 拖放資料夾展開時會過濾掉以點號開頭的隱藏資料夾（例如 `.git`），但仍會顯示以點號開頭的隱藏*檔案*（例如 `.gitignore`），並正確跳過隱藏資料夾底下的所有子項目 |
 | `dragHandleGroups.test.ts` | `handleDrag` 的群組收集邏輯（內建與自訂群組，包括巢狀子群組、跳過沒有 id 的群組、跨多個被拖曳群組的 URI 去重），以及 `EditorGroupItem` 依 viewColumn 收集／去重檔案的邏輯 |
 | `dragIsDescendantCycleGuard.test.ts` | `isDescendant` 針對群組拖放的循環防護機制：直接／多層子系回傳 true、不相關的群組回傳 false，且循環的 `parentGroupId` 鏈與指向自身的群組都會正確終止，而不會無限迴圈 |
 | `fileEntryMatcher.test.ts` | `matchesStoredFileEntry` 針對「相對路徑（含／不含 scope root）」、絕對路徑，以及 `file://` URI 等各種儲存路徑格式進行測試，包括字串形式不同但實際指向同一檔案的 URI，以及格式錯誤的 `file://` URI 會回傳 false 而非拋出例外 |
-| `fileManagerRelpath.test.ts` | `FileManager.addFilesToGroup`／`removeFilesFromGroup` 能正確辨識並操作以工作區相對路徑儲存的檔案，對於真正不存在的檔案仍會回報 `notFound` |
+| `fileManagerRelpath.test.ts` | `FileManager.addFilesToGroup`／`removeFilesFromGroup` 能正確辨識並操作以工作區相對路徑儲存的檔案，移除檔案時會同步清除 orphan bookmarks（包括最後一筆書籤移除後的欄位），對於真正不存在的檔案仍會回報 `notFound` |
 | `fileSorter.test.ts` | `FileSorter.sortFiles` 針對全部五種排序條件（none／name／path／extension／modified）的測試：「none」時的穩定性與不複製陣列的最佳化、name／path 的遞增／遞減排序且不修改原陣列、extension 排序時無副檔名優先且同副檔名以名稱作為決勝依據、modified 排序在 mtime 查詢失敗時退回 0 |
 | `groupAggregation.test.ts` | 跨多個範圍合併群組：總數量正確、每個群組都被注入 `sourceScopeId`、其他欄位維持不變，以及空範圍陣列／空群組的邊界情況 |
 | `groupFileRemoval.test.ts` | `removeStoredFileEntriesFromGroup`：當群組沒有檔案或沒有選取目標時不做任何動作，會移除所有被選取的相對路徑檔案，同時保留未比對到的書籤 |
 | `groupFileTargets.test.ts` | `groupItemsByGroupIdx`：沒有選取時回傳空 map、選取同一群組時回傳單一群組、跨多個群組時會依插入順序拆分 |
 | `groupManagerCacheIsolation.test.ts` | `GroupManager` 的載入快取：修改一次快取未命中（cache-miss）取得的結果，不會污染後續快取命中（cache-hit）的讀取結果，且每次呼叫 `loadGroups()` 都會回傳獨立的複本 |
 | `groupManagerNonArrayConfig.test.ts` | 當 `virtualTab.json` 的根節點是物件、純量、`null`，或是損毀檔案的備份本身也失敗時，`GroupManager` 會還原為空陣列的預設值（並嘗試建立備份） |
+| `getScopeLabel.test.ts` | Scope label 透過 `scope.label` 使用 VS Code 的 `WorkspaceFolder.name`，涵蓋 multi-root 自訂顯示名稱，以及 `path.basename` 會回傳空值的磁碟根目錄資料夾 |
 | `i18nGetMessage.test.ts` | `I18n.getMessage` 的佔位符替換：一般參數、參數中的字面 `$` 不會被當作替換樣式處理、參數中的 `$&`／`$$`／`$1` 樣式不會被展開、多個佔位符會各自獨立替換 |
 | `legacyMigration.test.ts` | 將舊版單一值設定 `virtualTabs.activeScope` 遷移至新版 `activeScopes` 陣列：非空的舊值會被包成陣列、只要新鍵存在就優先使用新鍵（即使是空陣列，代表「使用者已清除篩選」也一樣），且兩個鍵都不存在時回傳空值 |
 | `projectExplorerMaxResults.test.ts` | `ProjectExplorer.exploreProject` 的 `maxResults` 驗證：負數、零，以及非整數值都會回退為預設值（特別是負數不會從陣列尾端進行切片），有效的正數值仍會正確截斷 |
@@ -68,6 +70,7 @@ editorGrouper/VirtualTabs 本身）共用同一份快取，而不必各自下載
 | `ScopeHeaderItem.test.ts` | *（見上方）* |
 | `selfRootScopeCollisionRegression.test.ts` | **Issue/PR #116** —— 針對一個真實的暫存 self-root 專案目錄，模擬關閉／重新開啟的循環，驅動真實的 `discover()` → `reinitializeScopes()` → `GroupManager` 檔案 I/O → `saveGroupsImmediate()` 管線（搭配最小化模擬的 `vscode`），斷言持久化的群組數量絕不會增加；同時透過一個測試獨立驗證原始根因——證明即使 id 碰撞傳到 `groupManagers`，儲存時群組數量仍會加倍。之所以特別撰寫此測試，是因為 `ConfigScopeDiscovery.test.ts` 只涵蓋探索邏輯的手動鏡像複本，無法捕捉真實持久化路徑中的回歸問題 |
 | `sendToLoadTargets.test.ts` | `SendToManager.loadSendTargets` 會清理格式錯誤的目標項目：捨棄缺少 path 或 name 的項目、捨棄 path 陣列為空或非字串的項目、當清單全部格式錯誤時回傳空陣列，並保留有效項目不變 |
+| `skillGeneratorBuildSkillBody.test.ts` | 當封裝後的 `SKILL.md` template 缺失時回報可採取行動的錯誤；成功路徑則驗證移除 frontmatter 並代入產生的 script path |
 | `sourceScopeId.test.ts` | 用於追蹤群組來源範圍的 `sourceScopeId` 欄位之注入／移除／路由邏輯：注入時不影響其他欄位、移除時會從序列化後的 JSON 中剔除該欄位，路由邏輯則會跳過 `sourceScopeId` 無效或缺失的群組 |
 
 ## 基於屬性的測試（`src/test/properties/`）
