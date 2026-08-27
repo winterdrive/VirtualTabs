@@ -2,6 +2,19 @@
 
 All notable changes to the "VirtualTabs" extension will be documented in this file.
 
+## [0.13.0] - Multi-Root & State-Consistency Batch (pre-release) - 2026-08-27
+
+- **fix(commands):** duplicate the built-in `Currently Open Files` group into an explicit target scope, show it immediately, and persist only that scope; multi-root workspaces use `Workspace Config`, while single-folder windows use their folder scope (#140, fixes #138).
+- **fix(provider):** synchronize editor-group topology changes such as split creation/removal and group reordering through `tabGroups.onDidChangeTabGroups`, while snapshot guards suppress duplicate TreeView refreshes (#141, fixes #129).
+- **fix(provider):** group extensionless files together under `no-extension` instead of creating a separate Auto Group for each filename (#120).
+- **fix(core):** display VS Code's configured workspace-folder label, including custom multi-root names and filesystem-root folders (#121).
+- **fix(commands):** ignore bookmark edit/remove commands whose captured group index is stale instead of dereferencing a missing group (#122).
+- **fix(core):** remove orphaned bookmarks when MCP-driven file removal drops their file from a group (#126).
+- **fix(core):** reject non-finite and non-integer bookmark line numbers at the shared core boundary (#127).
+- **fix(mcp):** report an actionable error when the packaged `SKILL.md` template is missing (#128).
+- **docs(testing):** refresh the maintained automated-testing reference for the current 38-suite / 249-test baseline (#123).
+- **Known monitoring item:** Windows `EBADF` config-save failures have not reappeared in recent smoke tests, but the underlying synchronous persistence strategy remains tracked in #135 and is not claimed fixed by this release.
+
 ## [0.12.0] - Stable Release: Reliable Tab Sync & Faster Cold Start - 2026-08-26
 
 - **Stable Promotion:** promotes the tested `0.11.1` and `0.11.2` pre-release fixes to the stable tier.
