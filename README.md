@@ -4,10 +4,11 @@
 [![Open VSX Version](https://img.shields.io/open-vsx/v/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/vscode-virtual-tabs/llms.txt)
+[![Presented at COSCUP 2026](https://img.shields.io/badge/Presented%20at-COSCUP%202026-orange?style=flat-square)](https://coscup.org/2026/session/9CYHJT/)
 <!-- [![VS Marketplace Installs](https://vsmarketplacebadges.dev/installs-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs) -->
 <!-- [![VS Marketplace Downloads](https://vsmarketplacebadges.dev/downloads-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs) -->
 
-[繁體中文](./docs/README.zh-TW.md) | [日本語](./docs/README.ja.md) | [한국어](./docs/README.ko.md) | [简体中文](./docs/README.zh-CN.md) | English
+[繁體中文](./docs/zh-TW/README.md) | [日本語](./docs/ja/README.md) | [한국어](./docs/ko/README.md) | [简体中文](./docs/zh-CN/README.md) | English
 
 ![VirtualTabs - VS Code File Grouping and AI Context Extension](docs/assets/vscode-virtualtabs-grouping-banner.png)
 
@@ -53,6 +54,8 @@ In MVC/MVVM or large-scale projects, related files are often scattered across de
   └── 📁📚 Unit Tests (Logic/Testing)
   │   └── theme.test.ts
 ```
+
+*Why does VirtualTabs exist? [Read the philosophy](docs/PHILOSOPHY.md) → presented at [COSCUP 2026](https://coscup.org/2026/session/9CYHJT/)*
 
 ---
 

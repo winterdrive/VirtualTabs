@@ -4,10 +4,11 @@
 [![Open VSX Version](https://img.shields.io/open-vsx/v/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/vscode-virtual-tabs/llms.txt)
+[![Presented at COSCUP 2026](https://img.shields.io/badge/Presented%20at-COSCUP%202026-orange?style=flat-square)](https://coscup.org/2026/session/9CYHJT/)
 
-[繁體中文](README.zh-TW.md) | [English](../README.md) | [日本語](README.ja.md) | [한국어](README.ko.md) | 简体中文
+[繁體中文](../zh-TW/README.md) | [English](../../README.md) | [日本語](../ja/README.md) | [한국어](../ko/README.md) | 简体中文
 
-![VirtualTabs - VS Code File Grouping and AI Context Extension](assets/vscode-virtualtabs-grouping-banner.png)
+![VirtualTabs - VS Code File Grouping and AI Context Extension](../assets/vscode-virtualtabs-grouping-banner.png)
 
 ---
 
@@ -17,11 +18,15 @@
 
 ---
 
-![VirtualTabs vs Physical File System](assets/virtual_vs_physical_concept.png)
+![VirtualTabs vs Physical File System](../assets/virtual_vs_physical_concept.png)
+
+*为什么会有 VirtualTabs？[阅读完整理念](PHILOSOPHY.md) → 曾在 [COSCUP 2026](https://coscup.org/2026/session/9CYHJT/) 发表*
+
+---
 
 ## 快速开始
 
-![VirtualTabs 产品演示](assets/virtualtabs-product-demo.gif)
+![VirtualTabs 产品演示](../assets/virtualtabs-product-demo.gif)
 
 1. 在 VS Code 扩展市场搜索 **VirtualTabs** 并安装。
 2. 打开左侧 Activity Bar 的 **VirtualTabs** 面板。
@@ -54,7 +59,7 @@ npx skills add winterdrive/vscode-virtual-tabs
 
 只有需要自行写入指定 agent 的 skill/rule 文件时，才选择 **Generate Skill Files Manually**。生成的内容会说明 VirtualTabs 组是虚拟的、应优先使用 MCP 工具，并避免误改真实文件系统。
 
-详细设置请参阅 [MCP Setup Guide](mcp-setup.md)。
+详细设置请参阅 [MCP Setup Guide](../mcp-setup.md)。
 
 ## 推荐搭配
 
@@ -65,7 +70,7 @@ npx skills add winterdrive/vscode-virtual-tabs
 ## 支持
 
 - [Bug 回报 / 功能建议](https://github.com/winterdrive/virtual-tabs/issues)
-- [更新日志](../CHANGELOG.md)
-- [开发文档](../DEVELOPMENT.md)
+- [更新日志](../../CHANGELOG.md)
+- [开发文档](../../DEVELOPMENT.md)
 
-**License**: [MIT](../LICENSE)
+**License**: [MIT](../../LICENSE)
