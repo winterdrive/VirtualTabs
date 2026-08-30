@@ -4,12 +4,13 @@
 [![Open VSX Version](https://img.shields.io/open-vsx/v/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/vscode-virtual-tabs/llms.txt)
+[![Presented at COSCUP 2026](https://img.shields.io/badge/Presented%20at-COSCUP%202026-orange?style=flat-square)](https://coscup.org/2026/session/9CYHJT/)
 <!-- [![VS Marketplace Installs](https://vsmarketplacebadges.dev/installs-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs) -->
 <!-- [![VS Marketplace Downloads](https://vsmarketplacebadges.dev/downloads-short/winterdrive.virtual-tabs.svg)](https://marketplace.visualstudio.com/items?itemName=winterdrive.virtual-tabs) -->
 
-繁體中文 | **[English](../README.md)** | [日本語](README.ja.md) | [한국어](README.ko.md) | [简体中文](README.zh-CN.md)
+繁體中文 | **[English](../../README.md)** | [日本語](../ja/README.md) | [한국어](../ko/README.md) | [简体中文](../zh-CN/README.md)
 
-![VirtualTabs - VS Code File Grouping and AI Context Extension](assets/vscode-virtualtabs-grouping-banner.png)
+![VirtualTabs - VS Code File Grouping and AI Context Extension](../assets/vscode-virtualtabs-grouping-banner.png)
 
 ---
 
@@ -28,7 +29,7 @@
 | **空間感知** | 分頁堆積，缺乏任務脈絡 | **任務導向群組**，搭配自動追蹤與同步 |
 | **AI 上下文** | 需手動一一收集 | **一鍵生成** 給 LLM 的上下文 |
 
-![VirtualTabs 虛擬與實體檔案系統概念圖](assets/virtual_vs_physical_concept.png)
+![VirtualTabs 虛擬與實體檔案系統概念圖](../assets/virtual_vs_physical_concept.png)
 
 ### 🧩 解決開發中的痛點
 
@@ -54,11 +55,13 @@
       └── theme.test.ts
 ```
 
+*為什麼會有 VirtualTabs？[閱讀完整理念](PHILOSOPHY.md) → 曾在 [COSCUP 2026](https://coscup.org/2026/session/9CYHJT/) 發表*
+
 ---
 
 ## 🚀 快速開始 (Quick Start)
 
-![VirtualTabs 產品示範](assets/virtualtabs-product-demo.gif)
+![VirtualTabs 產品示範](../assets/virtualtabs-product-demo.gif)
 
 ### 安裝
 
@@ -112,7 +115,7 @@
   - **資料夾**：拖入資料夾可遞迴加入內部檔案；會略過名稱以 `.` 開頭的資料夾，但仍會加入 `.gitignore` 等 dotfile。
   - **多選**：按住 `Ctrl/Cmd` 選取多個檔案後一次拖入。
 
-![拖放操作示範](assets/drag_drop_demo.png)
+![拖放操作示範](../assets/drag_drop_demo.png)
 
 ### 🔖 任務導向書籤
 
@@ -121,7 +124,7 @@
 3. 點擊即可瞬間跳轉至該行。
 4. 可編輯標籤與描述，記錄 *為什麼* 這一行很重要。
 
-![書籤功能示範](assets/bookmarks_feature.png)
+![書籤功能示範](../assets/bookmarks_feature.png)
 
 ### 🤖 AI 上下文匯出
 
@@ -133,7 +136,7 @@
     - **智慧**：自動跳過二進位檔；過大的檔案 (>50KB) 會幫您開啟以供檢視。
     - **整潔**：所有程式碼皆已格式化為帶有路徑的 Markdown 區塊。
 
-![AI 上下文示範](assets/ai_context_demo.png)
+![AI 上下文示範](../assets/ai_context_demo.png)
 
 ---
 
@@ -144,7 +147,7 @@ VirtualTabs 透過 **Model Context Protocol (MCP)** 提供完整的 AI Agent 整
 - 🔌 **標準化工具**：提供 19 個工具供 AI 建立群組及探索專案。
 - 🛡️ **安全性**：具備四層安全決策樹，確保 AI 不會非預期地變動物理檔案。
 
-  ![安全決策樹](assets/safety_decision_tree_zh.png)
+  ![安全決策樹](../assets/safety_decision_tree_zh.png)
 
 - ⚙️ **輕鬆配置**：使用 **MCP 設定面板** (命令：`VirtualTabs: Show MCP Config`) 獲取現成配置。
 - 🧠 **Agent Skills**：執行 **VirtualTabs: Install Agent Skill**，選擇 **Auto Install (Recommended)** 安裝正式 `virtualtabs` skill。你也可以直接執行同一條安裝命令：
@@ -155,7 +158,7 @@ VirtualTabs 透過 **Model Context Protocol (MCP)** 提供完整的 AI Agent 整
 
   只有需要自行寫入指定 agent 的 skill/rule 檔案時，才選 **Generate Skill Files Manually**。
 
-👉 **詳細配置請參閱 [MCP 設定指南](mcp-setup.zh-TW.md)。**
+👉 **詳細配置請參閱 [MCP 設定指南](../mcp-setup.zh-TW.md)。**
 
 ---
 
@@ -183,7 +186,7 @@ VirtualTabs 透過 **Model Context Protocol (MCP)** 提供完整的 AI Agent 整
 
 ## 🤝 參與貢獻
 
-我們熱烈歡迎社群貢獻！請查看 **[DEVELOPMENT.md](../DEVELOPMENT.md)** 了解開發環境設定與除錯指南。
+我們熱烈歡迎社群貢獻！請查看 **[DEVELOPMENT.md](../../DEVELOPMENT.md)** 了解開發環境設定與除錯指南。
 
 - 🐞 [Bug 回報/功能建議](https://github.com/winterdrive/virtual-tabs/issues)
 
@@ -216,7 +219,7 @@ VirtualTabs 解決的是「我在工作區的哪裡」。[Edo Tensei](https://gi
 
 ## 📅 更新日誌
 
-👉 完整版本歷史請見 [CHANGELOG.md](../CHANGELOG.md)。
+👉 完整版本歷史請見 [CHANGELOG.md](../../CHANGELOG.md)。
 
 ---
 
@@ -226,6 +229,6 @@ VirtualTabs 解決的是「我在工作區的哪裡」。[Edo Tensei](https://gi
 
 <a href="https://ko-fi.com/Q5Q41SR5WO"><img src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" height="36" alt="ko-fi" /></a>
 
-**授權碼**: [MIT](../LICENSE)
+**授權碼**: [MIT](../../LICENSE)
 
 **更聰明地組織，更快速地編寫。** 🚀

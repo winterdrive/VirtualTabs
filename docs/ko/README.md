@@ -4,10 +4,11 @@
 [![Open VSX Version](https://img.shields.io/open-vsx/v/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/winterdrive/virtual-tabs)](https://open-vsx.org/extension/winterdrive/virtual-tabs)
 [![AI-Ready Context](https://img.shields.io/badge/AI--Ready-LLMS.txt-blue?style=flat-square)](https://winterdrive.github.io/vscode-virtual-tabs/llms.txt)
+[![Presented at COSCUP 2026](https://img.shields.io/badge/Presented%20at-COSCUP%202026-orange?style=flat-square)](https://coscup.org/2026/session/9CYHJT/)
 
-[繁體中文](README.zh-TW.md) | [English](../README.md) | [日本語](README.ja.md) | 한국어 | [简体中文](README.zh-CN.md)
+[繁體中文](../zh-TW/README.md) | [English](../../README.md) | [日本語](../ja/README.md) | 한국어 | [简体中文](../zh-CN/README.md)
 
-![VirtualTabs - VS Code File Grouping and AI Context Extension](assets/vscode-virtualtabs-grouping-banner.png)
+![VirtualTabs - VS Code File Grouping and AI Context Extension](../assets/vscode-virtualtabs-grouping-banner.png)
 
 ---
 
@@ -17,11 +18,15 @@
 
 ---
 
-![VirtualTabs vs Physical File System](assets/virtual_vs_physical_concept.png)
+![VirtualTabs vs Physical File System](../assets/virtual_vs_physical_concept.png)
+
+*VirtualTabs가 존재하는 이유는? [철학 읽어보기](PHILOSOPHY.md) → [COSCUP 2026](https://coscup.org/2026/session/9CYHJT/)에서 발표*
+
+---
 
 ## Quick Start
 
-![VirtualTabs product demo](assets/virtualtabs-product-demo.gif)
+![VirtualTabs product demo](../assets/virtualtabs-product-demo.gif)
 
 1. VS Code Marketplace에서 **VirtualTabs**를 검색해 설치합니다.
 2. Activity Bar에서 **VirtualTabs** 뷰를 엽니다.
@@ -54,7 +59,7 @@ npx skills add winterdrive/vscode-virtual-tabs
 
 특정 agent용 skill/rule 파일을 직접 써야 할 때만 **Generate Skill Files Manually**를 선택합니다. 생성되는 내용에는 VirtualTabs 그룹이 실제 파일 시스템 폴더가 아니라 가상 그룹이라는 점도 명확히 포함됩니다.
 
-자세한 내용은 [MCP Setup Guide](mcp-setup.md)를 참고하세요.
+자세한 내용은 [MCP Setup Guide](../mcp-setup.md)를 참고하세요.
 
 ## 추천 companions
 
@@ -65,7 +70,7 @@ npx skills add winterdrive/vscode-virtual-tabs
 ## Support
 
 - [Bug reports / feature requests](https://github.com/winterdrive/virtual-tabs/issues)
-- [Changelog](../CHANGELOG.md)
-- [Development guide](../DEVELOPMENT.md)
+- [Changelog](../../CHANGELOG.md)
+- [Development guide](../../DEVELOPMENT.md)
 
-**License**: [MIT](../LICENSE)
+**License**: [MIT](../../LICENSE)
